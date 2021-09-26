@@ -1,0 +1,39 @@
+<Project>
+	<PropertyGroup>
+		<LangVersion>latest</LangVersion>
+	</PropertyGroup>
+
+	<PropertyGroup>
+		<Configurations>Debug;Release</Configurations>
+		<OutputPath Condition="'$(OutputPath)' == ''">bin\$(Configuration)</OutputPath>
+	</PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)' == 'Debug'">
+		<DefineConstants>DEBUG;TRACE</DefineConstants>
+		<Optimize>false</Optimize>
+		<DebugType>full</DebugType>
+		<DebugSymbols>true</DebugSymbols>
+	</PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)' != 'Debug'">
+		<Optimize>true</Optimize>
+		<DebugType>pdbonly</DebugType>
+		<DefineConstants>TRACE</DefineConstants>
+	</PropertyGroup>
+
+	<!-- We want to use PackageReference with packages.lock.json for dependencies management -->
+	<PropertyGroup>
+		<RestoreProjectStyle>PackageReference</RestoreProjectStyle>
+		<RestoreUseStaticGraphEvaluation>true</RestoreUseStaticGraphEvaluation>
+		<RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
+		<DisableImplicitNuGetFallbackFolder>true</DisableImplicitNuGetFallbackFolder>
+	</PropertyGroup>
+
+	<ItemDefinitionGroup>
+		<!-- 
+			We don't want to be able to compile code against transitive dependencies, 
+			but still want them to be copied to the output directory 
+		-->
+		<PackageReference>
+			<PrivateAssets>contentfiles;analyzers;build;compile</PrivateAssets>
+		</PackageReference>
+	</ItemDefinitionGroup>
+</Project>
