@@ -46,13 +46,13 @@ namespace Reseed
 
 		public override string ToString() => $"Script: {Name}";
 
-		public DbScript Map([NotNull] Func<string, string> mapper, string name = null)
+		internal DbScript Map([NotNull] Func<string, string> mapper, string name = null)
 		{
 			if (mapper == null) throw new ArgumentNullException(nameof(mapper));
 			return new DbScript(name ?? Name, mapper(this.Text));
 		}
 
-		public static DbScript Join([NotNull] string name, [NotNull] IEnumerable<DbScript> scripts)
+		internal static DbScript Join([NotNull] string name, [NotNull] IEnumerable<DbScript> scripts)
 		{
 			if (name == null) throw new ArgumentNullException(nameof(name));
 			if (scripts == null) throw new ArgumentNullException(nameof(scripts));
@@ -111,7 +111,8 @@ namespace Reseed
 		public readonly DbActionStage Stage;
 		public readonly IReadOnlyCollection<OrderedItem<IDbAction>> Actions;
 
-		public DbStep(DbActionStage stage, 
+		public DbStep(
+			DbActionStage stage, 
 			[NotNull] IReadOnlyCollection<OrderedItem<IDbAction>> actions)
 		{
 			this.Stage = stage;

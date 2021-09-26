@@ -31,7 +31,7 @@ namespace Reseed.Rendering.Internals
 		public static IReadOnlyCollection<OrderedItem<DbScript>> RenderDeleteDataProcedure(
 			[NotNull] ObjectName name,
 			[NotNull] OrderedGraph<TableSchema> schemas,
-			[NotNull] DataCleanupOptions options)
+			[NotNull] CleanupOptions options)
 		{
 			if (name == null) throw new ArgumentNullException(nameof(name));
 			if (schemas == null) throw new ArgumentNullException(nameof(schemas));

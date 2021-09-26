@@ -14,7 +14,7 @@ using static Reseed.Rendering.Internals.CommonScriptNames;
 
 namespace Reseed
 {
-	internal static class ScriptRenderer
+	internal static class Renderer
 	{
 		public static DbActions Render(
 			[NotNull] OrderedGraph<TableSchema> tables,

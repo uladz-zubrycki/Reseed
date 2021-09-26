@@ -2,38 +2,39 @@
 using System.Data.SqlClient;
 using JetBrains.Annotations;
 using Reseed.Schema;
+using Reseed.Utils;
 
 namespace Reseed.Rendering
 {
 	public abstract class RenderMode
 	{
-		public readonly DataCleanupOptions CleanupOptions;
+		public readonly CleanupOptions CleanupOptions;
 
-		protected RenderMode([NotNull] DataCleanupOptions cleanupOptions)
+		protected RenderMode([NotNull] CleanupOptions cleanupOptions)
 		{
 			this.CleanupOptions = cleanupOptions ?? throw new ArgumentNullException(nameof(cleanupOptions));
 		}
 
-		public static RenderMode Script([NotNull] DataCleanupOptions cleanupOptions) =>
+		public static RenderMode Script([NotNull] CleanupOptions cleanupOptions) =>
 			new ScriptMode(cleanupOptions);
 
 		public static RenderMode StoredProcedure(
 			[NotNull] ObjectName insertProcedureName,
 			[NotNull] ObjectName deleteProcedureName,
-			[NotNull] DataCleanupOptions cleanupOptions) =>
+			[NotNull] CleanupOptions cleanupOptions) =>
 			new StoredProcedureMode(insertProcedureName, deleteProcedureName, cleanupOptions);
 
 		public static RenderMode TempTable(
 			[NotNull] string tempSchemaName,
 			[NotNull] TempTableInsertMode insertOptions,
 			[NotNull] ObjectName deleteProcedureName,
-			[NotNull] DataCleanupOptions cleanupOptions) =>
+			[NotNull] CleanupOptions cleanupOptions) =>
 			new TempTableMode(tempSchemaName, insertOptions, deleteProcedureName, cleanupOptions);
 	}
 
 	internal sealed class ScriptMode : RenderMode
 	{
-		public ScriptMode([NotNull] DataCleanupOptions cleanupOptions)
+		public ScriptMode([NotNull] CleanupOptions cleanupOptions)
 			: base(cleanupOptions) { }
 	}
 
@@ -45,7 +46,7 @@ namespace Reseed.Rendering
 		public StoredProcedureMode(
 			[NotNull] ObjectName insertProcedureName,
 			[NotNull] ObjectName deleteProcedureName,
-			[NotNull] DataCleanupOptions cleanupOptions)
+			[NotNull] CleanupOptions cleanupOptions)
 			: base(cleanupOptions)
 		{
 			this.InsertProcedureName =
@@ -65,7 +66,7 @@ namespace Reseed.Rendering
 			[NotNull] string tempSchemaName,
 			[NotNull] TempTableInsertMode insertOptions,
 			[NotNull] ObjectName deleteProcedureName,
-			[NotNull] DataCleanupOptions cleanupOptions)
+			[NotNull] CleanupOptions cleanupOptions)
 			: base(cleanupOptions)
 		{
 			if (string.IsNullOrEmpty(tempSchemaName))
@@ -114,7 +115,7 @@ namespace Reseed.Rendering
 		public TempTableSqlBulkCopyInsertMode(
 			Func<SqlBulkCopyOptions, SqlBulkCopyOptions> customizeOptions = null)
 		{
-			this.CustomizeOptions = customizeOptions ?? (_ => _);
+			this.CustomizeOptions = customizeOptions ?? Fn.Identity<SqlBulkCopyOptions>();
 		}
 	}
 }

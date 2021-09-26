@@ -9,6 +9,7 @@ using static Reseed.Ordering.OrderedItem;
 
 namespace Reseed.Schema
 {
+	// todo: Replace anons by dtos and extract methods
 	internal static class SchemaReader
 	{
 		internal static IReadOnlyCollection<TableData> LoadTables(SqlConnection connection)
@@ -99,6 +100,11 @@ namespace Reseed.Schema
 						OriginId = r.GetInt32(cs["OriginId"]),
 						ReferenceId = r.GetInt32(cs["ReferenceId"])
 					});
+
+			if (foreignKeysData.Count == 0)
+			{
+				return Array.Empty<Relation<TableData>>();
+			}
 
 			var columns = ExecuteQuery(
 				connection,
@@ -207,7 +213,7 @@ namespace Reseed.Schema
 			|		col.[column_id] = fk.[parent_column_id]) OR
 			|	(col.[object_id] = fk.[referenced_object_id] AND 
 			|		col.[column_id] = fk.[referenced_column_id])
-			|WHERE constraint_object_id IN (%FK_IDS%)"
+			|WHERE 0 = %FK_COUNT% OR constraint_object_id IN (%FK_IDS%)"
 			.Replace(
 				"%FK_IDS%",
 				string.Join(",", foreignKeyIds.Select(id => $"'{id}'")))

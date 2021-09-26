@@ -8,7 +8,6 @@ using Reseed.Data;
 using Reseed.Graphs;
 using Reseed.Ordering;
 using Reseed.Rendering;
-using Reseed.Rendering.Internals;
 using Reseed.Schema;
 using Reseed.Validation;
 
@@ -16,14 +15,19 @@ namespace Reseed
 {
 	public sealed class Seeder
 	{
+		private readonly string connectionString;
+
+		public Seeder([NotNull] string connectionString)
+		{
+			this.connectionString = connectionString ?? throw new ArgumentNullException(nameof(connectionString));
+		}
+
 		// todo: refactor api to support independent Insert/Delete actions rendering
 		public DbActions Generate(
 			[NotNull] RenderMode mode,
-			[NotNull] string connectionString, 
 			[NotNull] string dataFolder)
 		{
 			if (mode == null) throw new ArgumentNullException(nameof(mode));
-			if (connectionString == null) throw new ArgumentNullException(nameof(connectionString));
 			if (dataFolder == null) throw new ArgumentNullException(nameof(dataFolder));
 
 			IReadOnlyCollection<Entity> entities = DataReader.LoadData(dataFolder);
@@ -33,15 +37,16 @@ namespace Reseed
 
 			OrderedGraph<TableSchema> orderedSchemas = NodeOrderer<TableSchema>.Order(schemas);
 			IReadOnlyCollection<OrderedItem<ITableContainer>> containers = TableOrderer.Order(tables, orderedSchemas);
-			return ScriptRenderer.Render(orderedSchemas, containers, mode);
+			return Renderer.Render(orderedSchemas, containers, mode);
 		}
 
-		public void Execute(
-			[NotNull] IReadOnlyCollection<OrderedItem<IDbAction>> actions,
-			[NotNull] string connectionString)
+		public void Execute([NotNull] IReadOnlyCollection<OrderedItem<IDbAction>> actions)
 		{
 			if (actions == null) throw new ArgumentNullException(nameof(actions));
-			if (connectionString == null) throw new ArgumentNullException(nameof(connectionString));
+			if (actions.Count == 0)
+			{
+				return;
+			}
 
 			using var connection = new SqlConnection(connectionString);
 			connection.Open();

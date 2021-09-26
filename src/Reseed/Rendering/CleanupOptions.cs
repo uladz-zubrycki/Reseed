@@ -7,14 +7,14 @@ using Reseed.Utils;
 
 namespace Reseed.Rendering
 {
-	public sealed class DataCleanupOptions
+	public sealed class CleanupOptions
 	{
-		public readonly DataCleanupMode Mode;
+		internal readonly CleanupMode Mode;
 		private readonly IDataCleanupFilter filter;
 		private readonly Dictionary<ObjectName, string> customScripts;
 
-		private DataCleanupOptions(
-			DataCleanupMode mode,
+		private CleanupOptions(
+			CleanupMode mode,
 			[NotNull] IDataCleanupFilter filter,
 			[NotNull] IReadOnlyCollection<(ObjectName table, string script)> customScripts)
 		{
@@ -38,34 +38,34 @@ namespace Reseed.Rendering
 			return this.customScripts.TryGetValue(table, out script);
 		}
 
-		public static DataCleanupOptions CleanAll(
-			DataCleanupMode mode,
-			[NotNull] Func<ExcludingDataCleanupFilter, ExcludingDataCleanupFilter> setup,
+		public static CleanupOptions IncludeAll(
+			CleanupMode mode,
+			[CanBeNull] Func<ExcludingDataCleanupFilter, ExcludingDataCleanupFilter> configure = null,
 			[CanBeNull] IReadOnlyCollection<(ObjectName table, string script)> customScripts = null)
 		{
-			if (setup == null) throw new ArgumentNullException(nameof(setup));
-			ExcludingDataCleanupFilter filter = setup(new ExcludingDataCleanupFilter());
-			return new DataCleanupOptions(
+			var configureFilter = configure ?? Fn.Identity<ExcludingDataCleanupFilter>();
+			var filter = configureFilter(new ExcludingDataCleanupFilter());
+			return new CleanupOptions(
 				mode,
 				filter,
 				customScripts ?? Array.Empty<(ObjectName table, string script)>());
 		}
 
-		public static DataCleanupOptions CleanNone(
-			DataCleanupMode mode,
-			[NotNull] Func<IncludingDataCleanupFilter, IncludingDataCleanupFilter> setup,
+		public static CleanupOptions IncludeNone(
+			CleanupMode mode,
+			[CanBeNull] Func<IncludingDataCleanupFilter, IncludingDataCleanupFilter> configure = null,
 			[CanBeNull] IReadOnlyCollection<(ObjectName table, string script)> customScripts = null)
 		{
-			if (setup == null) throw new ArgumentNullException(nameof(setup));
-			IncludingDataCleanupFilter filter = setup(new IncludingDataCleanupFilter());
-			return new DataCleanupOptions(
-				mode, 
+			var configureFilter = configure ?? Fn.Identity<IncludingDataCleanupFilter>();
+			var filter = configureFilter(new IncludingDataCleanupFilter());
+			return new CleanupOptions(
+				mode,
 				filter,
 				customScripts ?? Array.Empty<(ObjectName table, string script)>());
 		}
 
 		private static void VerifyCustomScripts(
-			IReadOnlyCollection<(ObjectName table, string script)> customScripts, 
+			IReadOnlyCollection<(ObjectName table, string script)> customScripts,
 			IDataCleanupFilter filter)
 		{
 			var duplicatedTables = customScripts
@@ -100,15 +100,15 @@ namespace Reseed.Rendering
 
 	internal interface IDataCleanupFilter
 	{
-		bool ShouldClean(ObjectName table); 
+		bool ShouldClean(ObjectName table);
 	}
 
-	public sealed class ExcludingDataCleanupFilter: IDataCleanupFilter
+	public sealed class ExcludingDataCleanupFilter : IDataCleanupFilter
 	{
 		private readonly List<string> excludedSchemas = new List<string>();
 		private readonly List<ObjectName> excludedTables = new List<ObjectName>();
 
-		public ExcludingDataCleanupFilter ExceptSchemas([NotNull] params string[] schemas)
+		public ExcludingDataCleanupFilter ExcludeSchemas([NotNull] params string[] schemas)
 		{
 			if (schemas == null) throw new ArgumentNullException(nameof(schemas));
 			if (schemas.Length == 0)
@@ -118,7 +118,7 @@ namespace Reseed.Rendering
 			return this;
 		}
 
-		public ExcludingDataCleanupFilter ExceptTables([NotNull] params ObjectName[] tables)
+		public ExcludingDataCleanupFilter ExcludeTables([NotNull] params ObjectName[] tables)
 		{
 			if (tables == null) throw new ArgumentNullException(nameof(tables));
 			if (tables.Length == 0) throw new ArgumentException("Value cannot be an empty collection.", nameof(tables));
@@ -132,7 +132,7 @@ namespace Reseed.Rendering
 			!this.excludedTables.Contains(table);
 	}
 
-	public sealed class IncludingDataCleanupFilter: IDataCleanupFilter
+	public sealed class IncludingDataCleanupFilter : IDataCleanupFilter
 	{
 		private readonly List<string> includedSchemas = new List<string>();
 		private readonly List<ObjectName> includedTables = new List<ObjectName>();
