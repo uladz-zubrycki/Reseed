@@ -1,0 +1,14 @@
+﻿<Users>
+    <User>
+        <FirstName>John</FirstName>
+        <LastName>Doe</LastName>
+    </User>
+    <User>
+        <FirstName>Clark</FirstName>
+        <LastName>Davis</LastName>
+    </User>
+    <User>
+        <FirstName>Adams</FirstName>
+        <LastName>Baker</LastName>
+    </User>
+</Users>
