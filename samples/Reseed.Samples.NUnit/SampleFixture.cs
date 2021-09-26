@@ -6,7 +6,7 @@ using NUnit.Framework;
 namespace Reseed.Samples.NUnit
 {
 	// TestFixture containing a few tests, which are using database to perform
-	// possibly destructing actions like UPDATE or DELETE to demonstrate that
+	// possibly destructing actions like INSERT, UPDATE or DELETE to demonstrate that
 	// even though there is the only database, tests are isolated from each other
 	// and will start operating on the same state.
 	// I.e tests won't ever fail, because some other test mutated the state.
@@ -22,11 +22,12 @@ namespace Reseed.Samples.NUnit
 		public async Task ShouldDeleteUsers()
 		{
 			// We don't need to do any User table initialization manually.
-			// Seeder, invoked in the TestFixtureBase type, will take care of that.
+			// Seeder, invoked in the TestFixtureBase type, will take care of that
+			// And insert all the User rows described at 'Data/Users.xml'.
 			Assert.AreEqual(UsersCount, await GetUsersCount());
 
 			// Executing destructing action, which won't be noticed in the rest of the tests.
-			await DeleteUsers();
+			await ExecuteNonQueryAsync("DELETE FROM [dbo].[User]");
 			Assert.AreEqual(0, await GetUsersCount());
 		}
 
@@ -42,9 +43,6 @@ namespace Reseed.Samples.NUnit
 			await ExecuteNonQueryAsync("INSERT INTO [dbo].[User] VALUES ('Test', 'Test')");
 			Assert.AreEqual(UsersCount + 1, await GetUsersCount());
 		}
-
-		private static Task DeleteUsers() => 
-			ExecuteNonQueryAsync("DELETE FROM [dbo].[User]");
 
 		private static Task<int> GetUsersCount() => 
 			ExecuteScalarAsync<int>("SELECT COUNT(1) FROM [dbo].[User]");
