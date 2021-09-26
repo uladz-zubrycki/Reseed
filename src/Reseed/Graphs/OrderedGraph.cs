@@ -19,10 +19,7 @@ namespace Reseed.Graphs
 			[NotNull] IReadOnlyCollection<OrderedItem<T>> nodes,
 			[NotNull] IReadOnlyCollection<MutualReference<T>> mutualReferences)
 		{
-			if (nodes == null) throw new ArgumentNullException(nameof(nodes));
-			if (nodes.Count == 0) throw new ArgumentException("Value cannot be an empty collection.", nameof(nodes));
-
-			this.Nodes = nodes;
+			this.Nodes = nodes ?? throw new ArgumentNullException(nameof(nodes));
 			this.MutualReferences = mutualReferences ?? throw new ArgumentNullException(nameof(mutualReferences));
 		}
 
