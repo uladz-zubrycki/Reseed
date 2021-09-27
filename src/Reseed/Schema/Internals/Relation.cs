@@ -25,7 +25,7 @@ namespace Reseed.Schema.Internals
 		public override string ToString() => 
 			$"{Name}: {this.Source}({this.Association.SourceKey}) -> {this.Target}({this.Association.TargetKey})";
 
-		public Reference<T> GetReference() => new Reference<T>(this.Association, this.Target);
+		public Reference<T> GetReference() => new(this.Association, this.Target);
 
 		public Relation<TOut> Map<TOut>([NotNull] Func<T, TOut> mapper)
 		{
@@ -35,7 +35,9 @@ namespace Reseed.Schema.Internals
 
 		public override bool Equals(object obj) => Equals(obj as Relation<T>);
 
-		public bool Equals(Relation<T> other) => other != null && Equals(this.Association, other.Association);
+		public bool Equals(Relation<T> other) =>
+			other is not null &&
+			(ReferenceEquals(other, this) || Equals(this.Association, other.Association));
 
 		public override int GetHashCode() => 
 			(this.Association != null ? this.Association.GetHashCode() : 0);

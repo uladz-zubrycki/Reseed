@@ -87,9 +87,9 @@ namespace Reseed.Rendering
 				var tableRows = new List<OrderedItem<Row>>();
 				var i = 0;
 
-				foreach (OrderedItem<Row> row in this.Rows.OrderBy(o => o.Order))
+				foreach (var row in this.Rows.OrderBy(o => o.Order))
 				{
-					ObjectName rowTableName = row.Value.TableName;
+					var rowTableName = row.Value.TableName;
 					if (currentTable == null)
 					{
 						currentTable = this.tableNameMap[rowTableName];
@@ -132,7 +132,7 @@ namespace Reseed.Rendering
 		
 		private static void VerifyTablesUnique(IReadOnlyCollection<TableDefinition> tables)
 		{
-			HashSet<TableDefinition> uniqueTables = tables.ToHashSet();
+			var uniqueTables = tables.ToHashSet();
 			if (uniqueTables.Count != tables.Count)
 				throw new ArgumentException("Tables should be unique", nameof(tables));
 		}
@@ -141,7 +141,7 @@ namespace Reseed.Rendering
 			IReadOnlyCollection<TableDefinition> tables,
 			IReadOnlyCollection<OrderedItem<Row>> rows)
 		{
-			HashSet<ObjectName> tableNames = tables.Select(t => t.Name).ToHashSet();
+			var tableNames = tables.Select(t => t.Name).ToHashSet();
 			if (rows.Any(o => !tableNames.Contains(o.Value.TableName)))
 				throw new ArgumentException("Mutually referent tables can't contain other table's rows");
 		}
@@ -161,7 +161,7 @@ namespace Reseed.Rendering
 			if (foreignKeys.Count == 0)
 				throw new ArgumentException("Value cannot be an empty collection.", nameof(foreignKeys));
 
-			HashSet<ObjectName> tableNames = tables.Select(t => t.Name).ToHashSet();
+			var tableNames = tables.Select(t => t.Name).ToHashSet();
 			if (foreignKeys.Any(a => !tableNames.Contains(a.Source) && !tableNames.Contains(a.Target)))
 				throw new ArgumentException("Mutually referent rows can't contain other table's foreign keys");
 			

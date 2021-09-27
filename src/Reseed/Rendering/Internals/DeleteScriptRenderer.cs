@@ -21,7 +21,7 @@ namespace Reseed.Rendering.Internals
 			if (tables == null) throw new ArgumentNullException(nameof(tables));
 			if (options == null) throw new ArgumentNullException(nameof(options));
 
-			OrderedGraph<TableSchema> reversedTables = tables.Reverse();
+			var reversedTables = tables.Reverse();
 			return options.Mode switch
 			{
 				DeleteCleanupMode deleteOptions =>
@@ -40,17 +40,17 @@ namespace Reseed.Rendering.Internals
 			CleanupOptions cleanupOptions,
 			DeleteCleanupMode deleteOptions)
 		{
-			IReadOnlyCollection<OrderedItem<TableSchema>> tables = orderedTables.Nodes;
-			(OrderedItem<TableSchema>[] toClean, OrderedItem<TableSchema>[] rest) =
+			var tables = orderedTables.Nodes;
+			(var toClean, var rest) =
 				tables.PartitionBy(o => cleanupOptions.ShouldClean(o.Value.Name));
 
-			(OrderedItem<TableSchema>[] defaultClean, OrderedItem<TableSchema>[] customClean) =
+			(var defaultClean, var customClean) =
 				toClean.PartitionBy(o => !cleanupOptions.GetCustomScript(o.Value.Name, out _));
 
-			OrderedItem<TableSchema>[] persistentTables = rest.Concat(customClean).ToArray();
+			var persistentTables = rest.Concat(customClean).ToArray();
 			var scripts = new List<DbScript>(2)
 			{
-				new DbScript(
+				new(
 					"Delete from tables",
 					string.Join(Environment.NewLine + Environment.NewLine,
 						RenderDeleteFromTables(
@@ -77,21 +77,21 @@ namespace Reseed.Rendering.Internals
 			CleanupOptions cleanupOptions,
 			PreferTruncateCleanupMode truncateOptions)
 		{
-			IReadOnlyCollection<OrderedItem<TableSchema>> tables = orderedTables.Nodes;
-			Func<TableSchema, Relation<TableSchema>[]> getAllIncomingRelations = BuildIncomingRelationsGetter(tables);
+			var tables = orderedTables.Nodes;
+			var getAllIncomingRelations = BuildIncomingRelationsGetter(tables);
 
-			(OrderedItem<TableSchema>[] toClean, OrderedItem<TableSchema>[] rest) =
+			(var toClean, var rest) =
 				tables.PartitionBy(o => cleanupOptions.ShouldClean(o.Value.Name));
 
-			(OrderedItem<TableSchema>[] defaultClean, OrderedItem<TableSchema>[] customClean) =
+			(var defaultClean, var customClean) =
 				toClean.PartitionBy(o => !cleanupOptions.GetCustomScript(o.Value.Name, out _));
 
-			(OrderedItem<TableSchema>[] toDelete, OrderedItem<TableSchema>[] toTruncate) =
+			(var toDelete, var toTruncate) =
 				defaultClean.PartitionBy(o =>
 					truncateOptions.ShouldUseDelete(o.Value.Name) ||
 					getAllIncomingRelations(o.Value).Any());
 
-			OrderedItem<TableSchema>[] persistentTables = rest.Concat(customClean).ToArray();
+			var persistentTables = rest.Concat(customClean).ToArray();
 
 			var scripts = new List<DbScript>(3);
 			if (toTruncate.Length > 0)
@@ -129,29 +129,29 @@ namespace Reseed.Rendering.Internals
 			CleanupOptions cleanupOptions,
 			TruncateCleanupMode truncateOptions)
 		{
-			IReadOnlyCollection<OrderedItem<TableSchema>> tables = orderedTables.Nodes;
-			Func<TableSchema, Relation<TableSchema>[]> getAllIncomingRelations = BuildIncomingRelationsGetter(tables);
+			var tables = orderedTables.Nodes;
+			var getAllIncomingRelations = BuildIncomingRelationsGetter(tables);
 
-			(OrderedItem<TableSchema>[] toClean, OrderedItem<TableSchema>[] rest) =
+			(var toClean, var rest) =
 				tables.PartitionBy(o => cleanupOptions.ShouldClean(o.Value.Name));
 
-			(OrderedItem<TableSchema>[] defaultClean, OrderedItem<TableSchema>[] customClean) =
+			(var defaultClean, var customClean) =
 				toClean.PartitionBy(o => !cleanupOptions.GetCustomScript(o.Value.Name, out _));
 
-			(OrderedItem<TableSchema>[] toDelete, OrderedItem<TableSchema>[] toTruncate) =
+			(var toDelete, var toTruncate) =
 				defaultClean.PartitionBy(o => truncateOptions.ShouldUseDelete(o.Value.Name));
 
-			TableSchema[] tablesToTruncate = toTruncate.Select(o => o.Value).ToArray();
-			Relation<TableSchema>[] foreignKeys =
+			var tablesToTruncate = toTruncate.Select(o => o.Value).ToArray();
+			var foreignKeys =
 				tablesToTruncate.SelectMany(getAllIncomingRelations).Distinct().ToArray();
 
-			OrderedItem<TableSchema>[] persistentTables = rest.Concat(customClean).ToArray();
+			var persistentTables = rest.Concat(customClean).ToArray();
 
 			var scripts = new List<DbScript>(5)
 			{
-				new DbScript("Drop Foreign Keys", RenderDropForeignKeys(foreignKeys, false)),
-				new DbScript("Truncate from tables", RenderTruncateTables(tablesToTruncate)),
-				new DbScript("Delete from tables", RenderDeleteFromTables(
+				new("Drop Foreign Keys", RenderDropForeignKeys(foreignKeys, false)),
+				new("Truncate from tables", RenderTruncateTables(tablesToTruncate)),
+				new("Delete from tables", RenderDeleteFromTables(
 					FilterGraph(orderedTables, toDelete),
 					ChooseIncomingRelationsGetter(
 						tables,
@@ -202,7 +202,7 @@ namespace Reseed.Rendering.Internals
 									GetCleanupScript))),
 							ms =>
 							{
-								Relation<TableSchema>[] foreignKeys = ms.Relations
+								var foreignKeys = ms.Relations
 									.Concat(ms.Items.SelectMany(o => getIncomingRelations(o.Value)))
 									.Distinct()
 									.ToArray();
@@ -234,7 +234,7 @@ namespace Reseed.Rendering.Internals
 			IReadOnlyCollection<Relation<TableSchema>> foreignKeys,
 			Func<ObjectName, string> getCleanupScript)
 		{
-			string decoratedSeparator = foreignKeys.Any() ? Environment.NewLine : string.Empty;
+			var decoratedSeparator = foreignKeys.Any() ? Environment.NewLine : string.Empty;
 			var fkDecorator = new DisableForeignKeysDecorator(
 				foreignKeys
 					.Select(r => r.Map(t => t.Name))
@@ -252,7 +252,7 @@ namespace Reseed.Rendering.Internals
 			OrderedGraph<TableSchema> allTables,
 			IReadOnlyCollection<OrderedItem<TableSchema>> targetTables)
 		{
-			HashSet<TableSchema> targetTablesSet = targetTables
+			var targetTablesSet = targetTables
 				.Select(t => t.Value)
 				.ToHashSet();
 
@@ -264,7 +264,7 @@ namespace Reseed.Rendering.Internals
 		private static Func<TableSchema, Relation<TableSchema>[]> BuildIncomingRelationsGetter(
 			IEnumerable<OrderedItem<TableSchema>> tables)
 		{
-			Dictionary<TableSchema, Relation<TableSchema>[]> incomingRelationMap =
+			var incomingRelationMap =
 				tables
 					.SelectMany(ot => ot.Value.GetRelations())
 					.GroupBy(t => t.Target)
@@ -272,13 +272,13 @@ namespace Reseed.Rendering.Internals
 						gr => gr.ToArray());
 
 			return t =>
-				incomingRelationMap.TryGetValue(t, out Relation<TableSchema>[] rs)
+				incomingRelationMap.TryGetValue(t, out var rs)
 					? rs
 					: Array.Empty<Relation<TableSchema>>();
 		}
 
 		private static Func<ObjectName, string> BuildCustomScriptGetter(CleanupOptions options) =>
-			t => options.GetCustomScript(t, out string s)
+			t => options.GetCustomScript(t, out var s)
 				? s
 				: throw new InvalidOperationException($"There is no custom script for table {t}");
 	}

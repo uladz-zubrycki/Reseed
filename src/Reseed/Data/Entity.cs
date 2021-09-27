@@ -23,7 +23,7 @@ namespace Reseed.Data
 
 		public override string ToString()
 		{
-			string props = string.Join("; ", this.Properties.Select(p => p.ToString()));
+			var props = string.Join("; ", this.Properties.Select(p => p.ToString()));
 			return $"{this.Name} {{{props}}}";
 		}
 	}

@@ -43,8 +43,10 @@ namespace Reseed.Ordering.Internals
 		public override bool Equals(object obj) => Equals(obj as TableRow);
 
 		// todo: consider using PK from TableDefinition for equality
-		public bool Equals(TableRow other) => 
-			other != null && EqualityComparer<Row>.Default.Equals(this.Row, other.Row);
+		public bool Equals(TableRow other) =>
+			other is not null &&
+			(ReferenceEquals(other, this) ||
+			 Equals(this.Row, other.Row));
 
 		public override int GetHashCode() => 
 			-343017389 + EqualityComparer<Row>.Default.GetHashCode(this.Row);

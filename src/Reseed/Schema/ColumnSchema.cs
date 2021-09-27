@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
 
@@ -41,7 +40,7 @@ namespace Reseed.Schema
 
 		public override string ToString()
 		{
-			IEnumerable<string> options =
+			var options =
 				new[]
 					{
 						this.IsPrimaryKey ? "PK" : string.Empty,

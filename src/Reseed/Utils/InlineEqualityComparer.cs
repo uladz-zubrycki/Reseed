@@ -14,9 +14,10 @@ namespace Reseed.Utils
 		}
 
 		public override bool Equals(T x, T y) =>
-			x == null && y == null || 
-			x != null && y != null && 
-			this.map(x).Equals(this.map(y));
+			x is null && y is null ||
+			x is not null && y is not null &&
+			(ReferenceEquals(x, y) ||
+			 Equals(this.map(x), this.map(y)));
 
 		public override int GetHashCode(T obj) => 
 			this.map(obj).GetHashCode();
@@ -25,6 +26,6 @@ namespace Reseed.Utils
 	internal static class InlineEqualityComparer<T>
 	{
 		public static InlineEqualityComparer<T, TResult> Create<TResult>(Func<T, TResult> compareBy) =>
-			new InlineEqualityComparer<T, TResult>(compareBy);
+			new(compareBy);
 	}
 }

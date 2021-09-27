@@ -24,12 +24,13 @@ namespace Reseed.Schema
 			Equals(obj as Key);
 
 		public bool Equals(Key other) =>
-			other != null &&
-			this.Columns.OrderBy(o => o.Order)
-				.Zip(other.Columns.OrderBy(o => o.Order),
-					(l, r) =>
-						l.Value.Equals(r.Value, StringComparison.OrdinalIgnoreCase))
-				.All(_ => _);
+			other is not null &&
+			(ReferenceEquals(other, this) ||
+			 this.Columns
+				 .Order()
+				 .Zip(other.Columns.Order(),
+					 (l, r) => string.Equals(l, r, StringComparison.OrdinalIgnoreCase))
+				 .All(_ => _));
 
 		public override int GetHashCode() =>
 			-1952516548 + EqualityComparer<string>.Default.GetHashCode(string.Join(",",

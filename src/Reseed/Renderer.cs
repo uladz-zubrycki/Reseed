@@ -79,7 +79,7 @@ namespace Reseed
 			IReadOnlyCollection<OrderedItem<ITableContainer>> containers,
 			TempTableMode options)
 		{
-			DbScript deleteDataProcedure = DbScript
+			var deleteDataProcedure = DbScript
 				.Join(DeleteScript,
 					RenderDeleteScripts(
 							tables,
@@ -88,7 +88,7 @@ namespace Reseed
 				.Map(s => RenderCreateStoredProcedure(options.DeleteProcedureName, s),
 					CreateDeleteSp);
 
-			DbScript dropDeleteDataProcedure = RenderDropProcedureScript(
+			var dropDeleteDataProcedure = RenderDropProcedureScript(
 				DropDeleteSp,
 				options.DeleteProcedureName);
 

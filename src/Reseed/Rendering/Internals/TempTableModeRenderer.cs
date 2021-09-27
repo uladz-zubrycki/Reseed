@@ -79,16 +79,16 @@ namespace Reseed.Rendering.Internals
 				MapTables(tempSchemaName, tables, containers));
 
 		private static ObjectName CreateTempTableName(string tempTableSchema, ObjectName name) =>
-			new ObjectName($"{name.Schema}_{name.Name}", tempTableSchema);
+			new($"{name.Schema}_{name.Name}", tempTableSchema);
 
 		private static Association CreateTempAssociation(string tempTableSchema, Association association) =>
-			new Association($"{tempTableSchema}_{association.Name}", association.SourceKey, association.TargetKey);
+			new($"{tempTableSchema}_{association.Name}", association.SourceKey, association.TargetKey);
 
 		private static OrderedGraph<TableSchema> FilterTables(
 			OrderedGraph<TableSchema> tables,
 			IReadOnlyCollection<OrderedItem<ITableContainer>> containers)
 		{
-			HashSet<ObjectName> names = containers
+			var names = containers
 				.SelectMany(oc => oc.Value.TableNames)
 				.ToHashSet();
 
@@ -139,8 +139,8 @@ namespace Reseed.Rendering.Internals
 			string.Join(Environment.NewLine + Environment.NewLine,
 				tables.Select(table =>
 				{
-					string columnsScript = RenderColumns(table);
-					string pkScript = RenderPrimaryKey(table);
+					var columnsScript = RenderColumns(table);
+					var pkScript = RenderPrimaryKey(table);
 					return $@"
 						|CREATE TABLE {table.Name.GetSqlName()} (
 						{columnsScript.WithMargin("\t", '|')},
@@ -150,7 +150,7 @@ namespace Reseed.Rendering.Internals
 
 		private static string RenderColumns(TableSchema table)
 		{
-			ColumnSchema[] columns = table.Columns.ToArray();
+			var columns = table.Columns.ToArray();
 
 			return string.Join("," + Environment.NewLine,
 				columns.Select(c =>
@@ -202,17 +202,17 @@ namespace Reseed.Rendering.Internals
 			IReadOnlyCollection<Relation<TableSchema>> foreignKeys,
 			Func<ObjectName, ObjectName> mapTableName)
 		{
-			DisableForeignKeysDecorator fkDecorator = CreateForeignKeysDecorator(foreignKeys);
+			var fkDecorator = CreateForeignKeysDecorator(foreignKeys);
 			return fkDecorator.Decorate(string.Join(Environment.NewLine + Environment.NewLine,
 				tables.Select(t =>
 				{
-					string columnsScript = string.Join(", ", t.Columns
+					var columnsScript = string.Join(", ", t.Columns
 							.Where(c => !c.IsComputed)
 							.Select(c => $"[{c.Name}]"))
 						.Wrap(100, _ => _, _ => true, ',')
 						.WithMargin("\t", '|');
 
-					IdentityInsertDecorator identityDecorator = CreateIdentityDecorator(t);
+					var identityDecorator = CreateIdentityDecorator(t);
 					return identityDecorator.Decorate($@"
 						|INSERT INTO {t.Name.GetSqlName()} WITH (TABLOCKX) (
 						{columnsScript}
@@ -225,13 +225,13 @@ namespace Reseed.Rendering.Internals
 		}
 
 		private static IdentityInsertDecorator CreateIdentityDecorator(TableSchema table) =>
-			new IdentityInsertDecorator(
+			new(
 				table.Name,
 				table.Columns.Any(c => c.IsIdentity));
 
 		private static DisableForeignKeysDecorator CreateForeignKeysDecorator(
 			IReadOnlyCollection<Relation<TableSchema>> foreignKeys) =>
-			new DisableForeignKeysDecorator(
+			new(
 				foreignKeys
 					.Select(r => r.Map(t => t.Name))
 					.ToArray());
@@ -244,15 +244,15 @@ namespace Reseed.Rendering.Internals
 			[NotNull] OrderedGraph<TableSchema> tables,
 			[NotNull] Func<ObjectName, ObjectName> mapTableName)
 		{
-			DbScript script = TempTableInsertScriptRenderer.Render(
+			var script = TempTableInsertScriptRenderer.Render(
 				tables,
 				mapTableName);
 
-			DbScript insertProcedure = script
+			var insertProcedure = script
 				.Map(s => RenderCreateStoredProcedure(procedureName, s),
 					CreateInsertSp);
 
-			DbScript dropInsertProcedure = RenderDropProcedureScript(
+			var dropInsertProcedure = RenderDropProcedureScript(
 				DropInsertSp,
 				procedureName);
 
@@ -311,7 +311,7 @@ namespace Reseed.Rendering.Internals
 			ObjectName table,
 			IReadOnlyCollection<ColumnSchema> columns)
 		{
-			string columnsScript =
+			var columnsScript =
 				string.Join(", ", columns
 					.OrderBy(c => c.Order)
 					.Select(c => $"[{c.Name}]"));

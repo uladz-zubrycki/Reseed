@@ -18,7 +18,7 @@ namespace Reseed.Rendering.Internals
 
 		public string NextValue()
 		{
-			int result = this.current;
+			var result = this.current;
 
 			while (true)
 			{

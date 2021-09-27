@@ -12,10 +12,10 @@ namespace Reseed.Rendering.Internals
 	internal static class ScriptRendererUtils
 	{
 		public static DbScript RenderExecuteProcedureScript(string scriptName, ObjectName procedureName) => 
-			new DbScript(scriptName, RenderExecuteProcedure(procedureName));
+			new(scriptName, RenderExecuteProcedure(procedureName));
 
 		public static DbScript RenderDropProcedureScript(string scriptName, ObjectName procedureName) => 
-			new DbScript(scriptName, RenderDropProcedure(procedureName));
+			new(scriptName, RenderDropProcedure(procedureName));
 
 		public static string RenderCreateStoredProcedure([NotNull] ObjectName name, [NotNull] string body)
 		{
@@ -78,24 +78,24 @@ namespace Reseed.Rendering.Internals
 					.GroupBy(fk => fk.Source)
 					.Select(gr =>
 					{
-						string tableName = gr.Key.Name.GetSqlName();
-						string constraintsScript = string.Join(Environment.NewLine,
+						var tableName = gr.Key.Name.GetSqlName();
+						var constraintsScript = string.Join(Environment.NewLine,
 								gr.Select(r =>
 									$"CONSTRAINT IF EXISTS [{r.Association.Name}],"))
 							.TrimEnd(',');
 
-						string alterScript = $@"
+						var alterScript = $@"
 							ALTER TABLE {tableName} 
 							DROP
 							{constraintsScript.WithMargin("\t", '|')}"
 							.TrimMargin('|');
 
-						string ifScript =
+						var ifScript =
 							checkTableExistence
 								? $"IF (OBJECT_ID('{tableName}') IS NOT NULL)"
 								: string.Empty;
 
-						string bodyMargin = checkTableExistence ? "\t" : string.Empty;
+						var bodyMargin = checkTableExistence ? "\t" : string.Empty;
 
 						return $@"
 							|{ifScript}
@@ -110,7 +110,7 @@ namespace Reseed.Rendering.Internals
 					.GroupBy(fk => fk.Source)
 					.Select(gr =>
 					{
-						string constraintsScript = string.Join(
+						var constraintsScript = string.Join(
 							"," + Environment.NewLine,
 							gr.Select(r =>
 									($@"|CONSTRAINT [{r.Association.Name}] 

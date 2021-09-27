@@ -19,7 +19,7 @@ namespace Reseed
 					$"Can't find test data files at '{root}', specified directory doesn't exist");
 			}
 
-			string[] files = Directory
+			var files = Directory
 				.EnumerateFiles(root, "*.xml", SearchOption.AllDirectories)
 				.ToArray();
 
@@ -39,7 +39,7 @@ namespace Reseed
 			const string rootName = "Crexi-Main";
 			var file = new DataFile(path);
 			
-			XElement root = XDocument.Load(path).Elements().SingleOrDefault();
+			var root = XDocument.Load(path).Elements().SingleOrDefault();
 			// TODO: Enable after cleaning namespaces from test data
 			//if (root?.Name != XName.Get(rootName))
 			//{
@@ -59,7 +59,7 @@ namespace Reseed
 		{
 			AssertNoAttributes(origin, element);
 
-			XElement[] descendants = element.Elements().ToArray();
+			var descendants = element.Elements().ToArray();
 			if (descendants.Length == 0)
 			{
 				throw BuildDocumentError(

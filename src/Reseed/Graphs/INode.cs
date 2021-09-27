@@ -35,7 +35,7 @@ namespace Reseed.Graphs
 			if (nodes == null) throw new ArgumentNullException(nameof(nodes));
 			if (createNode == null) throw new ArgumentNullException(nameof(createNode));
 
-			T[] ns = nodes.ToArray();
+			var ns = nodes.ToArray();
 			return NodeBuilder<TOut>.CollectNodes(
 				ns,
 				ns.SelectMany(n => n.GetRelations()).ToArray(),

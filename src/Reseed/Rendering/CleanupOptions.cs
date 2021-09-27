@@ -83,7 +83,7 @@ namespace Reseed.Rendering
 					"Please, leave the only script for each table");
 			}
 
-			(ObjectName table, string script)[] excludedScripts = customScripts
+			var excludedScripts = customScripts
 				.Where(cs => !filter.ShouldClean(cs.table))
 				.ToArray();
 
@@ -107,8 +107,8 @@ namespace Reseed.Rendering
 	[PublicAPI]
 	public sealed class ExcludingDataCleanupFilter : IDataCleanupFilter
 	{
-		private readonly List<string> excludedSchemas = new List<string>();
-		private readonly List<ObjectName> excludedTables = new List<ObjectName>();
+		private readonly List<string> excludedSchemas = new();
+		private readonly List<ObjectName> excludedTables = new();
 
 		public ExcludingDataCleanupFilter ExcludeSchemas([NotNull] params string[] schemas)
 		{
@@ -137,8 +137,8 @@ namespace Reseed.Rendering
 	[PublicAPI]
 	public sealed class IncludingDataCleanupFilter : IDataCleanupFilter
 	{
-		private readonly List<string> includedSchemas = new List<string>();
-		private readonly List<ObjectName> includedTables = new List<ObjectName>();
+		private readonly List<string> includedSchemas = new();
+		private readonly List<ObjectName> includedTables = new();
 
 		public IncludingDataCleanupFilter IncludeSchemas([NotNull] params string[] schemas)
 		{

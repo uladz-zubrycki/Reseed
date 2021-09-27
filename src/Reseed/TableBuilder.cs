@@ -19,32 +19,32 @@ namespace Reseed
 			if (tables == null) throw new ArgumentNullException(nameof(tables));
 			if (entities == null) throw new ArgumentNullException(nameof(entities));
 
-			Dictionary<ObjectName, TableSchema> schemasMap = tables.ToDictionary(t => t.Name);
+			var schemasMap = tables.ToDictionary(t => t.Name);
 
-			Func<ObjectName, DataFile[], Exception> buildUnknownTableError =
+			var buildUnknownTableError =
 				CreateUnknownTableErrorBuilder(tables);
 
 			return entities
 				.GroupBy(e => e.Name, StringComparer.OrdinalIgnoreCase)
 				.Select(gr =>
 				{
-					DataFile[] origins = gr.Select(e => e.Origin)
+					var origins = gr.Select(e => e.Origin)
 						.Distinct()
 						.ToArray();
 
-					ObjectName tableName = ParseTableName(gr.Key, origins);
-					if (!schemasMap.TryGetValue(tableName, out TableSchema table))
+					var tableName = ParseTableName(gr.Key, origins);
+					if (!schemasMap.TryGetValue(tableName, out var table))
 					{
 						throw buildUnknownTableError(tableName, origins);
 					}
 
-					Column[] columns = table
+					var columns = table
 						.Columns
 						.Where(CouldInsertColumn)
 						.Select(CreateColumn)
 						.ToArray();
 
-					OrderedItem<Row>[] rows = CreateRows(
+					var rows = CreateRows(
 						table.Name,
 						table.PrimaryKey,
 						table.Columns,
@@ -89,7 +89,7 @@ namespace Reseed
 			IEnumerable<ColumnSchema> tableColumns,
 			Entity[] entities)
 		{
-			Func<Entity, Property, ColumnSchema> getColumn = BuildColumnProvider(tableColumns);
+			var getColumn = BuildColumnProvider(tableColumns);
 
 			return entities
 				.Select((e, i) => Ordered(
@@ -108,7 +108,7 @@ namespace Reseed
 
 			(string column, string value)[] values = entity.Properties.Select(p =>
 				{
-					ColumnSchema column = getColumn(entity, p);
+					var column = getColumn(entity, p);
 					if (column.IsComputed)
 					{
 						throw BuildComputedColumnException(entity, column);
@@ -124,12 +124,12 @@ namespace Reseed
 		private static Func<Entity, Property, ColumnSchema> BuildColumnProvider(
 			IEnumerable<ColumnSchema> tableColumns)
 		{
-			Dictionary<string, ColumnSchema> columnsMap = tableColumns
+			var columnsMap = tableColumns
 				.ToDictionary(c => c.Name.ToLowerInvariant());
 
 			return (entity, property) =>
 			{
-				if (!columnsMap.TryGetValue(property.Name.ToLowerInvariant(), out ColumnSchema column))
+				if (!columnsMap.TryGetValue(property.Name.ToLowerInvariant(), out var column))
 				{
 					throw BuildUnknownColumnException(property, entity);
 				}
@@ -140,14 +140,14 @@ namespace Reseed
 
 		private static string AdjustPropertyValue(Property p, ColumnSchema column) =>
 			column.DataType.IsBit
-				? bool.TryParse(p.Value, out bool boolean)
+				? bool.TryParse(p.Value, out var boolean)
 					? boolean ? "1" : "0"
 					: p.Value
 				: p.Value;
 
 		private static void ValidateDuplicatedProperties(Entity entity)
 		{
-			string[] duplicates = entity.Properties
+			var duplicates = entity.Properties
 				.GroupBy(p => p.Name.ToLowerInvariant())
 				.Where(gr => gr.Count() > 1)
 				.Select(gr => gr.Key)
@@ -155,7 +155,7 @@ namespace Reseed
 
 			if (duplicates.Length > 0)
 			{
-				string propertyMessage =
+				var propertyMessage =
 					(duplicates.Length == 1
 						? $"Property '{duplicates[0]}' is"
 						: $"Properties {string.Join(", ", duplicates.Select(d => $"'{d}'"))} are") +
@@ -171,7 +171,7 @@ namespace Reseed
 		private static Func<ObjectName, DataFile[], Exception> CreateUnknownTableErrorBuilder(
 			IReadOnlyCollection<TableSchema> tables)
 		{
-			Dictionary<string, string[]> schemaNamesByTableNameMap =
+			var schemaNamesByTableNameMap =
 				tables.GroupBy(s => s.Name.Name.ToLowerInvariant())
 					.ToDictionary(
 						gr => gr.Key,
@@ -181,8 +181,8 @@ namespace Reseed
 
 			return (tableName, origins) =>
 			{
-				string schemaNameMisprintMessage =
-					schemaNamesByTableNameMap.TryGetValue(tableName.Name, out string[] schemaNames)
+				var schemaNameMisprintMessage =
+					schemaNamesByTableNameMap.TryGetValue(tableName.Name, out var schemaNames)
 						? $". Table with name '{tableName.Name}' exists in schemas ['{string.Join(", ", schemaNames)}'], " +
 						  $"make sure that specified schema '{tableName.Schema}' is the intended one"
 						: "";
@@ -195,13 +195,13 @@ namespace Reseed
 
 		private static InvalidOperationException BuildComputedColumnException(Entity entity,
 			ColumnSchema column) =>
-			new InvalidOperationException(
+			new(
 				$"Invalid '{entity.Name}' entity test data. " +
 				$"Table column '{column.Name}' is computed and shouldn't be specified. " +
 				BuildOriginErrorMessage(entity.Origin));
 
 		private static InvalidOperationException BuildUnknownColumnException(Property property, Entity entity) =>
-			new InvalidOperationException(
+			new(
 				$"Invalid '{entity.Name}' entity test data. " +
 				$"Can't find corresponding table column for property '{property.Name}'. " +
 				"Make sure that all existing migrations are applied to database and it has up to date structure. " +
@@ -210,7 +210,7 @@ namespace Reseed
 		private static ObjectName ParseTableName(string entityName, DataFile[] origins)
 		{
 			const string defaultSchemaName = "dbo";
-			string[] parts = entityName.Split('.')
+			var parts = entityName.Split('.')
 				.Select(s => s)
 				.ToArray();
 

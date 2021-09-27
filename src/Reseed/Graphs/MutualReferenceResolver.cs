@@ -21,8 +21,8 @@ namespace Reseed.Graphs
 			if (mergeUsual == null) throw new ArgumentNullException(nameof(mergeUsual));
 			if (mergeMutual == null) throw new ArgumentNullException(nameof(mergeMutual));
 			
-			Dictionary<T, OrderedItem<T>> orderMap = graph.Nodes.ToDictionary(o => o.Value);
-			MutualGroup<T>[] groups = BuildMutualGroups(graph.MutualReferences, r => orderMap[r]);
+			var orderMap = graph.Nodes.ToDictionary(o => o.Value);
+			var groups = BuildMutualGroups(graph.MutualReferences, r => orderMap[r]);
 
 			return Enumerate().ToArray();
 
@@ -31,12 +31,12 @@ namespace Reseed.Graphs
 				var current = new List<OrderedItem<T>>();
 				var i = 0;
 
-				foreach (OrderedItem<T> node in graph.Nodes.OrderBy(o => o.Order))
+				foreach (var node in graph.Nodes.OrderBy(o => o.Order))
 				{
-					MutualGroup<T> mutualGroup = groups.FirstOrDefault(gr => gr.Contains(node.Value));
+					var mutualGroup = groups.FirstOrDefault(gr => gr.Contains(node.Value));
 					if (mutualGroup != null)
 					{
-						int groupOrder = mutualOrderMode switch
+						var groupOrder = mutualOrderMode switch
 						{
 							MutualGroupOrderMode.Min => mutualGroup.MinOrder,
 							MutualGroupOrderMode.Max => mutualGroup.MaxOrder,
@@ -77,9 +77,9 @@ namespace Reseed.Graphs
 			var itemSets = new List<HashSet<T>>();
 			var relationMap = new Dictionary<HashSet<T>, List<Relation<T>>>();
 
-			foreach (MutualReference<T> reference in references)
+			foreach (var reference in references)
 			{
-				HashSet<T> set = itemSets.FirstOrDefault(s => reference.Items.Any(s.Contains));
+				var set = itemSets.FirstOrDefault(s => reference.Items.Any(s.Contains));
 				if (set == null)
 				{
 					var newSet = new HashSet<T>(reference.Items);
@@ -88,7 +88,7 @@ namespace Reseed.Graphs
 				}
 				else
 				{
-					foreach (T item in reference.Items)
+					foreach (var item in reference.Items)
 					{
 						set.Add(item);
 					}
@@ -99,7 +99,7 @@ namespace Reseed.Graphs
 			return itemSets
 				.Select(s =>
 				{
-					OrderedItem<T>[] items = s.Select(getOrdered).ToArray();
+					var items = s.Select(getOrdered).ToArray();
 					return new MutualGroup<T>(
 						items,
 						relationMap[s]

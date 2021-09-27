@@ -28,12 +28,9 @@ namespace Reseed.Schema
 		public override bool Equals(object obj) =>
 			Equals(obj as KeyValue);
 
-		public bool Equals(KeyValue other)
-		{
-			if (ReferenceEquals(null, other)) return false;
-			if (ReferenceEquals(this, other)) return true;
-			return Equals(this.value, other.value);
-		}
+		public bool Equals(KeyValue other) =>
+			other is not null &&
+			(ReferenceEquals(this, other) || Equals(this.value, other.value));
 
 		public override int GetHashCode() => this.value.GetHashCode();
 

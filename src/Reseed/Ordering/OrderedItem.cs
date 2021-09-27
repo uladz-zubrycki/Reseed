@@ -36,7 +36,7 @@ namespace Reseed.Ordering
 	internal static class OrderedItem
 	{
 		public static OrderedItem<T> Ordered<T>(int order, T value) =>
-			new OrderedItem<T>(order, value);
+			new(order, value);
 
 		public static IReadOnlyCollection<OrderedItem<T>> OrderedCollection<T>([NotNull] params T[] items)
 		{
@@ -52,9 +52,9 @@ namespace Reseed.Ordering
 			IEnumerable<OrderedItem<T>> Enumerate()
 			{
 				var i = 0;
-				foreach (OrderedItem<OrderedItem<T>[]> groupItem in source.OrderBy(o => o.Order))
+				foreach (var groupItem in source.OrderBy(o => o.Order))
 				{
-					foreach (OrderedItem<T> item in groupItem.Value.OrderBy(o => o.Order))
+					foreach (var item in groupItem.Value.OrderBy(o => o.Order))
 					{
 						yield return item.MapOrder(_ => i);
 						i++;

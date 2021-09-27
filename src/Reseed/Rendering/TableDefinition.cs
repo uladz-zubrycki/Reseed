@@ -33,8 +33,9 @@ namespace Reseed.Rendering
 		public override bool Equals(object obj) => Equals(obj as TableDefinition);
 
 		public bool Equals(TableDefinition other) =>
-			other != null &&
-			EqualityComparer<ObjectName>.Default.Equals(this.Name, other.Name);
+			other is not null &&
+			(ReferenceEquals(other, this) ||
+			 Equals(this.Name, other.Name));
 
 		public override int GetHashCode() =>
 			539060726 + EqualityComparer<ObjectName>.Default.GetHashCode(this.Name);

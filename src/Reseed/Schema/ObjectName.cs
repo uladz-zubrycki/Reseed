@@ -24,9 +24,10 @@ namespace Reseed.Schema
 		public override bool Equals(object obj) => Equals(obj as ObjectName);
 
 		public bool Equals(ObjectName other) =>
-			other != null
-			&& this.Schema.Equals(other.Schema, StringComparison.OrdinalIgnoreCase)
-			&& this.Name.Equals(other.Name, StringComparison.OrdinalIgnoreCase);
+			other is not null &&
+			(ReferenceEquals(this, other) ||
+			 string.Equals(this.Schema, other.Schema, StringComparison.OrdinalIgnoreCase) &&
+			 string.Equals(this.Name, other.Name, StringComparison.OrdinalIgnoreCase));
 
 		public override int GetHashCode()
 		{

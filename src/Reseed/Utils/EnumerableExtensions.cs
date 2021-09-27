@@ -15,7 +15,7 @@ namespace Reseed.Utils
 			var passed = new List<T>();
 			var failed = new List<T>();
 
-			foreach (T item in source)
+			foreach (var item in source)
 			{
 				(predicate(item) ? passed : failed).Add(item);
 			}

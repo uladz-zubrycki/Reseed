@@ -32,7 +32,7 @@ namespace Reseed.Graphs
 		public bool Contains(T item) => this.items.Contains(item);
 
 		public ReferencePath<T> Append(Reference<T> reference) => 
-			new ReferencePath<T>(this.Source, this.References.Append(reference).ToArray());
+			new(this.Source, this.References.Append(reference).ToArray());
 
 		public ReferencePath<T> StartFrom([NotNull] T item)
 		{
@@ -52,7 +52,7 @@ namespace Reseed.Graphs
 			}
 			else
 			{
-				int startIndex = this.References
+				var startIndex = this.References
 					.Select((r, i) => (r.Target, index: i))
 					.First(pair => pair.Target == item)
 					.index;
@@ -63,7 +63,7 @@ namespace Reseed.Graphs
 
 		public override string ToString()
 		{
-			string path = string.Join(" -> ", this.References.Select(t => t.Target.ToString()));
+			var path = string.Join(" -> ", this.References.Select(t => t.Target.ToString()));
 			return $"{this.Source}" +
 			       (string.IsNullOrEmpty(path) ? "" : $" -> {path}");
 		}

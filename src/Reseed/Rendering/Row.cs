@@ -39,7 +39,7 @@ namespace Reseed.Rendering
 		public string GetValue([NotNull] string columnName)
 		{
 			if (columnName == null) throw new ArgumentNullException(nameof(columnName));
-			return this.valueMapping.TryGetValue(columnName, out string value)
+			return this.valueMapping.TryGetValue(columnName, out var value)
 				? value
 				: null;
 		}
@@ -69,7 +69,7 @@ namespace Reseed.Rendering
 		{
 			if (key != null)
 			{
-				KeyValue keyValue = GetValue(key);
+				var keyValue = GetValue(key);
 				if (keyValue.HasValue)
 				{
 					return keyValue;
@@ -86,13 +86,14 @@ namespace Reseed.Rendering
 			Equals(obj as Row);
 
 		public bool Equals(Row other) =>
-			other != null && 
-			this.TableName.Equals(other.TableName) &&
-			this.identityValue.Equals(other.identityValue);
+			other is not null &&
+			(ReferenceEquals(other, this) ||
+			 Equals(this.TableName, other.TableName) &&
+			 Equals(this.identityValue, other.identityValue));
 
 		public override int GetHashCode()
 		{
-			int hashCode = -1422622732;
+			var hashCode = -1422622732;
 			hashCode = hashCode * -1521134295 + this.TableName.GetHashCode();
 			hashCode = hashCode * -1521134295 + this.identityValue.GetHashCode();
 			return hashCode;

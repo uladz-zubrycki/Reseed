@@ -16,8 +16,9 @@ namespace Reseed.Data
 
 		public override bool Equals(object obj) => Equals(obj as DataFile);
 
-		public bool Equals(DataFile other) => 
-			other != null && this.Path == other.Path;
+		public bool Equals(DataFile other) =>
+			other is not null &&
+			(ReferenceEquals(other, this) || Equals(this.Path, other.Path));
 
 		public override int GetHashCode() => this.Path.GetHashCode();
 		public override string ToString() => $"'{this.Name}' at '{this.Path}'";

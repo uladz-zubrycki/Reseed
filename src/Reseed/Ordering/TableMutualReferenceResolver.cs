@@ -14,7 +14,7 @@ namespace Reseed.Ordering
 	{
 		public static IReadOnlyCollection<OrderedItem<ITableContainer>> Resolve(OrderedGraph<Table> tables)
 		{
-			Func<Table, Relation<Table>[]> getTableRelations = BuildRelationsGetter(tables.MutualReferences);
+			var getTableRelations = BuildRelationsGetter(tables.MutualReferences);
 			return MutualReferenceResolver.MergeChunks(
 					tables,
 					ts => ts
@@ -28,9 +28,9 @@ namespace Reseed.Ordering
 			MutualGroup<Table> tables,
 			Func<Table, Relation<Table>[]> getTableRelations)
 		{
-			Table[] tableGroup = tables.Items.Select(o => o.Value).ToArray();
-			IReadOnlyCollection<TableRow> rows = CollectTableRows(tableGroup, getTableRelations);
-			OrderedGraph<TableRow> orderedRows = NodeOrderer<TableRow>.Order(rows);
+			var tableGroup = tables.Items.Select(o => o.Value).ToArray();
+			var rows = CollectTableRows(tableGroup, getTableRelations);
+			var orderedRows = NodeOrderer<TableRow>.Order(rows);
 
 			return MutualReferenceResolver.MergeChunks(
 				orderedRows,
@@ -41,7 +41,7 @@ namespace Reseed.Ordering
 		private static MutualTableGroup CreateTableGroup(
 			Table[] tables,
 			IReadOnlyCollection<OrderedItem<TableRow>> rows) =>
-			new MutualTableGroup(
+			new(
 				tables.Select(t => t.Definition).ToArray(),
 				rows.Select(o => o.Map(tr => tr.Row))
 					.ToArray());
@@ -50,13 +50,13 @@ namespace Reseed.Ordering
 			Table[] tables,
 			MutualGroup<TableRow> group)
 		{
-			TableDefinition[] tableDefinitions = tables.Select(t => t.Definition).ToArray();
+			var tableDefinitions = tables.Select(t => t.Definition).ToArray();
 
-			OrderedItem<Row>[] rows = group.Items
+			var rows = group.Items
 				.Select(o => o.Map(r => r.Row))
 				.ToArray();
 
-			Relation<ObjectName>[] relations =
+			var relations =
 				group.Relations
 					.Select(r => r.Map(t => t.Table.Name))
 					.Distinct()
@@ -72,10 +72,10 @@ namespace Reseed.Ordering
 			Table[] tables,
 			Func<Table, Relation<Table>[]> getTableRelations)
 		{
-			Func<Table, Key, (Row, KeyValue)[]> getRows = BuildRowGetter(tables, getTableRelations);
-			Row[] rows = tables.SelectMany(t => t.Rows.Select(r => r.Value)).ToArray();
-			Relation<Row>[] rowRelations = CollectRowRelations(tables, getTableRelations, getRows);
-			Dictionary<ObjectName, TableDefinition> tableDefinitionMap =
+			var getRows = BuildRowGetter(tables, getTableRelations);
+			var rows = tables.SelectMany(t => t.Rows.Select(r => r.Value)).ToArray();
+			var rowRelations = CollectRowRelations(tables, getTableRelations, getRows);
+			var tableDefinitionMap =
 				tables.ToDictionary(x => x.Name, x => x.Definition);
 
 			return NodeBuilder<TableRow>.CollectNodes(
@@ -111,9 +111,9 @@ namespace Reseed.Ordering
 			(Row row, KeyValue value)[] targetRows,
 			Association association)
 		{
-			HashSet<KeyValue> sourceValuesSet = sourceRows.Select(x => x.value).ToHashSet();
+			var sourceValuesSet = sourceRows.Select(x => x.value).ToHashSet();
 
-			Dictionary<KeyValue, IEnumerable<Row>> targetRowsMap =
+			var targetRowsMap =
 				targetRows
 					.Where(x => sourceValuesSet.Contains(x.value))
 					.GroupBy(x => x.value)
@@ -124,7 +124,7 @@ namespace Reseed.Ordering
 			return sourceRows
 				.SelectMany(row =>
 				{
-					IEnumerable<Row> referencedRows = targetRowsMap.TryGetValue(row.value, out IEnumerable<Row> rs)
+					var referencedRows = targetRowsMap.TryGetValue(row.value, out var rs)
 						? rs
 						: new Row[0];
 
@@ -148,7 +148,7 @@ namespace Reseed.Ordering
 				.Distinct()
 				.Select(r =>
 				{
-					(Row Value, KeyValue)[] values = r.target.Rows
+					var values = r.target.Rows
 						.Select(tr => (tr.Value, tr.Value.GetValue(r.key)))
 						.ToArray();
 
@@ -164,7 +164,7 @@ namespace Reseed.Ordering
 		private static Func<T, Relation<T>[]> BuildRelationsGetter<T>(
 			IReadOnlyCollection<MutualReference<T>> references) where T : class
 		{
-			Dictionary<T, Relation<T>[]> relationsMap =
+			var relationsMap =
 				references
 					.SelectMany(r => r.Relations)
 					.GroupBy(r => r.Source)

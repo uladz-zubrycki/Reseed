@@ -16,12 +16,12 @@ namespace Reseed.Validation
 
 		private static void ValidatePrimaryKeysUnique(IReadOnlyCollection<Table> tables)
 		{
-			(TableDefinition table, Row[][] rows)[] duplicates =
+			var duplicates =
 				tables
 					.Where(t => t.Definition.PrimaryKey != null)
 					.Select(t =>
 					{
-						Row[][] rows = t.Rows
+						var rows = t.Rows
 							.Select(or => (row: or.Value, key: or.Value.GetValue(t.Definition.PrimaryKey)))
 							.Where(x => x.key.HasValue)
 							.GroupBy(x => x.key)
@@ -36,9 +36,9 @@ namespace Reseed.Validation
 
 			if (duplicates.Any())
 			{
-				string messages = duplicates.Select(x =>
+				var messages = duplicates.Select(x =>
 					{
-						string errors = x.rows
+						var errors = x.rows
 							.Select(rs => RenderKeyDuplicates(x.table.PrimaryKey, rs))
 							.JoinStrings(" and ");
 
@@ -52,9 +52,9 @@ namespace Reseed.Validation
 
 			static string RenderKeyDuplicates(Key primaryKey, Row[] rows)
 			{
-				KeyValue value = rows.First().GetValue(primaryKey);
+				var value = rows.First().GetValue(primaryKey);
 
-				string origins = rows
+				var origins = rows
 					.Select(r => r.Origin)
 					.Distinct()
 					.Select(x => x.ToString())

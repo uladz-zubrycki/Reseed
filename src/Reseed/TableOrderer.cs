@@ -18,11 +18,11 @@ namespace Reseed
 			if (tables == null) throw new ArgumentNullException(nameof(tables));
 			if (schemas == null) throw new ArgumentNullException(nameof(schemas));
 
-			Dictionary<ObjectName, Table> tableByName = tables.ToDictionary(t => t.Name);
-			OrderedGraph<Table> orderedTables =
+			var tableByName = tables.ToDictionary(t => t.Name);
+			var orderedTables =
 				schemas
 					.FilterShallow(s => tableByName.ContainsKey(s.Name))
-					.MapShallow(s => tableByName.TryGetValue(s.Name, out Table t)
+					.MapShallow(s => tableByName.TryGetValue(s.Name, out var t)
 						? t
 						: throw new InvalidOperationException(
 							$"Can't find table for schema {s.Name}, filter it out"));

@@ -22,11 +22,11 @@ namespace Reseed.Graphs
 			if (createReference == null) throw new ArgumentNullException(nameof(createReference));
 			if (createNode == null) throw new ArgumentNullException(nameof(createNode));
 
-			Dictionary<T, Reference<T>[]> references = CollectReferences(items, relations);
+			var references = CollectReferences(items, relations);
 			var cyclicReferencesMap = new Dictionary<T, Reference<T>[]>();
 			var nodesMap = new Dictionary<T, TOut>();
 
-			TOut[] nodes = references.Keys
+			var nodes = references.Keys
 				.Select(t => BuildNode(
 					t,
 					new ReferencePath<T>(t),
@@ -37,10 +37,10 @@ namespace Reseed.Graphs
 					createNode))
 				.ToArray();
 
-			foreach (KeyValuePair<T, Reference<T>[]> kv in cyclicReferencesMap)
+			foreach (var kv in cyclicReferencesMap)
 			{
-				TOut node = nodesMap[kv.Key];
-				Reference<T>[] itemReferences = kv.Value;
+				var node = nodesMap[kv.Key];
+				var itemReferences = kv.Value;
 
 				node.AddReferences(
 					itemReferences
@@ -55,7 +55,7 @@ namespace Reseed.Graphs
 			IEnumerable<T> items,
 			IEnumerable<Relation<T>> relations)
 		{
-			Dictionary<T, Reference<T>[]> referencesMap =
+			var referencesMap =
 				relations
 					.GroupBy(k => k.Source)
 					.ToDictionary(gr => gr.Key,
@@ -65,7 +65,7 @@ namespace Reseed.Graphs
 
 			return items.ToDictionary(
 				t => t,
-				t => referencesMap.TryGetValue(t, out Reference<T>[] r)
+				t => referencesMap.TryGetValue(t, out var r)
 					? r
 					: Array.Empty<Reference<T>>());
 		}
@@ -80,14 +80,14 @@ namespace Reseed.Graphs
 			Func<T, Reference<TOut>[], TOut> createNode)
 			where T : class
 		{
-			if (nodeMap.TryGetValue(item, out TOut existingNode))
+			if (nodeMap.TryGetValue(item, out var existingNode))
 			{
 				return existingNode;
 			}
-			else if (referencesMap.TryGetValue(item, out Reference<T>[] rs))
+			else if (referencesMap.TryGetValue(item, out var rs))
 			{
-				(Reference<T>[] processedReferences,
-						Reference<T>[] nonProcessedReferences) =
+				(var processedReferences,
+						var nonProcessedReferences) =
 					rs.PartitionBy(r => path.Contains(r.Target));
 
 				if (processedReferences.Length > 0)
@@ -95,9 +95,9 @@ namespace Reseed.Graphs
 					MarkCyclicReferences(processedReferences);
 				}
 
-				Reference<TOut>[] references = nonProcessedReferences.Select(r =>
+				var references = nonProcessedReferences.Select(r =>
 					{
-						TOut node = BuildNode(
+						var node = BuildNode(
 							r.Target,
 							path.Append(r),
 							referencesMap,
@@ -119,14 +119,14 @@ namespace Reseed.Graphs
 
 			TOut CreateNode(Reference<TOut>[] references)
 			{
-				TOut node = createNode(item, references);
+				var node = createNode(item, references);
 				nodeMap.Add(item, node);
 				return node;
 			}
 
 			void MarkCyclicReferences(IReadOnlyCollection<Reference<T>> references)
 			{
-				if (cyclicReferencesMap.TryGetValue(item, out Reference<T>[] targetReferences))
+				if (cyclicReferencesMap.TryGetValue(item, out var targetReferences))
 				{
 					cyclicReferencesMap[item] = targetReferences.Concat(references).ToArray();
 				}

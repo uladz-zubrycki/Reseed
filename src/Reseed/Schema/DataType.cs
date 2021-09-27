@@ -100,7 +100,7 @@ namespace Reseed.Schema
 
 			string RenderDecimalOptions()
 			{
-				int?[] options = new[] { this.Precision, this.Scale }
+				var options = new[] { this.Precision, this.Scale }
 					.Where(o => o != null)
 					.ToArray();
 

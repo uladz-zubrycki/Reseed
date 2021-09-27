@@ -17,8 +17,8 @@ namespace Reseed
 
 			using var connection = new SqlConnection(connectionString);
 			connection.Open();
-			IReadOnlyCollection<TableData> tables = SchemaReader.LoadTables(connection);
-			IReadOnlyCollection<Relation<TableData>> foreignKeys = SchemaReader.LoadForeignKeys(connection, tables);
+			var tables = SchemaReader.LoadTables(connection);
+			var foreignKeys = SchemaReader.LoadForeignKeys(connection, tables);
 			return NodeBuilder<TableSchema>.CollectNodes(
 				tables, 
 				foreignKeys, 
@@ -29,7 +29,7 @@ namespace Reseed
 		private static TableSchema CreateTableSchema(
 			TableData table,
 			Reference<TableSchema>[] references) =>
-			new TableSchema(
+			new(
 				table.Name,
 				table.Columns,
 				table.PrimaryKey,

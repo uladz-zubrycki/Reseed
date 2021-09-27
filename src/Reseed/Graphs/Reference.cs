@@ -39,9 +39,10 @@ namespace Testing.Common.Api.Schema
 		public override bool Equals(object obj) => Equals(obj as Reference<T>);
 
 		public bool Equals(Reference<T> other) =>
-			other != null &&
-			EqualityComparer<Association>.Default.Equals(Association, other.Association) &&
-			EqualityComparer<T>.Default.Equals(Target, other.Target);
+			other is not null &&
+			(ReferenceEquals(other, this) ||
+			 Equals(Association, other.Association) &&
+			 Equals(Target, other.Target));
 
 		public override int GetHashCode()
 		{

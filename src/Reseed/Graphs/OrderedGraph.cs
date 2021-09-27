@@ -8,7 +8,7 @@ namespace Reseed.Graphs
 {
 	internal sealed class OrderedGraph<T> where T : class
 	{
-		public static readonly OrderedGraph<T> Empty = new OrderedGraph<T>(
+		public static readonly OrderedGraph<T> Empty = new(
 			Array.Empty<OrderedItem<T>>(),
 			Array.Empty<MutualReference<T>>());
 
@@ -45,7 +45,7 @@ namespace Reseed.Graphs
 
 		public OrderedGraph<T> Reverse()
 		{
-			int maxIndex = this.Nodes.Count - 1;
+			var maxIndex = this.Nodes.Count - 1;
 
 			return new OrderedGraph<T>(
 				this.Nodes.Select(n => n.MapOrder(i => maxIndex - i)).ToArray(),
@@ -64,14 +64,14 @@ namespace Reseed.Graphs
 			if (predicate == null) throw new ArgumentNullException(nameof(predicate));
 			
 			var backMapping = new Dictionary<T, T>();
-			Dictionary<T, T> mapping = graph.Nodes
+			var mapping = graph.Nodes
 				.Select(o => o.Value)
 				.Where(predicate)
 				.MapDeep<T, T>(
 					(r, n) => r.Map(_ => n),
 					(n, rs) =>
 					{
-						T nn = n.With(rs
+						var nn = n.With(rs
 							.Where(r => predicate(r.Target))
 							.ToArray());
 

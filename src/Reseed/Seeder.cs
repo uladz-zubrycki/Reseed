@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Data.Common;
 using System.Data.SqlClient;
 using JetBrains.Annotations;
-using Reseed.Data;
 using Reseed.Graphs;
 using Reseed.Ordering;
 using Reseed.Rendering;
@@ -30,13 +29,13 @@ namespace Reseed
 			if (mode == null) throw new ArgumentNullException(nameof(mode));
 			if (dataFolder == null) throw new ArgumentNullException(nameof(dataFolder));
 
-			IReadOnlyCollection<Entity> entities = DataReader.LoadData(dataFolder);
-			IReadOnlyCollection<TableSchema> schemas = SchemaProvider.LoadSchema(connectionString);
-			IReadOnlyCollection<Table> tables = TableBuilder.Build(schemas, entities);
+			var entities = DataReader.LoadData(dataFolder);
+			var schemas = SchemaProvider.LoadSchema(connectionString);
+			var tables = TableBuilder.Build(schemas, entities);
 			DataValidator.Validate(tables);
 
-			OrderedGraph<TableSchema> orderedSchemas = NodeOrderer<TableSchema>.Order(schemas);
-			IReadOnlyCollection<OrderedItem<ITableContainer>> containers = TableOrderer.Order(tables, orderedSchemas);
+			var orderedSchemas = NodeOrderer<TableSchema>.Order(schemas);
+			var containers = TableOrderer.Order(tables, orderedSchemas);
 			return Renderer.Render(orderedSchemas, containers, mode);
 		}
 
@@ -51,7 +50,7 @@ namespace Reseed
 			using var connection = new SqlConnection(connectionString);
 			connection.Open();
 
-			foreach (IDbAction dbAction in actions.Order())
+			foreach (var dbAction in actions.Order())
 			{
 				try
 				{
@@ -79,7 +78,7 @@ namespace Reseed
 
 		private static void ExecuteScript(SqlConnection connection, DbScript script)
 		{
-			using SqlCommand command = connection.CreateCommand();
+			using var command = connection.CreateCommand();
 			command.CommandText = script.Text;
 			command.ExecuteNonQuery();
 		}
@@ -95,14 +94,14 @@ namespace Reseed
 				DestinationTableName = action.DestinationTable.GetSqlName()
 			};
 
-			foreach (SqlBulkCopyColumnMapping mapping in action.Columns)
+			foreach (var mapping in action.Columns)
 			{
 				bulkCopy.ColumnMappings.Add(mapping);
 			}
 
 			using DbCommand command = connection.CreateCommand();
 			command.CommandText = action.SourceScript;
-			using DbDataReader reader = command.ExecuteReader();
+			using var reader = command.ExecuteReader();
 			bulkCopy.WriteToServer(reader);
 		}
 	}

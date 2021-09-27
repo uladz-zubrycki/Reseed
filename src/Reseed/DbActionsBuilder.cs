@@ -9,13 +9,13 @@ namespace Reseed
 	internal sealed class DbActionsBuilder
 	{
 		private readonly List<(DbActionStage stage, IDbAction action)> items =
-			new List<(DbActionStage, IDbAction)>();
+			new();
 
 		public DbActionsBuilder Append(DbActionStage stage, [NotNull] params IDbAction[] actions)
 		{
 			if (actions == null) throw new ArgumentNullException(nameof(actions));
 
-			foreach (IDbAction action in actions)
+			foreach (var action in actions)
 			{
 				this.items.Add((stage, action));
 			}
@@ -45,7 +45,7 @@ namespace Reseed
 
 		public DbActions Build()
 		{
-			Dictionary<DbActionStage, OrderedItem<IDbAction>[]> stages = this.items
+			var stages = this.items
 				.WithNaturalOrder()
 				.GroupBy(x => x.Value.stage)
 				.ToDictionary(gr => gr.Key,
@@ -56,7 +56,7 @@ namespace Reseed
 						.ToArray());
 
 			OrderedItem<IDbAction>[] Get(DbActionStage stage) =>
-				stages.TryGetValue(stage, out OrderedItem<IDbAction>[] acts)
+				stages.TryGetValue(stage, out var acts)
 					? acts
 					: Array.Empty<OrderedItem<IDbAction>>();
 

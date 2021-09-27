@@ -21,8 +21,8 @@ namespace Reseed.Rendering.Internals
 			if (containers.Count == 0)
 				throw new ArgumentException("Value cannot be an empty collection.", nameof(containers));
 
-			DbScript dropProcedure = RenderDropProcedureScript(DropInsertSp, name);
-			DbScript createProcedure = ScriptModeRenderer.RenderInsertData(containers)
+			var dropProcedure = RenderDropProcedureScript(DropInsertSp, name);
+			var createProcedure = ScriptModeRenderer.RenderInsertData(containers)
 				.Map(t => RenderCreateStoredProcedure(name, t), CreateInsertSp);
 
 			return OrderedCollection(dropProcedure, createProcedure);
@@ -37,8 +37,8 @@ namespace Reseed.Rendering.Internals
 			if (schemas == null) throw new ArgumentNullException(nameof(schemas));
 			if (options == null) throw new ArgumentNullException(nameof(options));
 
-			DbScript dropProcedure = RenderDropProcedureScript(DropDeleteSp, name);
-			DbScript createProcedure = DbScript
+			var dropProcedure = RenderDropProcedureScript(DropDeleteSp, name);
+			var createProcedure = DbScript
 				.Join(DeleteScript, DeleteScriptRenderer.RenderDeleteScripts(schemas, options).Order())
 				.Map(s => RenderCreateStoredProcedure(name, s), CreateDeleteSp);
 

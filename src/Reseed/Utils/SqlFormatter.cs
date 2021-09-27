@@ -19,7 +19,7 @@ namespace Reseed.Utils
 			return value.Split(new[] { Environment.NewLine }, StringSplitOptions.None)
 				.Select(line =>
 				{
-					string trimmed = line.TrimStart();
+					var trimmed = line.TrimStart();
 					return trimmed.StartsWith((separator ?? ' ').ToString()) 
 						? trimmed.Substring(1) 
 						: trimmed;
@@ -32,7 +32,7 @@ namespace Reseed.Utils
 		public static string WithMargin([NotNull] this string value, string margin, char? separator = null)
 		{
 			if (value == null) throw new ArgumentNullException(nameof(value));
-			string[] lines = value.Split(new[] { Environment.NewLine }, StringSplitOptions.None);
+			var lines = value.Split(new[] { Environment.NewLine }, StringSplitOptions.None);
 			return lines
 				.Select(line => separator + margin + line) 
 				.JoinStrings(Environment.NewLine);
@@ -53,11 +53,11 @@ namespace Reseed.Utils
 			if (breakAt.Length == 0)
 				throw new ArgumentException("Value cannot be an empty collection.", nameof(breakAt));
 
-			HashSet<char> breakAtSet = breakAt.ToHashSet();
+			var breakAtSet = breakAt.ToHashSet();
 			var lines = new List<string>();
 			var buffer = new StringBuilder();
 
-			foreach (string line in value.Split(new[] { Environment.NewLine }, StringSplitOptions.None))
+			foreach (var line in value.Split(new[] { Environment.NewLine }, StringSplitOptions.None))
 			{
 				var i = 0;
 				var wrapped = false;
@@ -111,11 +111,11 @@ namespace Reseed.Utils
 			if (value == null) throw new ArgumentNullException(nameof(value));
 			if (maxLength <= 0) throw new ArgumentOutOfRangeException(nameof(maxLength));
 
-			string[] lines = value.Split(new[] { Environment.NewLine }, StringSplitOptions.None);
+			var lines = value.Split(new[] { Environment.NewLine }, StringSplitOptions.None);
 			var output = new List<string>();
 			var buffer = new StringBuilder();
 
-			foreach (string line in lines)
+			foreach (var line in lines)
 			{
 				if (buffer.Length + line.Length < maxLength)
 				{
@@ -153,7 +153,7 @@ namespace Reseed.Utils
 		private static IEnumerable<string> MergeEmptyLines([NotNull] this IEnumerable<string> lines)
 		{
 			var haveEmpty = false;
-			foreach (string line in lines)
+			foreach (var line in lines)
 			{
 				if (string.IsNullOrWhiteSpace(line))
 				{

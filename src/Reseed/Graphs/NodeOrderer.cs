@@ -4,7 +4,6 @@ using System.Linq;
 using JetBrains.Annotations;
 using Reseed.Ordering;
 using Reseed.Utils;
-using Testing.Common.Api.Schema;
 
 namespace Reseed.Graphs
 {
@@ -20,7 +19,7 @@ namespace Reseed.Graphs
 
 			var processedNodes = new Dictionary<T, OrderedItem<T>>();
 			var mutualReferences = new List<MutualReference<T>>();
-			int _ = IterateNodes(
+			var _ = IterateNodes(
 				nodes,
 				0,
 				null,
@@ -41,10 +40,10 @@ namespace Reseed.Graphs
 			Func<TNode, T> getNode,
 			Func<ReferencePath<T>, TNode, ReferencePath<T>> appendPath)
 		{
-			int nextOrder = initialOrder;
-			foreach (TNode nodeContainer in nodeContainers)
+			var nextOrder = initialOrder;
+			foreach (var nodeContainer in nodeContainers)
 			{
-				OrderedItem<T> orderedNode = GetNodeOrder(
+				var orderedNode = GetNodeOrder(
 					getNode(nodeContainer),
 					nextOrder,
 					appendPath(referencePath, nodeContainer),
@@ -66,12 +65,12 @@ namespace Reseed.Graphs
 			Dictionary<T, OrderedItem<T>> processedNodes,
 			List<MutualReference<T>> mutualReferences)
 		{
-			if (processedNodes.TryGetValue(node, out OrderedItem<T> processed))
+			if (processedNodes.TryGetValue(node, out var processed))
 			{
 				return processed;
 			}
 
-			(Reference<T>[] cyclicReferences, Reference<T>[] normalReferences) =
+			(var cyclicReferences, var normalReferences) =
 				node.References.PartitionBy(t => path.Contains(t.Target));
 
 			mutualReferences.AddRange(cyclicReferences.Select(
@@ -85,7 +84,7 @@ namespace Reseed.Graphs
 				return TrackProcessed(new OrderedItem<T>(order, node));
 			}
 
-			int nextOrder = IterateNodes(
+			var nextOrder = IterateNodes(
 				normalReferences,
 				order,
 				path,

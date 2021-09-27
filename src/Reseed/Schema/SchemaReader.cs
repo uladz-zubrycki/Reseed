@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Linq;
-using Reseed.Ordering;
 using Reseed.Schema.Internals;
 using Reseed.Utils;
 using static Reseed.Ordering.OrderedItem;
@@ -19,7 +18,7 @@ namespace Reseed.Schema
 				BuildColumnsQuery(),
 				(r, cs) =>
 				{
-					int primaryKeyOrder = r.GetInt32(cs["PrimaryKeyColumnOrder"]);
+					var primaryKeyOrder = r.GetInt32(cs["PrimaryKeyColumnOrder"]);
 					return new
 					{
 						SchemaName = r.GetString(cs["TableSchema"]),
@@ -49,7 +48,7 @@ namespace Reseed.Schema
 				{
 					try
 					{
-						OrderedItem<string>[] primaryKeyColumns = gr
+						var primaryKeyColumns = gr
 							.Where(k => k.PrimaryKeyColumnOrder != null)
 							.Select(c => Ordered(c.PrimaryKeyColumnOrder.Value, c.ColumnName))
 							.ToArray();
@@ -86,7 +85,7 @@ namespace Reseed.Schema
 			SqlConnection connection,
 			IReadOnlyCollection<TableData> tables)
 		{
-			string tableNamesParameter = string.Join(", ",
+			var tableNamesParameter = string.Join(", ",
 				tables.Select(t => $"'{t.Name.Name}'"));
 
 			var foreignKeysData = ExecuteQuery(
@@ -118,9 +117,9 @@ namespace Reseed.Schema
 						ForeignKeyId = r.GetInt32(cs["ForeignKeyId"])
 					});
 
-			Dictionary<int, TableData> tablesById = tables.ToDictionary(t => t.ObjectId);
+			var tablesById = tables.ToDictionary(t => t.ObjectId);
 			var foreignKeysDataById = foreignKeysData.ToDictionary(fk => fk.Id);
-			Relation<TableData>[] foreignKeys =
+			var foreignKeys =
 				columns.GroupBy(k => k.ForeignKeyId)
 					.Select(gr =>
 					{
@@ -224,11 +223,11 @@ namespace Reseed.Schema
 			string query,
 			Func<SqlDataReader, IDictionary<string, int>, T> readItem)
 		{
-			using SqlCommand command = connection.CreateCommand();
+			using var command = connection.CreateCommand();
 			command.CommandText = query;
-			using SqlDataReader reader = command.ExecuteReader();
+			using var reader = command.ExecuteReader();
 
-			Dictionary<string, int> nameMapping = ArrayUtils
+			var nameMapping = ArrayUtils
 				.Init(reader.VisibleFieldCount, i => (name: reader.GetName(i), i))
 				.ToDictionary(kv => kv.name, kv => kv.i);
 

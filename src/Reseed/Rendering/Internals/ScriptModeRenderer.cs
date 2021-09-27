@@ -27,8 +27,8 @@ namespace Reseed.Rendering.Internals
 
 		private static string RenderContainer(ITableContainer container)
 		{
-			IScriptDecorator[] decorators = GetScriptDecorators(container);
-			string script = container switch
+			var decorators = GetScriptDecorators(container);
+			var script = container switch
 			{
 				Table table => RenderTable(table),
 				MutualRowGroup rows => RenderMutualTableGroup(rows),
@@ -41,7 +41,7 @@ namespace Reseed.Rendering.Internals
 
 		private static IScriptDecorator[] GetScriptDecorators(ITableContainer container)
 		{
-			IScriptDecorator[] options = container switch
+			var options = container switch
 			{
 				Table table => new IScriptDecorator[]
 				{
@@ -62,7 +62,7 @@ namespace Reseed.Rendering.Internals
 
 		private static string RenderMutualTableGroup(MutualTableGroup tableGroup)
 		{
-			IEnumerable<string> scripts = tableGroup
+			var scripts = tableGroup
 				.GetTables()
 				.OrderBy(o => o.Order)
 				.Select(o => RenderContainer(o.Value));
@@ -72,25 +72,25 @@ namespace Reseed.Rendering.Internals
 
 		private static string RenderTable(Table table)
 		{
-			Func<string, Column> getColumnByName = BuildColumnProvider(table.Definition);
-			Func<Column, IdentityGenerator> getIdentityGenerator = BuildIdentityGeneratorProvider(table);
+			var getColumnByName = BuildColumnProvider(table.Definition);
+			var getIdentityGenerator = BuildIdentityGeneratorProvider(table);
 
-			Column[] requiredColumns = table.Columns
+			var requiredColumns = table.Columns
 				.Where(c => c.IsRequired)
 				.ToArray();
 
-			IEnumerable<string> groups = GroupRowsByColumns(table.Rows)
+			var groups = GroupRowsByColumns(table.Rows)
 				.OrderBy(gr => gr.Order)
 				.Select(gr =>
 				{
-					Column[] groupColumns = gr.Value.columns
+					var groupColumns = gr.Value.columns
 						.Select(getColumnByName)
 						.Concat(requiredColumns)
 						.Distinct()
 						.ToArray();
 
-					string columnsScript = RenderColumns(groupColumns);
-					string rowsScript = RenderRows(
+					var columnsScript = RenderColumns(groupColumns);
+					var rowsScript = RenderRows(
 						table.Name,
 						groupColumns,
 						gr.Value.rows,
@@ -119,13 +119,13 @@ namespace Reseed.Rendering.Internals
 
 		private static Func<Column, IdentityGenerator> BuildIdentityGeneratorProvider(Table table)
 		{
-			Dictionary<Column, IdentityGenerator> generatorsMap = table.Columns
+			var generatorsMap = table.Columns
 				.Where(c => c.IsIdentity)
 				.Select(c =>
 				{
-					int[] values = table.Rows
+					var values = table.Rows
 						.Select(r =>
-							r.Value.GetValue(c.Name) is { } value && int.TryParse(value, out int number)
+							r.Value.GetValue(c.Name) is { } value && int.TryParse(value, out var number)
 								? number
 								: (int?) null)
 						.Where(v => v != null)
@@ -136,7 +136,7 @@ namespace Reseed.Rendering.Internals
 				})
 				.ToDictionary(pair => pair.column, pair => pair.generator);
 
-			return c => generatorsMap.TryGetValue(c, out IdentityGenerator generator)
+			return c => generatorsMap.TryGetValue(c, out var generator)
 				? generator
 				: throw BuildTableError(table.Name, $"Can't find identity generator for column with name '{c.Name}'");
 		}
@@ -162,11 +162,11 @@ namespace Reseed.Rendering.Internals
 			IEnumerable<OrderedItem<Row>> rows,
 			Func<Column, IdentityGenerator> getIdentityGenerator)
 		{
-			IEnumerable<string> rowValues = rows
+			var rowValues = rows
 				.OrderBy(r => r.Order)
 				.Select(row =>
 				{
-					IEnumerable<string> renderedValues = columns
+					var renderedValues = columns
 						.OrderBy(c => c.Order)
 						.Select(c => GetColumnValue(tableName, c, row.Value, getIdentityGenerator))
 						.Where(c => c != null)
@@ -184,7 +184,7 @@ namespace Reseed.Rendering.Internals
 			Row row,
 			Func<Column, IdentityGenerator> getIdentityGenerator)
 		{
-			string value = row.GetValue(column.Name);
+			var value = row.GetValue(column.Name);
 			if (value != null)
 			{
 				return new ColumnValue(column, value);
@@ -197,7 +197,7 @@ namespace Reseed.Rendering.Internals
 
 			if (column.IsIdentity)
 			{
-				IdentityGenerator generator = getIdentityGenerator(column);
+				var generator = getIdentityGenerator(column);
 				return new ColumnValue(column, generator.NextValue());
 			}
 			else
@@ -221,10 +221,10 @@ namespace Reseed.Rendering.Internals
 
 		private static Func<string, Column> BuildColumnProvider(TableDefinition table)
 		{
-			Dictionary<string, Column> nameMapping =
+			var nameMapping =
 				table.Columns.ToDictionary(c => c.Name, c => c);
 
-			return columnName => nameMapping.TryGetValue(columnName, out Column column)
+			return columnName => nameMapping.TryGetValue(columnName, out var column)
 				? column
 				: throw BuildTableError(table.Name,
 					$"Can't find column by name '{columnName}'. " +
@@ -232,6 +232,6 @@ namespace Reseed.Rendering.Internals
 		}
 
 		private static InvalidOperationException BuildTableError(ObjectName tableName, string error) =>
-			new InvalidOperationException($"Can't render insert script for table '{tableName}'. " + error);
+			new($"Can't render insert script for table '{tableName}'. " + error);
 	}
 }

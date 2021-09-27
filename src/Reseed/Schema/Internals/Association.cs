@@ -20,7 +20,9 @@ namespace Reseed.Schema.Internals
 		public override bool Equals(object obj) => Equals(obj as Association);
 
 		public bool Equals(Association other) =>
-			other != null && this.Name.Equals(other.Name, StringComparison.InvariantCultureIgnoreCase);
+			other is not null &&
+			(ReferenceEquals(other, this) ||
+			 string.Equals(this.Name, other.Name, StringComparison.InvariantCultureIgnoreCase));
 
 		public override int GetHashCode() => 
 			539060726 + EqualityComparer<string>.Default.GetHashCode(this.Name);
