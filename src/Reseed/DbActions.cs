@@ -8,6 +8,7 @@ using Reseed.Schema;
 
 namespace Reseed
 {
+	[PublicAPI]
 	public sealed class DbActions
 	{
 		public readonly IReadOnlyCollection<OrderedItem<IDbAction>> PrepareDatabase;
@@ -15,7 +16,7 @@ namespace Reseed
 		public readonly IReadOnlyCollection<OrderedItem<IDbAction>> DeleteData;
 		public readonly IReadOnlyCollection<OrderedItem<IDbAction>> CleanupDatabase;
 
-		public DbActions(
+		internal DbActions(
 			[NotNull] IReadOnlyCollection<OrderedItem<IDbAction>> prepareDatabase,
 			[NotNull] IReadOnlyCollection<OrderedItem<IDbAction>> insertData,
 			[NotNull] IReadOnlyCollection<OrderedItem<IDbAction>> deleteData,
@@ -28,17 +29,19 @@ namespace Reseed
 		}
 	}
 
+	[PublicAPI]
 	public interface IDbAction
 	{
 		public string Name { get; }
 	}
 
+	[PublicAPI]
 	public sealed class DbScript: IDbAction
 	{
 		public string Name {get; }
 		public readonly string Text;
 
-		public DbScript([NotNull] string name, [NotNull] string text)
+		internal DbScript([NotNull] string name, [NotNull] string text)
 		{
 			Name = name ?? throw new ArgumentNullException(nameof(name));
 			this.Text = text ?? throw new ArgumentNullException(nameof(text));
@@ -67,6 +70,7 @@ namespace Reseed
 		}
 	}
 
+	[PublicAPI]
 	public sealed class SqlBulkCopyAction : IDbAction
 	{
 		public readonly string SourceScript;
@@ -76,7 +80,7 @@ namespace Reseed
 
 		public string Name { get; }
 
-		public SqlBulkCopyAction(
+		internal SqlBulkCopyAction(
 			[NotNull] string name,
 			[NotNull] string sourceScript,
 			[NotNull] ObjectName destinationTable, 

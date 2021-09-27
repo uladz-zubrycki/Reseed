@@ -7,6 +7,7 @@ using Reseed.Utils;
 
 namespace Reseed.Rendering
 {
+	[PublicAPI]
 	public sealed class CleanupOptions
 	{
 		internal readonly CleanupMode Mode;
@@ -103,6 +104,7 @@ namespace Reseed.Rendering
 		bool ShouldClean(ObjectName table);
 	}
 
+	[PublicAPI]
 	public sealed class ExcludingDataCleanupFilter : IDataCleanupFilter
 	{
 		private readonly List<string> excludedSchemas = new List<string>();
@@ -132,6 +134,7 @@ namespace Reseed.Rendering
 			!this.excludedTables.Contains(table);
 	}
 
+	[PublicAPI]
 	public sealed class IncludingDataCleanupFilter : IDataCleanupFilter
 	{
 		private readonly List<string> includedSchemas = new List<string>();

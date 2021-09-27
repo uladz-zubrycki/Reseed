@@ -6,9 +6,10 @@ using Reseed.Utils;
 
 namespace Reseed.Rendering
 {
+	[PublicAPI]
 	public abstract class RenderMode
 	{
-		public readonly CleanupOptions CleanupOptions;
+		internal readonly CleanupOptions CleanupOptions;
 
 		protected RenderMode([NotNull] CleanupOptions cleanupOptions)
 		{
@@ -79,6 +80,7 @@ namespace Reseed.Rendering
 		}
 	}
 
+	[PublicAPI]
 	public abstract class TempTableInsertMode
 	{
 		public static TempTableInsertMode Script() =>
@@ -92,10 +94,7 @@ namespace Reseed.Rendering
 			new TempTableSqlBulkCopyInsertMode(customizeOptions);
 	}
 
-	internal sealed class TempTableScriptInsertMode : TempTableInsertMode
-	{
-
-	}
+	internal sealed class TempTableScriptInsertMode : TempTableInsertMode { }
 
 	internal sealed class TempTableProcedureInsertMode : TempTableInsertMode
 	{

@@ -10,7 +10,7 @@ using static Reseed.Ordering.OrderedItem;
 
 namespace Reseed.Rendering
 {
-	interface ITableContainer
+	internal interface ITableContainer
 	{
 		IReadOnlyCollection<ObjectName> TableNames { get; }
 		ITableContainer MapTableName([NotNull] Func<ObjectName, ObjectName> mapper);

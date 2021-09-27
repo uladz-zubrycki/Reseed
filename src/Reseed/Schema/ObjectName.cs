@@ -4,6 +4,7 @@ using JetBrains.Annotations;
 
 namespace Reseed.Schema
 {
+	[PublicAPI]
 	public sealed class ObjectName : IEquatable<ObjectName>
 	{
 		public readonly string Schema;

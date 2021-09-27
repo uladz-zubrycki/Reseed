@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Data.Common;
 using System.Data.SqlClient;
-using System.Linq;
 using JetBrains.Annotations;
 using Reseed.Data;
 using Reseed.Graphs;
@@ -13,6 +12,7 @@ using Reseed.Validation;
 
 namespace Reseed
 {
+	[PublicAPI]
 	public sealed class Seeder
 	{
 		private readonly string connectionString;
