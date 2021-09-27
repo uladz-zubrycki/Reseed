@@ -5,6 +5,7 @@ using JetBrains.Annotations;
 
 namespace Reseed.Ordering
 {
+	[PublicAPI]
 	public sealed class OrderedItem<T> 
 	{
 		public readonly int Order;
@@ -19,20 +20,20 @@ namespace Reseed.Ordering
 		public override string ToString() => 
 			$"{this.Order}: {this.Value}";
 
-		public OrderedItem<TResult> Map<TResult>([NotNull] Func<T, TResult> mapper)
+		internal OrderedItem<TResult> Map<TResult>([NotNull] Func<T, TResult> mapper)
 		{
 			if (mapper == null) throw new ArgumentNullException(nameof(mapper));
 			return new OrderedItem<TResult>(this.Order, mapper(this.Value));
 		}
 
-		public OrderedItem<T> MapOrder([NotNull] Func<int, int> mapper)
+		internal OrderedItem<T> MapOrder([NotNull] Func<int, int> mapper)
 		{
 			if (mapper == null) throw new ArgumentNullException(nameof(mapper));
 			return new OrderedItem<T>(mapper(this.Order), this.Value);
 		}
 	}
 
-	public static class OrderedItem
+	internal static class OrderedItem
 	{
 		public static OrderedItem<T> Ordered<T>(int order, T value) =>
 			new OrderedItem<T>(order, value);

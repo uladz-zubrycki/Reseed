@@ -6,6 +6,7 @@ using Reseed.Utils;
 
 namespace Reseed.Rendering
 {
+	[PublicAPI]
 	public abstract class CleanupMode
 	{
 		internal readonly DeleteConstraintsResolutionKind ResolutionKind;
@@ -44,7 +45,7 @@ namespace Reseed.Rendering
 			new DeleteCleanupMode(resolutionKind);
 	}
 
-	public class TruncateCleanupMode : CleanupMode
+	internal class TruncateCleanupMode : CleanupMode
 	{
 		private readonly HashSet<ObjectName> useDeleteForTables;
 
@@ -60,7 +61,7 @@ namespace Reseed.Rendering
 		internal bool ShouldUseDelete(ObjectName table) => this.useDeleteForTables.Contains(table);
 	}
 
-	public sealed class PreferTruncateCleanupMode : TruncateCleanupMode
+	internal sealed class PreferTruncateCleanupMode : TruncateCleanupMode
 	{
 		public PreferTruncateCleanupMode(
 			DeleteConstraintsResolutionKind resolutionKind,
@@ -68,12 +69,13 @@ namespace Reseed.Rendering
 			: base(resolutionKind, useDeleteForTables) { }
 	}
 
-	public sealed class DeleteCleanupMode : CleanupMode
+	internal sealed class DeleteCleanupMode : CleanupMode
 	{
 		public DeleteCleanupMode(DeleteConstraintsResolutionKind resolutionKind) 
 			: base(resolutionKind) { }
 	}
 
+	[PublicAPI]
 	public enum DeleteConstraintsResolutionKind
 	{
 		/// <summary>
