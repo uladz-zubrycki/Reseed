@@ -1,0 +1,31 @@
+<Project>
+    <PropertyGroup>
+        <PackageId>Reseed</PackageId>
+        <Description>
+            Initialize and clean integration tests database in a convenient, reliable and fast way.
+        </Description>
+        <PackageTags>Testing;Tests;Integration testing;MS Sql;Database;Data;Seed;Seeding;Cleanup;Respawn;NDbUnit;DbUnit;</PackageTags>
+        <PackageProjectUrl>https://github.com/v-zubritsky/Reseed</PackageProjectUrl>
+        <Authors>v-zubritsky</Authors>
+    </PropertyGroup>
+    <PropertyGroup>
+        <Configuration>Release</Configuration>
+    </PropertyGroup>
+
+    <!-- Build symbols package -->
+    <PropertyGroup>
+        <IncludeSymbols>true</IncludeSymbols>
+        <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    </PropertyGroup>
+
+    <!-- Support SourceLink -->
+    <PropertyGroup>
+        <RepositoryUrl>https://github.com/v-zubritsky/Reseed</RepositoryUrl>
+        <RepositoryType>git</RepositoryType>
+        <RepositoryBranch>release</RepositoryBranch>
+        <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    </PropertyGroup>
+    <ItemGroup>
+        <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All"/>
+    </ItemGroup>
+</Project>
