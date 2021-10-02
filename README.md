@@ -76,4 +76,6 @@ Library is able to operate in a few modes, so that scripts it outputs could diff
     WIP
 
 # API and examples
+- [Example of usage with NUnit](https://github.com/v-zubritsky/Reseed/tree/main/samples/Reseed.Samples.NUnit);
+
 TBD
