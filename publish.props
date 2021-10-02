@@ -4,7 +4,7 @@
         <Description>
             Initialize and clean integration tests database in a convenient, reliable and fast way.
         </Description>
-        <PackageTags>Testing;Tests;Integration testing;MS Sql;Database;Data;Seed;Seeding;Cleanup;Respawn;NDbUnit;DbUnit;</PackageTags>
+        <PackageTags>Testing;Tests;Integration;Sql;Database;Data;Seed;Seeding;Cleanup;Respawn;NDbUnit;DbUnit;</PackageTags>
         <PackageProjectUrl>https://github.com/v-zubritsky/Reseed</PackageProjectUrl>
         <Authors>v-zubritsky</Authors>
     </PropertyGroup>
