@@ -4,11 +4,10 @@ using System.Linq;
 using JetBrains.Annotations;
 using Reseed.Data;
 using Reseed.Ordering;
-using Reseed.Rendering;
 using Reseed.Schema;
 using static Reseed.Ordering.OrderedItem;
 
-namespace Reseed
+namespace Reseed.Rendering
 {
 	internal static class TableBuilder
 	{

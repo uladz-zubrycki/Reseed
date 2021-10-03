@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using JetBrains.Annotations;
 using Reseed.Graphs;
 using Reseed.Ordering;
-using Reseed.Rendering;
 using Reseed.Schema;
 using static Reseed.Rendering.Internals.DeleteScriptRenderer;
 using static Reseed.Rendering.Internals.ScriptRendererUtils;
@@ -12,7 +11,7 @@ using static Reseed.Rendering.Internals.StoredProcedureModeRenderer;
 using static Reseed.Rendering.Internals.TempTableModeRenderer;
 using static Reseed.Rendering.Internals.CommonScriptNames;
 
-namespace Reseed
+namespace Reseed.Rendering
 {
 	internal static class Renderer
 	{

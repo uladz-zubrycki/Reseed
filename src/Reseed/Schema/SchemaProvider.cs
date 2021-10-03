@@ -3,11 +3,10 @@ using System.Collections.Generic;
 using System.Data.SqlClient;
 using JetBrains.Annotations;
 using Reseed.Graphs;
-using Reseed.Schema;
 using Reseed.Schema.Internals;
 using Testing.Common.Api.Schema;
 
-namespace Reseed
+namespace Reseed.Schema
 {
 	internal static class SchemaProvider
 	{

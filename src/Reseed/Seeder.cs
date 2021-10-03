@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data.Common;
 using System.Data.SqlClient;
 using JetBrains.Annotations;
+using Reseed.Data;
 using Reseed.Graphs;
 using Reseed.Ordering;
 using Reseed.Rendering;

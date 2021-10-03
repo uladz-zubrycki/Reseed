@@ -3,11 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
 using Reseed.Graphs;
-using Reseed.Ordering;
 using Reseed.Rendering;
 using Reseed.Schema;
 
-namespace Reseed
+namespace Reseed.Ordering
 {
 	internal static class TableOrderer
 	{

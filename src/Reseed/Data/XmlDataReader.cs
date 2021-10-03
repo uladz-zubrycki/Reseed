@@ -4,9 +4,8 @@ using System.IO;
 using System.Linq;
 using System.Xml.Linq;
 using JetBrains.Annotations;
-using Reseed.Data;
 
-namespace Reseed
+namespace Reseed.Data
 {
 	internal static class XmlDataReader
 	{
