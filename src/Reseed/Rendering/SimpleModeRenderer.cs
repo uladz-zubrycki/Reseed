@@ -8,33 +8,21 @@ using Reseed.Schema;
 
 namespace Reseed.Rendering
 {
-	internal static class Renderer
+	internal static class SimpleModeRenderer
 	{
 		public static DbActions Render(
 			[NotNull] OrderedGraph<TableSchema> tables,
 			[NotNull] IReadOnlyCollection<OrderedItem<ITableContainer>> containers,
-			[NotNull] RenderMode mode)
+			[NotNull] SimpleMode mode)
 		{
 			if (tables == null) throw new ArgumentNullException(nameof(tables));
 			if (containers == null) throw new ArgumentNullException(nameof(containers));
-			if (containers.Count == 0)
-				throw new ArgumentException("Value cannot be an empty collection.", nameof(containers));
 			if (mode == null) throw new ArgumentNullException(nameof(mode));
 
-			return mode switch
-			{
-				SimpleMode simpleMode => SimpleModeRenderer.Render(
-					tables, 
-					containers, 
-					simpleMode),
-
-				TemporaryTablesMode temporaryTablesMode => TemporaryTablesModeRenderer.Render(
-					tables, 
-					containers,
-					temporaryTablesMode),
-
-				_ => throw new ArgumentOutOfRangeException(nameof(mode))
-			};
+			return new DbActionsBuilder()
+				.AppendSimpleInsertActions(containers, mode.InsertMode)
+				.AppendCleanupActions(tables, mode.CleanupMode)
+				.Build();
 		}
 	}
 }

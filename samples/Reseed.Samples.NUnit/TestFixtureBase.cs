@@ -1,6 +1,7 @@
 ﻿using System.IO;
 using NUnit.Framework;
 using Reseed.Rendering;
+using Reseed.Rendering.Modes;
 
 namespace Reseed.Samples.NUnit
 {
@@ -18,7 +19,9 @@ namespace Reseed.Samples.NUnit
 		public TestFixtureBase()
 		{
 			actions = Seeder.Generate(
-				RenderMode.Script(CleanupOptions.IncludeAll(CleanupMode.PreferTruncate())),
+				RenderMode.Simple(
+					SimpleInsertMode.Script(),
+					CleanupMode.Script(CleanupOptions.IncludeAll(CleanupKind.PreferTruncate()))),
 				DataFolder);
 		}
 

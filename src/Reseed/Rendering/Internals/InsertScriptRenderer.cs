@@ -9,9 +9,9 @@ using static Reseed.Ordering.OrderedItem;
 
 namespace Reseed.Rendering.Internals
 {
-	internal static class ScriptModeRenderer
+	internal static class InsertScriptRenderer
 	{
-		public static DbScript RenderInsertData(
+		public static DbScript Render(
 			IReadOnlyCollection<OrderedItem<ITableContainer>> containers)
 		{
 			if (containers == null) throw new ArgumentNullException(nameof(containers));

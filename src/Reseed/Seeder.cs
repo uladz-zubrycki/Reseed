@@ -7,6 +7,7 @@ using Reseed.Data;
 using Reseed.Graphs;
 using Reseed.Ordering;
 using Reseed.Rendering;
+using Reseed.Rendering.Modes;
 using Reseed.Schema;
 using Reseed.Validation;
 
