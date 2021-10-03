@@ -1,5 +1,7 @@
 > **Disclaimer**: Versions of the library up to 1.0.0 don't follow semantic versioning and public api is a subject of possibly breaking changes. 
 
+![Nuget](https://img.shields.io/nuget/v/Reseed?color=blue&style=flat-square)
+
 # About
 
 *Reseed* library allows you to initialize and clean integration tests database in a convenient, reliable and fast way. 
