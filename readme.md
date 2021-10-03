@@ -1,4 +1,4 @@
-![Nuget](https://img.shields.io/nuget/v/Reseed?color=blue&style=flat-square)
+[![NuGet version (Reseed)](https://img.shields.io/nuget/v/Reseed?color=blue&style=flat-square)](https://www.nuget.org/packages/Reseed/)
 > **Disclaimer**: Versions of the library up to 1.0.0 don't follow semantic versioning and public api is a subject of possibly breaking changes. 
 
 # About
