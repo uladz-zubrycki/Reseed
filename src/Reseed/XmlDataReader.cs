@@ -8,7 +8,7 @@ using Reseed.Data;
 
 namespace Reseed
 {
-	internal static class DataReader
+	internal static class XmlDataReader
 	{
 		public static IReadOnlyCollection<Entity> LoadData([NotNull] string root)
 		{
@@ -16,7 +16,7 @@ namespace Reseed
 			if (!Directory.Exists(root))
 			{
 				throw new InvalidOperationException(
-					$"Can't find test data files at '{root}', specified directory doesn't exist");
+					$"Can't find xml data files at '{root}', specified directory doesn't exist");
 			}
 
 			var files = Directory
@@ -26,7 +26,7 @@ namespace Reseed
 			if (!files.Any())
 			{
 				throw new InvalidOperationException(
-					$"At least one test data file is required, but found none at '{root}'");
+					$"At least one xml data file is required, but found none at '{root}'");
 			}
 
 			return files
@@ -36,21 +36,28 @@ namespace Reseed
 
 		private static Entity[] ReadFile([NotNull] string path)
 		{
-			const string rootName = "Crexi-Main";
 			var file = new DataFile(path);
-			
-			var root = XDocument.Load(path).Elements().SingleOrDefault();
-			// TODO: Enable after cleaning namespaces from test data
-			//if (root?.Name != XName.Get(rootName))
-			//{
-			//	string rootIssue = root == null ? "no element" : $"element with name '{root.Name}'";
+			var rootElements = XDocument.Load(path)
+				.Elements()
+				.ToArray();
 
-			//	throw BuildDocumentError(file,
-			//		$"Expected to have the only root element with name '{rootName}' and no namespace, " +
-			//		$"but got {rootIssue}");
-			//}
+			if (rootElements.Length != 1)
+			{
+				throw BuildDocumentError(file,
+					$"Expected to have the only root element but got {rootElements.Length} elements. " +
+					"Make sure that you have valid xml data file. Empty data files aren't allowed");
+			}
 
-			return root.Elements()
+			var root = rootElements.First();
+			var entityElements = root.Elements().ToArray();
+			if (entityElements.Length == 0)
+			{
+				throw BuildDocumentError(file,
+					"At least one xml element for entity is required, but found none. " +
+					"Empty data files aren't allowed");
+			}
+
+			return entityElements
 				.Select(e => ParseEntity(file, e))
 				.ToArray();
 		}
@@ -59,18 +66,19 @@ namespace Reseed
 		{
 			AssertNoAttributes(origin, element);
 
-			var descendants = element.Elements().ToArray();
-			if (descendants.Length == 0)
+			var propertyElements = element.Elements().ToArray();
+			if (propertyElements.Length == 0)
 			{
 				throw BuildDocumentError(
 					origin,
-					$"At least one descendant node is required, but found empty element '{element.Name}'");
+					$"At least one xml element for entity attribute is required, but found none at '{element.Name}'. " +
+					"Entities without attributes aren't allowed");
 			}
 
 			return new Entity(
 				origin,
 				element.Name.LocalName,
-				descendants.Select(e => ParseProperty(origin, e)).ToArray());
+				propertyElements.Select(e => ParseProperty(origin, e)).ToArray());
 		}
 
 		private static Property ParseProperty(DataFile origin, XElement element)
@@ -97,13 +105,13 @@ namespace Reseed
 			{
 				throw BuildDocumentError(
 					origin,
-					$"Attributes aren't supported, but found at element '{element.Name}'");
+					$"Attributes aren't supported, but are found at element '{element.Name}'");
 			}
 		}
 
 		private static Exception BuildDocumentError(DataFile origin, string error) =>
 			new InvalidOperationException(
-				$"Can't process test data document '{origin.Name}' at '{origin.Path}'. " +
+				$"Can't process xml data file '{origin.Name}' at '{origin.Path}'. " +
 				error);
 	}
 }

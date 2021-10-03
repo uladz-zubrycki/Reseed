@@ -29,7 +29,7 @@ namespace Reseed
 			if (mode == null) throw new ArgumentNullException(nameof(mode));
 			if (dataFolder == null) throw new ArgumentNullException(nameof(dataFolder));
 
-			var entities = DataReader.LoadData(dataFolder);
+			var entities = XmlDataReader.LoadData(dataFolder);
 			var schemas = SchemaProvider.LoadSchema(connectionString);
 			var tables = TableBuilder.Build(schemas, entities);
 			DataValidator.Validate(tables);
