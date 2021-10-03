@@ -1,6 +1,5 @@
-> **Disclaimer**: Versions of the library up to 1.0.0 don't follow semantic versioning and public api is a subject of possibly breaking changes. 
-
 ![Nuget](https://img.shields.io/nuget/v/Reseed?color=blue&style=flat-square)
+> **Disclaimer**: Versions of the library up to 1.0.0 don't follow semantic versioning and public api is a subject of possibly breaking changes. 
 
 # About
 
