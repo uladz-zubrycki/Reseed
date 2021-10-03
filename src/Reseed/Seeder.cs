@@ -31,7 +31,7 @@ namespace Reseed
 			if (dataFolder == null) throw new ArgumentNullException(nameof(dataFolder));
 
 			var entities = XmlDataReader.LoadData(dataFolder);
-			var schemas = SchemaProvider.LoadSchema(connectionString);
+			var schemas = MsSqlSchemaProvider.LoadSchema(connectionString);
 			var tables = TableBuilder.Build(schemas, entities);
 			DataValidator.Validate(tables);
 

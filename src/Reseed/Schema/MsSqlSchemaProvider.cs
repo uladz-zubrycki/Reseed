@@ -8,7 +8,7 @@ using Testing.Common.Api.Schema;
 
 namespace Reseed.Schema
 {
-	internal static class SchemaProvider
+	internal static class MsSqlSchemaProvider
 	{
 		public static IReadOnlyCollection<TableSchema> LoadSchema([NotNull] string connectionString)
 		{
