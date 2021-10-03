@@ -38,11 +38,6 @@
           "runtime.native.System.Data.SqlClient.sni": "4.7.0"
         }
       },
-      "JetBrains.Annotations": {
-        "type": "Transitive",
-        "resolved": "2020.3.0",
-        "contentHash": "FnX06vtxuoZnhZdR6UHt5kJ7HUC/syODfGLnhPDn1x5sXvvepNyCl4jMtPUzJfsPWh7q0Jo+AIYz5xaVbbyikA=="
-      },
       "Microsoft.CodeCoverage": {
         "type": "Transitive",
         "resolved": "16.11.0",
@@ -584,7 +579,6 @@
       "reseed": {
         "type": "Project",
         "dependencies": {
-          "JetBrains.Annotations": "2020.3.0",
           "System.Data.SqlClient": "4.8.1"
         }
       }
