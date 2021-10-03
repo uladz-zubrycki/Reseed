@@ -7,7 +7,6 @@
         <PackageTags>Testing;Tests;Integration;Sql;Database;Data;Seed;Seeding;Cleanup;Respawn;NDbUnit;DbUnit;</PackageTags>
         <PackageProjectUrl>https://github.com/v-zubritsky/Reseed</PackageProjectUrl>
         <Authors>v-zubritsky</Authors>
-        <PackageReadmeFile>readme.md</PackageReadmeFile>
     </PropertyGroup>
     <PropertyGroup>
         <Configuration>Release</Configuration>
@@ -21,6 +20,9 @@
 
     <!-- Include readme to show at nuget.org -->
     <!-- Currently fails because of https://github.com/NuGet/Home/issues/10791 -->
+    <!-- <PropertyGroup>
+        <PackageReadmeFile>readme.md</PackageReadmeFile>
+    </PropertyGroup> -->
     <!-- <ItemGroup>
         <None Include="$(MSBuildThisFileDirectory)\readme.md" Pack="true" PackagePath=""/>
     </ItemGroup> -->
