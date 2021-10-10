@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using JetBrains.Annotations;
 using Reseed.Graphs;
 using Reseed.Rendering;
+using Reseed.Rendering.Schema;
 using Testing.Common.Api.Schema;
 
 namespace Reseed.Ordering

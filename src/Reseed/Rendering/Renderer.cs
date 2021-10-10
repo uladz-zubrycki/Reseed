@@ -1,9 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using JetBrains.Annotations;
+using Reseed.Dsl;
+using Reseed.Dsl.Simple;
+using Reseed.Dsl.TemporaryTables;
 using Reseed.Graphs;
 using Reseed.Ordering;
-using Reseed.Rendering.Dsl;
+using Reseed.Rendering.Schema;
+using Reseed.Rendering.Simple;
+using Reseed.Rendering.TemporaryTables;
 using Reseed.Schema;
 
 namespace Reseed.Rendering
