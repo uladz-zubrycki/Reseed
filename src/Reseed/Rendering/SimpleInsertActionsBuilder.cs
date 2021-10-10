@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using JetBrains.Annotations;
 using Reseed.Ordering;
-using Reseed.Rendering.Internals;
 using Reseed.Rendering.Modes;
 using Reseed.Schema;
 

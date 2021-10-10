@@ -5,7 +5,7 @@ using Reseed.Graphs;
 using Reseed.Rendering;
 using Testing.Common.Api.Schema;
 
-namespace Reseed.Ordering.Internals
+namespace Reseed.Ordering
 {
 	internal sealed class TableRow: IMutableNode<TableRow>, IEquatable<TableRow>
 	{

@@ -1,4 +1,4 @@
-﻿namespace Reseed.Rendering.Internals
+﻿namespace Reseed.Rendering
 {
 	internal interface IScriptDecorator
 	{

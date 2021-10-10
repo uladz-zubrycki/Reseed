@@ -3,9 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
 using Reseed.Schema;
-using Reseed.Schema.Internals;
 
-namespace Reseed.Rendering.Internals.Decorators
+namespace Reseed.Rendering.Decorators
 {
 	internal sealed class DisableForeignKeysDecorator : IScriptDecorator
 	{

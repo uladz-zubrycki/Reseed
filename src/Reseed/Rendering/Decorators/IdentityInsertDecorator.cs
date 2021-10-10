@@ -2,7 +2,7 @@
 using JetBrains.Annotations;
 using Reseed.Schema;
 
-namespace Reseed.Rendering.Internals.Decorators
+namespace Reseed.Rendering.Decorators
 {
 	internal sealed class IdentityInsertDecorator : IScriptDecorator
 	{

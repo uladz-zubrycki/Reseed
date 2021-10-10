@@ -1,4 +1,4 @@
-﻿namespace Reseed.Rendering.Internals
+﻿namespace Reseed.Rendering
 {
 	internal static class CommonScriptNames
 	{

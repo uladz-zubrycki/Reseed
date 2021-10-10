@@ -4,10 +4,9 @@ using System.Linq;
 using JetBrains.Annotations;
 using Reseed.Ordering;
 using Reseed.Schema;
-using Reseed.Schema.Internals;
 using Reseed.Utils;
 
-namespace Reseed.Rendering.Internals
+namespace Reseed.Rendering
 {
 	internal static class ScriptRendererUtils
 	{

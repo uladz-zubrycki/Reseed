@@ -2,10 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
-using Reseed.Schema.Internals;
+using Reseed.Schema;
 using Reseed.Utils;
 
-namespace Reseed.Ordering.Internals
+namespace Reseed.Ordering
 {
 	internal sealed class MutualGroup<T>
 	{

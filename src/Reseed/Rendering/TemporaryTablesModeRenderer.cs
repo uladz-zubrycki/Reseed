@@ -4,10 +4,8 @@ using System.Linq;
 using JetBrains.Annotations;
 using Reseed.Graphs;
 using Reseed.Ordering;
-using Reseed.Rendering.Internals;
 using Reseed.Rendering.Modes;
 using Reseed.Schema;
-using Reseed.Schema.Internals;
 using Reseed.Utils;
 
 namespace Reseed.Rendering

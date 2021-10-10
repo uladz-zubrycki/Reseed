@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using JetBrains.Annotations;
 
-namespace Reseed.Schema.Internals
+namespace Reseed.Schema
 {
 	internal sealed class Association : IEquatable<Association>
 	{

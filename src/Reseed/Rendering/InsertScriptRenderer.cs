@@ -2,12 +2,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using Reseed.Ordering;
-using Reseed.Rendering.Internals.Decorators;
+using Reseed.Rendering.Decorators;
 using Reseed.Schema;
 using Reseed.Utils;
 using static Reseed.Ordering.OrderedItem;
 
-namespace Reseed.Rendering.Internals
+namespace Reseed.Rendering
 {
 	internal static class InsertScriptRenderer
 	{

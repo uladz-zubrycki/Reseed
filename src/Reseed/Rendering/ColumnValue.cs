@@ -1,7 +1,7 @@
 ﻿using System;
 using JetBrains.Annotations;
 
-namespace Reseed.Rendering.Internals
+namespace Reseed.Rendering
 {
 	internal sealed class ColumnValue
 	{

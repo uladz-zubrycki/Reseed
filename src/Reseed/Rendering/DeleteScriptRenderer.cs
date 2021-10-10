@@ -4,13 +4,12 @@ using System.Linq;
 using JetBrains.Annotations;
 using Reseed.Graphs;
 using Reseed.Ordering;
-using Reseed.Rendering.Internals.Decorators;
+using Reseed.Rendering.Decorators;
 using Reseed.Schema;
-using Reseed.Schema.Internals;
 using Reseed.Utils;
-using static Reseed.Rendering.Internals.ScriptRendererUtils;
+using static Reseed.Rendering.ScriptRendererUtils;
 
-namespace Reseed.Rendering.Internals
+namespace Reseed.Rendering
 {
 	internal static class DeleteScriptRenderer
 	{

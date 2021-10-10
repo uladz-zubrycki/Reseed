@@ -2,7 +2,7 @@
 using JetBrains.Annotations;
 using Testing.Common.Api.Schema;
 
-namespace Reseed.Schema.Internals
+namespace Reseed.Schema
 {
 	internal sealed class Relation<T> : IEquatable<Relation<T>>
 	{

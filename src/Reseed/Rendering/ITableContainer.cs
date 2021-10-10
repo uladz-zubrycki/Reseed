@@ -4,7 +4,6 @@ using System.Linq;
 using JetBrains.Annotations;
 using Reseed.Ordering;
 using Reseed.Schema;
-using Reseed.Schema.Internals;
 using Reseed.Utils;
 using static Reseed.Ordering.OrderedItem;
 
