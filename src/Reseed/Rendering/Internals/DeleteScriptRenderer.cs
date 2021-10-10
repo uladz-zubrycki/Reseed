@@ -22,29 +22,29 @@ namespace Reseed.Rendering.Internals
 			if (options == null) throw new ArgumentNullException(nameof(options));
 
 			var reversedTables = tables.Reverse();
-			return options.Mode switch
+			return options.Kind switch
 			{
-				DeleteCleanupMode deleteOptions =>
+				DeleteCleanupKind deleteOptions =>
 					RenderDeleteMode(reversedTables, options, deleteOptions),
-				PreferTruncateCleanupMode preferTruncateMode =>
+				PreferTruncateCleanupKind preferTruncateMode =>
 					RenderPreferTruncateMode(reversedTables, options, preferTruncateMode),
-				TruncateCleanupMode truncateMode =>
+				TruncateCleanupKind truncateMode =>
 					RenderTruncateMode(reversedTables, options, truncateMode),
 				_ => throw new NotSupportedException(
-					$"Unknown {nameof(CleanupMode)} value '{options.Mode}'")
+					$"Unknown {nameof(CleanupKind)} value '{options.Kind}'")
 			};
 		}
 
 		private static IReadOnlyCollection<OrderedItem<DbScript>> RenderDeleteMode(
 			OrderedGraph<TableSchema> orderedTables,
 			CleanupOptions cleanupOptions,
-			DeleteCleanupMode deleteOptions)
+			DeleteCleanupKind deleteOptions)
 		{
 			var tables = orderedTables.Nodes;
-			(var toClean, var rest) =
+			var (toClean, rest) =
 				tables.PartitionBy(o => cleanupOptions.ShouldClean(o.Value.Name));
 
-			(var defaultClean, var customClean) =
+			var (defaultClean, customClean) =
 				toClean.PartitionBy(o => !cleanupOptions.GetCustomScript(o.Value.Name, out _));
 
 			var persistentTables = rest.Concat(customClean).ToArray();
@@ -58,7 +58,7 @@ namespace Reseed.Rendering.Internals
 							ChooseIncomingRelationsGetter(
 								tables,
 								persistentTables,
-								deleteOptions.ResolutionKind))))
+								deleteOptions.ConstraintsResolution))))
 			};
 
 			if (customClean.Any())
@@ -75,18 +75,18 @@ namespace Reseed.Rendering.Internals
 		private static IReadOnlyCollection<OrderedItem<DbScript>> RenderPreferTruncateMode(
 			OrderedGraph<TableSchema> orderedTables,
 			CleanupOptions cleanupOptions,
-			PreferTruncateCleanupMode truncateOptions)
+			PreferTruncateCleanupKind truncateOptions)
 		{
 			var tables = orderedTables.Nodes;
 			var getAllIncomingRelations = BuildIncomingRelationsGetter(tables);
 
-			(var toClean, var rest) =
+			var (toClean, rest) =
 				tables.PartitionBy(o => cleanupOptions.ShouldClean(o.Value.Name));
 
-			(var defaultClean, var customClean) =
+			var (defaultClean, customClean) =
 				toClean.PartitionBy(o => !cleanupOptions.GetCustomScript(o.Value.Name, out _));
 
-			(var toDelete, var toTruncate) =
+			var (toDelete, toTruncate) =
 				defaultClean.PartitionBy(o =>
 					truncateOptions.ShouldUseDelete(o.Value.Name) ||
 					getAllIncomingRelations(o.Value).Any());
@@ -110,7 +110,7 @@ namespace Reseed.Rendering.Internals
 						ChooseIncomingRelationsGetter(
 							tables,
 							persistentTables,
-							truncateOptions.ResolutionKind))));
+							truncateOptions.ConstraintsResolution))));
 			}
 
 			if (customClean.Length > 0)
@@ -127,18 +127,18 @@ namespace Reseed.Rendering.Internals
 		private static IReadOnlyCollection<OrderedItem<DbScript>> RenderTruncateMode(
 			OrderedGraph<TableSchema> orderedTables,
 			CleanupOptions cleanupOptions,
-			TruncateCleanupMode truncateOptions)
+			TruncateCleanupKind truncateOptions)
 		{
 			var tables = orderedTables.Nodes;
 			var getAllIncomingRelations = BuildIncomingRelationsGetter(tables);
 
-			(var toClean, var rest) =
+			var (toClean, rest) =
 				tables.PartitionBy(o => cleanupOptions.ShouldClean(o.Value.Name));
 
-			(var defaultClean, var customClean) =
+			var (defaultClean, customClean) =
 				toClean.PartitionBy(o => !cleanupOptions.GetCustomScript(o.Value.Name, out _));
 
-			(var toDelete, var toTruncate) =
+			var (toDelete, toTruncate) =
 				defaultClean.PartitionBy(o => truncateOptions.ShouldUseDelete(o.Value.Name));
 
 			var tablesToTruncate = toTruncate.Select(o => o.Value).ToArray();
@@ -156,7 +156,7 @@ namespace Reseed.Rendering.Internals
 					ChooseIncomingRelationsGetter(
 						tables,
 						persistentTables,
-						truncateOptions.ResolutionKind)))
+						truncateOptions.ConstraintsResolution)))
 			};
 
 			if (customClean.Any())
@@ -174,13 +174,13 @@ namespace Reseed.Rendering.Internals
 		private static Func<TableSchema, Relation<TableSchema>[]> ChooseIncomingRelationsGetter(
 			IEnumerable<OrderedItem<TableSchema>> allTables,
 			IEnumerable<OrderedItem<TableSchema>> persistentTables,
-			DeleteConstraintsResolutionKind resolutionKind) =>
+			ConstraintsResolutionKind resolutionKind) =>
 			resolutionKind switch
 			{
-				DeleteConstraintsResolutionKind.OrderTables => BuildIncomingRelationsGetter(persistentTables),
-				DeleteConstraintsResolutionKind.DisableConstraints => BuildIncomingRelationsGetter(allTables),
+				ConstraintsResolutionKind.OrderTables => BuildIncomingRelationsGetter(persistentTables),
+				ConstraintsResolutionKind.DisableConstraints => BuildIncomingRelationsGetter(allTables),
 				_ => throw new NotSupportedException(
-					$"Unknown {nameof(DeleteConstraintsResolutionKind)} value '{resolutionKind}'")
+					$"Unknown {nameof(ConstraintsResolutionKind)} value '{resolutionKind}'")
 			};
 
 		private static string RenderTruncateTables(IEnumerable<TableSchema> tables) =>

@@ -6,122 +6,22 @@ using JetBrains.Annotations;
 using Reseed.Graphs;
 using Reseed.Ordering;
 using Reseed.Rendering.Internals.Decorators;
+using Reseed.Rendering.Modes;
 using Reseed.Schema;
 using Reseed.Schema.Internals;
 using Reseed.Utils;
 using static Reseed.Ordering.OrderedItem;
 using static Reseed.Rendering.Internals.CommonScriptNames;
-using static Reseed.Rendering.Internals.ScriptModeRenderer;
 using static Reseed.Rendering.Internals.ScriptRendererUtils;
 
 namespace Reseed.Rendering.Internals
 {
-	internal static class TempTableModeRenderer
+	internal static class TemporaryTablesModeRenderer
 	{
-		public static IReadOnlyCollection<OrderedItem<DbScript>> RenderInitTempTables(
-			[NotNull] string tempSchemaName,
-			[NotNull] OrderedGraph<TableSchema> tables,
-			[NotNull] IReadOnlyCollection<OrderedItem<ITableContainer>> containers)
-		{
-			if (tempSchemaName == null) throw new ArgumentNullException(nameof(tempSchemaName));
-			if (tables == null) throw new ArgumentNullException(nameof(tables));
-			if (containers == null) throw new ArgumentNullException(nameof(containers));
-
-			return TempTableInitScriptRenderer.Render(
-				tempSchemaName,
-				MapTables(tempSchemaName, tables, containers),
-				MapContainers(tempSchemaName, containers));
-		}
-
-		public static IReadOnlyCollection<DbStep> RenderInsertFromTempTables(
-			[NotNull] TempTableInsertMode options,
-			[NotNull] string tempSchemaName,
-			[NotNull] OrderedGraph<TableSchema> tables,
-			[NotNull] IReadOnlyCollection<OrderedItem<ITableContainer>> containers)
-		{
-			if (options == null) throw new ArgumentNullException(nameof(options));
-			return options switch
-			{
-				TempTableScriptInsertMode _ => new[]
-				{
-					new DbStep(
-						DbActionStage.Insert,
-						OrderedCollection<IDbAction>(
-							TempTableInsertScriptRenderer.Render(
-								FilterTables(tables, containers),
-								n => CreateTempTableName(tempSchemaName, n))))
-				},
-				TempTableProcedureInsertMode procedureOptions =>
-					TempTableInsertProcedureRenderer.GenerateInsertProcedureActions(
-						procedureOptions.InsertProcedureName,
-						FilterTables(tables, containers),
-						n => CreateTempTableName(tempSchemaName, n)),
-				TempTableSqlBulkCopyInsertMode bulkCopyOptions => new[]
-				{
-					new DbStep(
-						DbActionStage.Insert,
-						TempTableSqlBulkCopyInsertRenderer.GenerateActions(
-							FilterTables(tables, containers),
-							n => CreateTempTableName(tempSchemaName, n),
-							bulkCopyOptions))
-				},
-				_ => throw new NotSupportedException(
-					$"Unknown {nameof(TempTableInsertMode)} '{options.GetType().FullName}' value")
-			};
-		}
-
-		public static IReadOnlyCollection<OrderedItem<DbScript>> RenderDropTempTables(
-			[NotNull] string tempSchemaName,
-			[NotNull] OrderedGraph<TableSchema> tables,
-			[NotNull] IReadOnlyCollection<OrderedItem<ITableContainer>> containers) =>
-			TempTableCleanupScriptRenderer.Render(
-				tempSchemaName,
-				MapTables(tempSchemaName, tables, containers));
-
-		private static ObjectName CreateTempTableName(string tempTableSchema, ObjectName name) =>
-			new($"{name.Schema}_{name.Name}", tempTableSchema);
-
-		private static Association CreateTempAssociation(string tempTableSchema, Association association) =>
-			new($"{tempTableSchema}_{association.Name}", association.SourceKey, association.TargetKey);
-
-		private static OrderedGraph<TableSchema> FilterTables(
-			OrderedGraph<TableSchema> tables,
-			IReadOnlyCollection<OrderedItem<ITableContainer>> containers)
-		{
-			var names = containers
-				.SelectMany(oc => oc.Value.TableNames)
-				.ToHashSet();
-
-			return tables.FilterDeep(t => names.Contains(t.Name));
-		}
-
-		private static IReadOnlyCollection<TableSchema> MapTables(
-			string tempSchemaName,
-			OrderedGraph<TableSchema> tables,
-			IReadOnlyCollection<OrderedItem<ITableContainer>> containers) =>
-			FilterTables(tables, containers)
-				.Nodes
-				.Select(ot => ot.Value)
-				.MapDeep<TableSchema, TableSchema>(
-					(r, t) =>
-						r.Map(_ => t, a => CreateTempAssociation(tempSchemaName, a)),
-					(t, rs) =>
-						new TableSchema(
-							CreateTempTableName(tempSchemaName, t.Name),
-							t.Columns,
-							t.PrimaryKey,
-							rs));
-
-		private static OrderedItem<ITableContainer>[] MapContainers(
-			string tempSchemaName,
-			IReadOnlyCollection<OrderedItem<ITableContainer>> containers) =>
-			containers
-				.Select(oc => oc.Map(
-					c => c.MapTableName(n => CreateTempTableName(tempSchemaName, n))))
-				.ToArray();
+	
 	}
 
-	internal static class TempTableInitScriptRenderer
+	internal static class TemporaryTablesInitScriptRenderer
 	{
 		public static IReadOnlyCollection<OrderedItem<DbScript>> Render(
 			[NotNull] string tempSchemaName,
@@ -133,7 +33,7 @@ namespace Reseed.Rendering.Internals
 				new DbScript(
 					"Create temp tables foreign keys",
 					RenderCreateForeignKeys(tempTables.SelectMany(t => t.GetRelations()))),
-				RenderInsertData(tempContainers).Map(_ => _, "Fill temp tables"));
+				InsertScriptRenderer.Render(tempContainers).Map(_ => _, "Fill temp tables"));
 
 		private static string RenderCreateTables(IReadOnlyCollection<TableSchema> tables) =>
 			string.Join(Environment.NewLine + Environment.NewLine,
@@ -169,7 +69,7 @@ namespace Reseed.Rendering.Internals
 				: $@"CONSTRAINT [PK_{table.Name.Name}] PRIMARY KEY CLUSTERED({RenderKey(table.PrimaryKey)})";
 	}
 
-	internal static class TempTableInsertScriptRenderer
+	internal static class TemporaryTableInsertScriptRenderer
 	{
 		public static DbScript Render(
 			[NotNull] OrderedGraph<TableSchema> tables,
@@ -237,14 +137,14 @@ namespace Reseed.Rendering.Internals
 					.ToArray());
 	}
 
-	internal static class TempTableInsertProcedureRenderer
+	internal static class TemporaryTablesInsertProcedureRenderer
 	{
 		public static IReadOnlyCollection<DbStep> GenerateInsertProcedureActions(
 			[NotNull] ObjectName procedureName,
 			[NotNull] OrderedGraph<TableSchema> tables,
 			[NotNull] Func<ObjectName, ObjectName> mapTableName)
 		{
-			var script = TempTableInsertScriptRenderer.Render(
+			var script = TemporaryTableInsertScriptRenderer.Render(
 				tables,
 				mapTableName);
 
@@ -271,7 +171,7 @@ namespace Reseed.Rendering.Internals
 		}
 	}
 
-	internal static class TempTableSqlBulkCopyInsertRenderer
+	internal static class TemporaryTablesSqlBulkCopyRenderer
 	{
 		private const SqlBulkCopyOptions DefaultOptions =
 			SqlBulkCopyOptions.KeepIdentity |
@@ -281,7 +181,7 @@ namespace Reseed.Rendering.Internals
 		public static IReadOnlyCollection<OrderedItem<IDbAction>> GenerateActions(
 			[NotNull] OrderedGraph<TableSchema> tables,
 			[NotNull] Func<ObjectName, ObjectName> mapTableName,
-			TempTableSqlBulkCopyInsertMode options)
+			TemporaryTablesInsertSqlBulkCopyMode options)
 		{
 			if (tables == null) throw new ArgumentNullException(nameof(tables));
 
@@ -297,7 +197,7 @@ namespace Reseed.Rendering.Internals
 							$"Insert into {t.Name.GetSqlName()}",
 							RenderSelectScript(mapTableName(t.Name), columns),
 							t.Name,
-							options.CustomizeOptions(DefaultOptions),
+							options.CustomizeBulkCopy(DefaultOptions),
 							columns
 								.Select(c => new SqlBulkCopyColumnMapping(
 									c.Name,
@@ -326,7 +226,7 @@ namespace Reseed.Rendering.Internals
 		}
 	}
 
-	internal static class TempTableCleanupScriptRenderer
+	internal static class TemporaryTablesCleanupScriptRenderer
 	{
 		public static IReadOnlyCollection<OrderedItem<DbScript>> Render(
 			[NotNull] string tempSchemaName,

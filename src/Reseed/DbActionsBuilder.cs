@@ -55,16 +55,16 @@ namespace Reseed
 						.WithNaturalOrder()
 						.ToArray());
 
-			OrderedItem<IDbAction>[] Get(DbActionStage stage) =>
-				stages.TryGetValue(stage, out var acts)
-					? acts
-					: Array.Empty<OrderedItem<IDbAction>>();
-
 			return new DbActions(
 				Get(DbActionStage.PrepareDb),
 				Get(DbActionStage.Insert),
 				Get(DbActionStage.Delete),
 				Get(DbActionStage.CleanupDb));
+
+			OrderedItem<IDbAction>[] Get(DbActionStage stage) =>
+				stages.TryGetValue(stage, out var acts)
+					? acts
+					: Array.Empty<OrderedItem<IDbAction>>();
 		}
 	}
 }

@@ -10,17 +10,17 @@ namespace Reseed.Rendering
 	[PublicAPI]
 	public sealed class CleanupOptions
 	{
-		internal readonly CleanupMode Mode;
+		internal readonly CleanupKind Kind;
 		private readonly IDataCleanupFilter filter;
 		private readonly Dictionary<ObjectName, string> customScripts;
 
 		private CleanupOptions(
-			CleanupMode mode,
+			CleanupKind kind,
 			[NotNull] IDataCleanupFilter filter,
 			[NotNull] IReadOnlyCollection<(ObjectName table, string script)> customScripts)
 		{
 			if (customScripts == null) throw new ArgumentNullException(nameof(customScripts));
-			this.Mode = mode;
+			this.Kind = kind;
 			this.filter = filter ?? throw new ArgumentNullException(nameof(filter));
 
 			VerifyCustomScripts(customScripts, filter);
@@ -40,27 +40,27 @@ namespace Reseed.Rendering
 		}
 
 		public static CleanupOptions IncludeAll(
-			CleanupMode mode,
+			CleanupKind kind,
 			[CanBeNull] Func<ExcludingDataCleanupFilter, ExcludingDataCleanupFilter> configure = null,
 			[CanBeNull] IReadOnlyCollection<(ObjectName table, string script)> customScripts = null)
 		{
 			var configureFilter = configure ?? Fn.Identity<ExcludingDataCleanupFilter>();
 			var filter = configureFilter(new ExcludingDataCleanupFilter());
 			return new CleanupOptions(
-				mode,
+				kind,
 				filter,
 				customScripts ?? Array.Empty<(ObjectName table, string script)>());
 		}
 
 		public static CleanupOptions IncludeNone(
-			CleanupMode mode,
+			CleanupKind kind,
 			[CanBeNull] Func<IncludingDataCleanupFilter, IncludingDataCleanupFilter> configure = null,
 			[CanBeNull] IReadOnlyCollection<(ObjectName table, string script)> customScripts = null)
 		{
 			var configureFilter = configure ?? Fn.Identity<IncludingDataCleanupFilter>();
 			var filter = configureFilter(new IncludingDataCleanupFilter());
 			return new CleanupOptions(
-				mode,
+				kind,
 				filter,
 				customScripts ?? Array.Empty<(ObjectName table, string script)>());
 		}
@@ -97,70 +97,5 @@ namespace Reseed.Rendering
 						.JoinStrings(", ")}");
 			}
 		}
-	}
-
-	internal interface IDataCleanupFilter
-	{
-		bool ShouldClean(ObjectName table);
-	}
-
-	[PublicAPI]
-	public sealed class ExcludingDataCleanupFilter : IDataCleanupFilter
-	{
-		private readonly List<string> excludedSchemas = new();
-		private readonly List<ObjectName> excludedTables = new();
-
-		public ExcludingDataCleanupFilter ExcludeSchemas([NotNull] params string[] schemas)
-		{
-			if (schemas == null) throw new ArgumentNullException(nameof(schemas));
-			if (schemas.Length == 0)
-				throw new ArgumentException("Value cannot be an empty collection.", nameof(schemas));
-
-			this.excludedSchemas.AddRange(schemas);
-			return this;
-		}
-
-		public ExcludingDataCleanupFilter ExcludeTables([NotNull] params ObjectName[] tables)
-		{
-			if (tables == null) throw new ArgumentNullException(nameof(tables));
-			if (tables.Length == 0) throw new ArgumentException("Value cannot be an empty collection.", nameof(tables));
-
-			this.excludedTables.AddRange(tables);
-			return this;
-		}
-
-		bool IDataCleanupFilter.ShouldClean(ObjectName table) =>
-			!this.excludedSchemas.Contains(table.Schema) &&
-			!this.excludedTables.Contains(table);
-	}
-
-	[PublicAPI]
-	public sealed class IncludingDataCleanupFilter : IDataCleanupFilter
-	{
-		private readonly List<string> includedSchemas = new();
-		private readonly List<ObjectName> includedTables = new();
-
-		public IncludingDataCleanupFilter IncludeSchemas([NotNull] params string[] schemas)
-		{
-			if (schemas == null) throw new ArgumentNullException(nameof(schemas));
-			if (schemas.Length == 0)
-				throw new ArgumentException("Value cannot be an empty collection.", nameof(schemas));
-
-			this.includedSchemas.AddRange(schemas);
-			return this;
-		}
-
-		public IncludingDataCleanupFilter IncludeTables([NotNull] params ObjectName[] tables)
-		{
-			if (tables == null) throw new ArgumentNullException(nameof(tables));
-			if (tables.Length == 0) throw new ArgumentException("Value cannot be an empty collection.", nameof(tables));
-
-			this.includedTables.AddRange(tables);
-			return this;
-		}
-
-		bool IDataCleanupFilter.ShouldClean(ObjectName table) =>
-			this.includedSchemas.Contains(table.Schema) ||
-			this.includedTables.Contains(table);
 	}
 }

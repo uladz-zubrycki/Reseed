@@ -7,13 +7,13 @@ using Reseed.Utils;
 namespace Reseed.Rendering
 {
 	[PublicAPI]
-	public abstract class CleanupMode
+	public abstract class CleanupKind
 	{
-		internal readonly DeleteConstraintsResolutionKind ResolutionKind;
+		internal readonly ConstraintsResolutionKind ConstraintsResolution;
 
-		protected CleanupMode(DeleteConstraintsResolutionKind resolutionKind)
+		protected CleanupKind(ConstraintsResolutionKind constraintsResolution)
 		{
-			this.ResolutionKind = resolutionKind;
+			this.ConstraintsResolution = constraintsResolution;
 		}
 
 		/// <summary>
@@ -23,36 +23,36 @@ namespace Reseed.Rendering
 		/// This case isn't handled automatically, therefore script will just fail if such table exists.
 		/// To fix this either drop required views/indexes manually or choose delete mode for these tables.
 		/// </summary>
-		public static CleanupMode Truncate(
-			ObjectName[] useDeleteForTables = null,
-			DeleteConstraintsResolutionKind deleteResolutionKind = DeleteConstraintsResolutionKind.OrderTables) => 
-			new TruncateCleanupMode(deleteResolutionKind, useDeleteForTables ?? Array.Empty<ObjectName>());
+		public static CleanupKind Truncate(
+			ObjectName[] forceDeleteForTables = null,
+			ConstraintsResolutionKind resolutionKind = ConstraintsResolutionKind.OrderTables) => 
+			new TruncateCleanupKind(resolutionKind, forceDeleteForTables ?? Array.Empty<ObjectName>());
 
 		/// <summary>
 		/// Uses TRUNCATE to clean data from tables, which aren't referenced by any foreign key.
 		/// Cleans data with use of DELETE FROM otherwise.
 		/// </summary>
-		public static CleanupMode PreferTruncate(
-			ObjectName[] useDeleteForTables = null,
-			DeleteConstraintsResolutionKind resolutionKind = DeleteConstraintsResolutionKind.OrderTables) =>
-			new PreferTruncateCleanupMode(resolutionKind, useDeleteForTables ?? Array.Empty<ObjectName>());
+		public static CleanupKind PreferTruncate(
+			ObjectName[] forceDeleteForTables = null,
+			ConstraintsResolutionKind resolutionKind = ConstraintsResolutionKind.OrderTables) =>
+			new PreferTruncateCleanupKind(resolutionKind, forceDeleteForTables ?? Array.Empty<ObjectName>());
 
 		/// <summary>
 		/// Uses DELETE FROM to clean data from provided tables.
 		/// </summary>
-		public static CleanupMode Delete(
-			DeleteConstraintsResolutionKind resolutionKind = DeleteConstraintsResolutionKind.OrderTables) =>
-			new DeleteCleanupMode(resolutionKind);
+		public static CleanupKind Delete(
+			ConstraintsResolutionKind resolutionKind = ConstraintsResolutionKind.OrderTables) =>
+			new DeleteCleanupKind(resolutionKind);
 	}
 
-	internal class TruncateCleanupMode : CleanupMode
+	internal class TruncateCleanupKind : CleanupKind
 	{
 		private readonly HashSet<ObjectName> useDeleteForTables;
 
-		public TruncateCleanupMode(
-			DeleteConstraintsResolutionKind resolutionKind,
+		public TruncateCleanupKind(
+			ConstraintsResolutionKind constraintsResolution,
 			[NotNull] IReadOnlyCollection<ObjectName> useDeleteForTables) 
-			: base(resolutionKind)
+			: base(constraintsResolution)
 		{
 			if (useDeleteForTables == null) throw new ArgumentNullException(nameof(useDeleteForTables));
 			this.useDeleteForTables = useDeleteForTables.ToHashSet();
@@ -61,22 +61,22 @@ namespace Reseed.Rendering
 		internal bool ShouldUseDelete(ObjectName table) => this.useDeleteForTables.Contains(table);
 	}
 
-	internal sealed class PreferTruncateCleanupMode : TruncateCleanupMode
+	internal sealed class PreferTruncateCleanupKind : TruncateCleanupKind
 	{
-		public PreferTruncateCleanupMode(
-			DeleteConstraintsResolutionKind resolutionKind,
+		public PreferTruncateCleanupKind(
+			ConstraintsResolutionKind constraintsResolution,
 			[NotNull] IReadOnlyCollection<ObjectName> useDeleteForTables) 
-			: base(resolutionKind, useDeleteForTables) { }
+			: base(constraintsResolution, useDeleteForTables) { }
 	}
 
-	internal sealed class DeleteCleanupMode : CleanupMode
+	internal sealed class DeleteCleanupKind : CleanupKind
 	{
-		public DeleteCleanupMode(DeleteConstraintsResolutionKind resolutionKind) 
-			: base(resolutionKind) { }
+		public DeleteCleanupKind(ConstraintsResolutionKind constraintsResolution) 
+			: base(constraintsResolution) { }
 	}
 
 	[PublicAPI]
-	public enum DeleteConstraintsResolutionKind
+	public enum ConstraintsResolutionKind
 	{
 		/// <summary>
 		/// Orders tables by their foreign key constraints to be able to execute DELETE FROM.
