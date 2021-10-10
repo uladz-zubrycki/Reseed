@@ -22,7 +22,7 @@ namespace Reseed.Samples.NUnit
 		public async Task ShouldDeleteUsers()
 		{
 			// We don't need to do any User table initialization manually.
-			// Seeder, invoked in the TestFixtureBase type, will take care of that
+			// Reseeder, invoked in the TestFixtureBase type, will take care of that
 			// And insert all the User rows described at 'Data/Users.xml'.
 			Assert.AreEqual(UsersCount, await GetUsersCount());
 

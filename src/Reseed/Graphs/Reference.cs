@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using JetBrains.Annotations;
-using Reseed.Schema.Internals;
+using Reseed.Schema;
 
 namespace Testing.Common.Api.Schema
 {

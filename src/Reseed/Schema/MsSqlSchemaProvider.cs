@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Data.SqlClient;
 using JetBrains.Annotations;
 using Reseed.Graphs;
-using Reseed.Schema.Internals;
 using Testing.Common.Api.Schema;
 
 namespace Reseed.Schema
