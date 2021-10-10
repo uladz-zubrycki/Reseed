@@ -1,7 +1,7 @@
 ﻿using System.IO;
 using NUnit.Framework;
 using Reseed.Rendering;
-using Reseed.Rendering.Modes;
+using Reseed.Rendering.Dsl;
 
 namespace Reseed.Samples.NUnit
 {

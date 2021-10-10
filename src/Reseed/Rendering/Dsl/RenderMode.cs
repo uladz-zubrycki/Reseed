@@ -1,7 +1,7 @@
 ﻿using System;
 using JetBrains.Annotations;
 
-namespace Reseed.Rendering.Modes
+namespace Reseed.Rendering.Dsl
 {
 	[PublicAPI]
 	public abstract class RenderMode

@@ -2,7 +2,7 @@
 using JetBrains.Annotations;
 using Reseed.Schema;
 
-namespace Reseed.Rendering.Modes
+namespace Reseed.Rendering.Dsl
 {
 	[PublicAPI]
 	public abstract class SimpleInsertMode

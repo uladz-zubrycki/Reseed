@@ -5,7 +5,7 @@ using JetBrains.Annotations;
 using Reseed.Schema;
 using Reseed.Utils;
 
-namespace Reseed.Rendering
+namespace Reseed.Rendering.Dsl
 {
 	[PublicAPI]
 	public sealed class CleanupOptions

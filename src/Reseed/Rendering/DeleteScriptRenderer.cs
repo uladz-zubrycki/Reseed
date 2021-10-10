@@ -5,6 +5,7 @@ using JetBrains.Annotations;
 using Reseed.Graphs;
 using Reseed.Ordering;
 using Reseed.Rendering.Decorators;
+using Reseed.Rendering.Dsl;
 using Reseed.Schema;
 using Reseed.Utils;
 using static Reseed.Rendering.ScriptRendererUtils;

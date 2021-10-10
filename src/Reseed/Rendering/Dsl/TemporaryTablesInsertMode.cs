@@ -4,7 +4,7 @@ using JetBrains.Annotations;
 using Reseed.Schema;
 using Reseed.Utils;
 
-namespace Reseed.Rendering.Modes
+namespace Reseed.Rendering.Dsl
 {
 	[PublicAPI]
 	public abstract class TemporaryTablesInsertMode

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using JetBrains.Annotations;
 using Reseed.Schema;
 
-namespace Reseed.Rendering
+namespace Reseed.Rendering.Dsl
 {
 	internal interface IDataCleanupFilter
 	{
