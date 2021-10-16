@@ -9,14 +9,14 @@ using DotNet.Testcontainers.Containers.WaitStrategies;
 
 namespace Reseed.Samples.NUnit
 {
-	public class TestDatabase: IAsyncDisposable
+	public class SqlServerContainer: IAsyncDisposable
 	{
 		private readonly string scriptsFolder;
 		private readonly MsSqlTestcontainer server;
 
 		public string ConnectionString => server.ConnectionString;
 
-		public TestDatabase(string scriptsFolder)
+		public SqlServerContainer(string scriptsFolder)
 		{
 			this.scriptsFolder = scriptsFolder ?? throw new ArgumentNullException(nameof(scriptsFolder));
 			this.server = CreateDatabaseContainer();

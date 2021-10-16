@@ -15,23 +15,23 @@ namespace Reseed.Samples.NUnit
 	[TestFixture]
 	public class TestFixtureBase
 	{
-		private static readonly FixtureDatabase Database = new(
+		private static readonly TestDatabase Database = new(
 			GetRelativePath("Migrations"),
 			GetRelativePath("Data"));
 		
 		protected static string ConnectionString => Database.ConnectionString;
 
 		[OneTimeSetUp]
-		public Task FixturesSetupAsync() => Database.OneTimeSetupAsync();
+		public Task FixturesSetupAsync() => Database.InitializeAsync();
 
 		[SetUp]
-		public void Setup() => Database.TestSetupAsync();
+		public void Setup() => Database.InsertDataAsync();
 
 		[TearDown]
-		public void Teardown() => Database.TestTearDownAsync();
+		public void Teardown() => Database.DeleteDataAsync();
 
 		[OneTimeTearDown]
-		public Task FixturesTeardownAsync() => Database.OneTimeTeardownAsync();
+		public Task FixturesTeardownAsync() => Database.CleanupAsync();
 
 		private static string GetRelativePath(string path) =>
 			Path.Combine(TestContext.CurrentContext.TestDirectory, path);
@@ -41,50 +41,50 @@ namespace Reseed.Samples.NUnit
 	// and Reseeder scripts both creation and execution.
 	// Might be not needed for your case, but felt natural here
 	// as it allows us to have all the database related state and logic in one place.
-	internal sealed class FixtureDatabase
+	internal sealed class TestDatabase
 	{
 		private readonly string dbMigrationsPath;
 		private readonly string reseederDataPath;
-		private TestDatabase database;
+		private SqlServerContainer server;
 		private Reseeder reseeder;
 		private DbActions dbActions;
 
-		public string ConnectionString => database?.ConnectionString;
+		public string ConnectionString => server?.ConnectionString;
 
-		public FixtureDatabase(string dbMigrationsPath, string reseederDataPath)
+		public TestDatabase(string dbMigrationsPath, string reseederDataPath)
 		{
 			this.dbMigrationsPath = dbMigrationsPath ?? throw new ArgumentNullException(nameof(dbMigrationsPath));
 			this.reseederDataPath = reseederDataPath ?? throw new ArgumentNullException(nameof(reseederDataPath));
 		}
 
-		public async Task OneTimeSetupAsync()
+		public async Task InitializeAsync()
 		{
-			database = new TestDatabase(dbMigrationsPath);
-			await database.StartAsync();
+			server = new SqlServerContainer(dbMigrationsPath);
+			await server.StartAsync();
 
-			reseeder = new Reseeder(database.ConnectionString);
+			reseeder = new Reseeder(server.ConnectionString);
 			dbActions = GenerateDbActions(reseeder, reseederDataPath);
 			reseeder.Execute(dbActions.PrepareDatabase);
 		}
 
-		public Task TestSetupAsync()
+		public Task InsertDataAsync()
 		{
 			reseeder.Execute(dbActions.InsertData);
 			return Task.CompletedTask;
 		}
 
-		public Task TestTearDownAsync()
+		public Task DeleteDataAsync()
 		{
 			reseeder.Execute(dbActions.DeleteData);
 			return Task.CompletedTask;
 		}
 
-		public async Task OneTimeTeardownAsync()
+		public async Task CleanupAsync()
 		{
 			reseeder.Execute(dbActions.CleanupDatabase);
-			if (database != null)
+			if (server != null)
 			{
-				await database.DisposeAsync();
+				await server.DisposeAsync();
 			}
 		}
 
