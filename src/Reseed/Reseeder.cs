@@ -33,8 +33,8 @@ namespace Reseed
 			if (mode == null) throw new ArgumentNullException(nameof(mode));
 			if (dataProvider == null) throw new ArgumentNullException(nameof(dataProvider));
 
-			var entities = dataProvider.GetEntities();
-			var schemas = MsSqlSchemaProvider.LoadSchema(connectionString);
+			var entities = GetEntities(dataProvider);
+			var schemas = LoadSchemas();
 			var tables = TableBuilder.Build(schemas, entities);
 			DataValidator.Validate(tables);
 
@@ -80,6 +80,28 @@ namespace Reseed
 			}
 		}
 
+		private IReadOnlyCollection<Entity> GetEntities(IDataProvider dataProvider)
+		{
+			var entities = dataProvider.GetEntities();
+			if (entities.Count == 0)
+			{
+				throw BuildNoEntitiesException(dataProvider);
+			}
+
+			return entities;
+		}
+
+		private IReadOnlyCollection<TableSchema> LoadSchemas()
+		{
+			var schemas = MsSqlSchemaProvider.LoadSchema(connectionString);
+			if (schemas.Count == 0)
+			{
+				throw BuildNoSchemasException();
+			}
+
+			return schemas;
+		}
+
 		private static void ExecuteScript(SqlConnection connection, DbScript script)
 		{
 			using var command = connection.CreateCommand();
@@ -108,5 +130,15 @@ namespace Reseed
 			using var reader = command.ExecuteReader();
 			bulkCopy.WriteToServer(reader);
 		}
+
+		private InvalidOperationException BuildNoEntitiesException(IDataProvider dataProvider) =>
+			new($"The specified {nameof(IDataProvider)} wasn't able to find any entities, " +
+			    $"while at least one is required. Make sure {dataProvider.GetType().Name} configuration is correct");
+
+		private static InvalidOperationException BuildNoSchemasException() =>
+			new("The specified database doesn't contain any tables, " +
+			    $"therefore can't be used as {nameof(Reseeder)} target. " +
+			    "Make sure that all the database migrations are properly applied if any" +
+			    $"before using {nameof(Reseeder)}");
 	}
 }

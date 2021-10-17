@@ -38,7 +38,9 @@ namespace Reseed.Data.FileSystem
 			if (!files.Any())
 			{
 				throw new InvalidOperationException(
-					$"At least one xml data file is required, but found none at '{dataFolder}'");
+					$"At least one xml data file is required, but found none at '{dataFolder}'. " +
+					"Check that data files exist and aren't filtered out " +
+					$"by either {nameof(filePattern)} or {nameof(fileFilter)}");
 			}
 
 			return files

@@ -1,0 +1,29 @@
+﻿<Users>
+    <User>
+        <Id>1</Id>
+        <FirstName>John</FirstName>
+        <LastName>Doe</LastName>
+        <Age>23</Age>
+        <ManagerId>3</ManagerId>
+    </User>
+    <User>
+        <Id>2</Id>
+        <FirstName>Jack</FirstName>
+        <LastName>Bart</LastName>
+        <Age>40</Age>
+        <ManagerId>4</ManagerId>
+    </User>
+    <User>
+        <Id>3</Id>
+        <FirstName>Ann</FirstName>
+        <LastName>Ken</LastName>
+        <Age>11</Age>
+    </User>
+    <User>
+        <Id>4</Id>
+        <FirstName>Ed</FirstName>
+        <LastName>Sal</LastName>
+        <Age>50</Age>
+        <ManagerId>3</ManagerId>
+    </User>
+</Users>
