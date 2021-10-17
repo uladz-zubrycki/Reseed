@@ -3,7 +3,7 @@ using JetBrains.Annotations;
 
 namespace Reseed.Data
 {
-	internal sealed class Property
+	public sealed class Property
 	{
 		public readonly string Name;
 		public readonly string Value;

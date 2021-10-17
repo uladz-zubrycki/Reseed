@@ -4,6 +4,7 @@ using System.Data.Common;
 using System.Data.SqlClient;
 using JetBrains.Annotations;
 using Reseed.Data;
+using Reseed.Data.FileSystem;
 using Reseed.Dsl;
 using Reseed.Graphs;
 using Reseed.Ordering;
@@ -27,12 +28,12 @@ namespace Reseed
 		// todo: refactor api to support independent Insert/Delete actions rendering
 		public DbActions Generate(
 			[NotNull] RenderMode mode,
-			[NotNull] string dataFolder)
+			[NotNull] IDataProvider dataProvider)
 		{
 			if (mode == null) throw new ArgumentNullException(nameof(mode));
-			if (dataFolder == null) throw new ArgumentNullException(nameof(dataFolder));
+			if (dataProvider == null) throw new ArgumentNullException(nameof(dataProvider));
 
-			var entities = XmlDataReader.LoadData(dataFolder);
+			var entities = dataProvider.GetEntities();
 			var schemas = MsSqlSchemaProvider.LoadSchema(connectionString);
 			var tables = TableBuilder.Build(schemas, entities);
 			DataValidator.Validate(tables);

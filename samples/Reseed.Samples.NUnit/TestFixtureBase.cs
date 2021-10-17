@@ -2,6 +2,7 @@
 using System.IO;
 using System.Threading.Tasks;
 using NUnit.Framework;
+using Reseed.Data;
 using Reseed.Dsl;
 using Reseed.Dsl.Cleanup;
 using Reseed.Dsl.Simple;
@@ -95,6 +96,6 @@ namespace Reseed.Samples.NUnit
 				RenderMode.Simple(
 					SimpleInsertDefinition.Script(),
 					CleanupDefinition.Script(CleanupOptions.IncludeAll(CleanupKind.PreferTruncate()))),
-				dataFolder);
+				DataProvider.Xml(dataFolder));
 	}
 }

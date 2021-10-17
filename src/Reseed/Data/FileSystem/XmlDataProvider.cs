@@ -5,30 +5,44 @@ using System.Linq;
 using System.Xml.Linq;
 using JetBrains.Annotations;
 
-namespace Reseed.Data
+namespace Reseed.Data.FileSystem
 {
-	internal static class XmlDataReader
+	internal sealed class XmlDataProvider: IDataProvider
 	{
-		public static IReadOnlyCollection<Entity> LoadData([NotNull] string root)
+		private readonly string dataFolder;
+		private readonly string filePattern;
+		private readonly Func<string, bool> fileFilter;
+
+		public XmlDataProvider(
+			[NotNull] string dataFolder,
+			[NotNull] string filePattern,
+			[NotNull] Func<string, bool> fileFilter)
 		{
-			if (root == null) throw new ArgumentNullException(nameof(root));
-			if (!Directory.Exists(root))
+			this.dataFolder = dataFolder ?? throw new ArgumentNullException(nameof(dataFolder));
+			this.filePattern = filePattern ?? throw new ArgumentNullException(nameof(filePattern));
+			this.fileFilter = fileFilter ?? throw new ArgumentNullException(nameof(fileFilter));
+		}
+
+		public IReadOnlyCollection<Entity> GetEntities()
+		{
+			if (!Directory.Exists(dataFolder))
 			{
 				throw new InvalidOperationException(
-					$"Can't find xml data files at '{root}', specified directory doesn't exist");
+					$"Can't find xml data files at '{dataFolder}', specified directory doesn't exist");
 			}
 
 			var files = Directory
-				.EnumerateFiles(root, "*.xml", SearchOption.AllDirectories)
+				.EnumerateFiles(dataFolder, filePattern, SearchOption.AllDirectories)
 				.ToArray();
 
 			if (!files.Any())
 			{
 				throw new InvalidOperationException(
-					$"At least one xml data file is required, but found none at '{root}'");
+					$"At least one xml data file is required, but found none at '{dataFolder}'");
 			}
 
 			return files
+				.Where(f => this.fileFilter(Path.GetFileName(f)))
 				.SelectMany(ReadFile)
 				.ToArray();
 		}
