@@ -1,7 +1,7 @@
 ﻿using System;
 using JetBrains.Annotations;
 
-namespace Reseed.Data
+namespace Reseed.Data.FileSystem
 {
 	internal sealed class DataFile : IEquatable<DataFile>
 	{

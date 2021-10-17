@@ -2,23 +2,29 @@
 using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
+using Reseed.Data.FileSystem;
 
 namespace Reseed.Data
 {
-	internal sealed class Entity
+	public sealed class Entity
 	{
-		public readonly DataFile Origin;
+		internal readonly DataFile Origin;
 		public readonly string Name;
 		public readonly IReadOnlyCollection<Property> Properties;
 
-		public Entity(
+		public Entity(string name, IReadOnlyCollection<Property> properties)
+		{
+			this.Name = name ?? throw new ArgumentNullException(nameof(name));
+			this.Properties = properties ?? throw new ArgumentNullException(nameof(properties));
+		}
+
+		internal Entity(
 			[NotNull] DataFile origin,
 			[NotNull] string name,
 			[NotNull] IReadOnlyCollection<Property> properties)
+			: this(name, properties)
 		{
 			this.Origin = origin ?? throw new ArgumentNullException(nameof(origin));
-			this.Name = name ?? throw new ArgumentNullException(nameof(name));
-			this.Properties = properties ?? throw new ArgumentNullException(nameof(properties));
 		}
 
 		public override string ToString()
