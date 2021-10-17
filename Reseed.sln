@@ -7,7 +7,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Reseed", "src\Reseed\Reseed
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Samples", "Samples", "{FC0E19C7-DF8B-4BCC-98AA-B1ADA9265F96}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reseed.Samples.NUnit", "samples\Reseed.Samples.NUnit\Reseed.Samples.NUnit.csproj", "{B12771F5-05CC-4D8E-A2BA-46EE45D229C9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Reseed.Samples.NUnit", "samples\Reseed.Samples.NUnit\Reseed.Samples.NUnit.csproj", "{B12771F5-05CC-4D8E-A2BA-46EE45D229C9}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{01EBFC76-8CDC-4466-AEF7-34A4DC6B9B98}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reseed.Tests.Integration", "tests\Reseed.Tests.Integration\Reseed.Tests.Integration.csproj", "{30FC2FC4-9BA6-405D-9E5C-4B145CF0761A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -23,12 +27,17 @@ Global
 		{B12771F5-05CC-4D8E-A2BA-46EE45D229C9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B12771F5-05CC-4D8E-A2BA-46EE45D229C9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B12771F5-05CC-4D8E-A2BA-46EE45D229C9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{30FC2FC4-9BA6-405D-9E5C-4B145CF0761A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{30FC2FC4-9BA6-405D-9E5C-4B145CF0761A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{30FC2FC4-9BA6-405D-9E5C-4B145CF0761A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{30FC2FC4-9BA6-405D-9E5C-4B145CF0761A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{B12771F5-05CC-4D8E-A2BA-46EE45D229C9} = {FC0E19C7-DF8B-4BCC-98AA-B1ADA9265F96}
+		{30FC2FC4-9BA6-405D-9E5C-4B145CF0761A} = {01EBFC76-8CDC-4466-AEF7-34A4DC6B9B98}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {CE2E8506-874D-436C-A149-CE11DEEA95C9}
