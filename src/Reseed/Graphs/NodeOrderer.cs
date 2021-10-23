@@ -12,23 +12,30 @@ namespace Reseed.Graphs
 		public static OrderedGraph<T> Order([NotNull] IReadOnlyCollection<T> nodes)
 		{
 			if (nodes == null) throw new ArgumentNullException(nameof(nodes));
-			if (nodes.Count == 0)
+			return nodes.Count switch
 			{
-				return OrderedGraph<T>.Empty;
+				0 => OrderedGraph<T>.Empty,
+				1 => new OrderedGraph<T>(
+					nodes.WithNaturalOrder().ToArray(),
+					Array.Empty<MutualReference<T>>()),
+				_ => OrderNodes(nodes)
+			};
+
+			static OrderedGraph<T> OrderNodes(IReadOnlyCollection<T> nodes)
+			{
+				var processedNodes = new Dictionary<T, OrderedItem<T>>();
+				var mutualReferences = new List<MutualReference<T>>();
+				var _ = IterateNodes(
+					nodes,
+					0,
+					null,
+					processedNodes,
+					mutualReferences,
+					Fn.Identity<T>(),
+					(__, n) => new ReferencePath<T>(n));
+
+				return new OrderedGraph<T>(processedNodes.Values, mutualReferences);
 			}
-
-			var processedNodes = new Dictionary<T, OrderedItem<T>>();
-			var mutualReferences = new List<MutualReference<T>>();
-			var _ = IterateNodes(
-				nodes,
-				0,
-				null,
-				processedNodes,
-				mutualReferences,
-				__ => __,
-				(__, n) => new ReferencePath<T>(n));
-
-			return new OrderedGraph<T>(processedNodes.Values, mutualReferences);
 		}
 
 		private static int IterateNodes<TNode>(
@@ -70,14 +77,13 @@ namespace Reseed.Graphs
 				return processed;
 			}
 
-			(var cyclicReferences, var normalReferences) =
+			var (cyclicReferences, normalReferences) =
 				node.References.PartitionBy(t => path.Contains(t.Target));
 
 			mutualReferences.AddRange(cyclicReferences.Select(
-				r =>
-					new MutualReference<T>(
-						new ReferencePath<T>(node, new[] { r }),
-						path.StartFrom(r.Target))));
+				r => new MutualReference<T>(
+					new ReferencePath<T>(node, new[] { r }),
+					path.StartFrom(r.Target))));
 
 			if (normalReferences.Length == 0)
 			{
