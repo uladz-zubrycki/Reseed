@@ -7,6 +7,7 @@ using JetBrains.Annotations;
 using Reseed.Data;
 using Reseed.Data.FileSystem;
 using Reseed.Dsl;
+using Reseed.Extending;
 using Reseed.Graphs;
 using Reseed.Ordering;
 using Reseed.Rendering;
@@ -37,10 +38,11 @@ namespace Reseed
 			var entities = GetEntities(dataProvider);
 			var schemas = LoadSchemas();
 			var tables = TableBuilder.Build(schemas, entities);
-			DataValidator.Validate(tables);
+			var extendedTables = TableExtender.Extend(tables);
+			DataValidator.Validate(extendedTables);
 
 			var orderedSchemas = NodeOrderer<TableSchema>.Order(schemas);
-			var containers = TableOrderer.Order(tables, orderedSchemas);
+			var containers = TableOrderer.Order(extendedTables, orderedSchemas);
 			return Renderer.Render(orderedSchemas, containers, mode);
 		}
 

@@ -6,7 +6,7 @@ using Reseed.Ordering;
 
 namespace Reseed.Schema
 {
-	internal sealed class Key : IEquatable<Key>
+	public sealed class Key : IEquatable<Key>
 	{
 		public readonly IReadOnlyCollection<OrderedItem<string>> Columns;
 

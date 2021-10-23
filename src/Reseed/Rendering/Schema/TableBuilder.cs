@@ -44,15 +44,10 @@ namespace Reseed.Rendering.Schema
 						.Select(CreateColumn)
 						.ToArray();
 
-					var rows = CreateRows(
-						table.Name,
-						table.PrimaryKey,
-						table.Columns,
-						gr.ToArray());
+					var tableDefinition = new TableDefinition(table.Name, table.PrimaryKey, columns);
+					var rows = CreateRows(tableDefinition, gr.ToArray());
 
-					return new Table(
-						new TableDefinition(table.Name, table.PrimaryKey, columns),
-						rows);
+					return new Table(tableDefinition, rows);
 				})
 				.ToArray();
 		}
@@ -65,10 +60,12 @@ namespace Reseed.Rendering.Schema
 			return new Column(
 				columnSchema.Order,
 				columnSchema.Name,
+				columnSchema.DataType,
 				HasQuotedLiteral(columnSchema.DataType),
 				!(columnSchema.IsNullable || columnSchema.HasDefaultValue),
 				columnSchema.IsIdentity,
 				columnSchema.IsPrimaryKey,
+				columnSchema.IsComputed,
 				null);
 
 			static bool HasQuotedLiteral(DataType dataType) =>
@@ -84,25 +81,22 @@ namespace Reseed.Rendering.Schema
 		}
 
 		private static OrderedItem<Row>[] CreateRows(
-			ObjectName tableName,
-			Key primaryKey,
-			IEnumerable<ColumnSchema> tableColumns,
+			TableDefinition tableDefinition,
 			Entity[] entities)
 		{
-			var getColumn = BuildColumnProvider(tableColumns);
+			var getColumn = BuildColumnProvider(tableDefinition.Columns);
 
 			return entities
 				.Select((e, i) => Ordered(
 					i,
-					CreateRow(e, tableName, primaryKey, getColumn)))
+					CreateRow(e, tableDefinition, getColumn)))
 				.ToArray();
 		}
 
 		private static Row CreateRow(
 			Entity entity,
-			ObjectName tableName,
-			Key primaryKey,
-			Func<Entity, Property, ColumnSchema> getColumn)
+			TableDefinition tableDefinition,
+			Func<Entity, Property, Column> getColumn)
 		{
 			ValidateDuplicatedProperties(entity);
 
@@ -118,11 +112,11 @@ namespace Reseed.Rendering.Schema
 				})
 				.ToArray();
 
-			return new Row(tableName, primaryKey, entity.Origin, values);
+			return new Row(tableDefinition, entity.Origin, values);
 		}
 
-		private static Func<Entity, Property, ColumnSchema> BuildColumnProvider(
-			IEnumerable<ColumnSchema> tableColumns)
+		private static Func<Entity, Property, Column> BuildColumnProvider(
+			IEnumerable<Column> tableColumns)
 		{
 			var columnsMap = tableColumns
 				.ToDictionary(c => c.Name.ToLowerInvariant());
@@ -138,7 +132,7 @@ namespace Reseed.Rendering.Schema
 			};
 		}
 
-		private static string AdjustPropertyValue(Property p, ColumnSchema column) =>
+		private static string AdjustPropertyValue(Property p, Column column) =>
 			column.DataType.IsBit
 				? bool.TryParse(p.Value, out var boolean)
 					? boolean ? "1" : "0"
@@ -194,7 +188,7 @@ namespace Reseed.Rendering.Schema
 		}
 
 		private static InvalidOperationException BuildComputedColumnException(Entity entity,
-			ColumnSchema column) =>
+			Column column) =>
 			new(
 				$"Invalid '{entity.Name}' entity test data. " +
 				$"Table column '{column.Name}' is computed and shouldn't be specified. " +

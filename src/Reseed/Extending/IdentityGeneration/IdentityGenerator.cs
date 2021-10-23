@@ -3,12 +3,13 @@ using System.Collections.Generic;
 using JetBrains.Annotations;
 using Reseed.Utils;
 
-namespace Reseed.Rendering.Insertion
+namespace Reseed.Extending.IdentityGeneration
 {
 	internal sealed class IdentityGenerator
 	{
+		// TODO: Use Identity column seed and step
+		private int current;
 		private readonly HashSet<int> excludedValues;
-		private int current = 1;
 
 		public IdentityGenerator([NotNull] IReadOnlyCollection<int> excludedValues)
 		{
@@ -18,18 +19,14 @@ namespace Reseed.Rendering.Insertion
 
 		public string NextValue()
 		{
-			var result = this.current;
-
 			while (true)
 			{
 				this.current++;
 				if (!this.excludedValues.Contains(this.current))
 				{
-					break;
+					return this.current.ToString();
 				}
 			}
-
-			return result.ToString();
 		}
 	}
 }

@@ -15,7 +15,7 @@ namespace Reseed.Rendering.Schema
 		ITableContainer MapTableName([NotNull] Func<ObjectName, ObjectName> mapper);
 	}
 
-	internal sealed class Table : ITableContainer
+	public sealed class Table : ITableContainer
 	{
 		public readonly TableDefinition Definition;
 		public readonly IReadOnlyCollection<OrderedItem<Row>> Rows;
@@ -30,7 +30,7 @@ namespace Reseed.Rendering.Schema
 		{
 			if (rows == null) throw new ArgumentNullException(nameof(rows));
 			if (rows.Count == 0) throw new ArgumentException("Value cannot be an empty collection.", nameof(rows));
-			if (rows.Any(o => !o.Value.TableName.Equals(definition.Name)))
+			if (rows.Any(o => !o.Value.Table.Equals(definition)))
 				throw new ArgumentException("Table can't contain other table's rows");
 
 			this.Definition = definition ?? throw new ArgumentNullException(nameof(definition));
@@ -39,7 +39,17 @@ namespace Reseed.Rendering.Schema
 
 		public override string ToString() => this.Definition.ToString();
 
-		public ITableContainer MapTableName(Func<ObjectName, ObjectName> mapper)
+		public Table MapRows(Func<Row, Row> mapper)
+		{
+			if (mapper == null) throw new ArgumentNullException(nameof(mapper));
+			return new Table(
+				this.Definition,
+				this.Rows
+					.Select(o => o.Map(mapper))
+					.ToArray());
+		}
+
+		ITableContainer ITableContainer.MapTableName(Func<ObjectName, ObjectName> mapper)
 		{
 			if (mapper == null) throw new ArgumentNullException(nameof(mapper));
 			return new Table(
@@ -88,16 +98,13 @@ namespace Reseed.Rendering.Schema
 
 				foreach (var row in this.Rows.OrderBy(o => o.Order))
 				{
-					var rowTableName = row.Value.TableName;
-					if (currentTable == null)
-					{
-						currentTable = this.tableNameMap[rowTableName];
-					}
+					var rowTable = row.Value.Table;
+					currentTable ??= this.tableNameMap[rowTable.Name];
 
-					if (!currentTable.Name.Equals(rowTableName))
+					if (!currentTable.Name.Equals(rowTable.Name))
 					{
 						yield return Ordered(i, new Table(currentTable, tableRows.ToArray()));
-						currentTable = this.tableNameMap[rowTableName];
+						currentTable = this.tableNameMap[rowTable.Name];
 						tableRows = new List<OrderedItem<Row>> { row };
 						i++;
 					}
@@ -141,7 +148,7 @@ namespace Reseed.Rendering.Schema
 			IReadOnlyCollection<OrderedItem<Row>> rows)
 		{
 			var tableNames = tables.Select(t => t.Name).ToHashSet();
-			if (rows.Any(o => !tableNames.Contains(o.Value.TableName)))
+			if (rows.Any(o => !tableNames.Contains(o.Value.Table.Name)))
 				throw new ArgumentException("Mutually referent tables can't contain other table's rows");
 		}
 	}

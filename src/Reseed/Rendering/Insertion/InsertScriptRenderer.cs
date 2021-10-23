@@ -65,8 +65,6 @@ namespace Reseed.Rendering.Insertion
 		private static string RenderTable(Table table)
 		{
 			var getColumnByName = BuildColumnProvider(table.Definition);
-			var getIdentityGenerator = BuildIdentityGeneratorProvider(table);
-
 			var requiredColumns = table.Columns
 				.Where(c => c.IsRequired)
 				.ToArray();
@@ -85,8 +83,7 @@ namespace Reseed.Rendering.Insertion
 					var rowsScript = RenderRows(
 						table.Name,
 						groupColumns,
-						gr.Value.rows,
-						getIdentityGenerator);
+						gr.Value.rows);
 
 					const int maxLineLength = 100;
 					return @$"
@@ -109,30 +106,6 @@ namespace Reseed.Rendering.Insertion
 			return string.Join(Environment.NewLine, groups);
 		}
 
-		private static Func<Column, IdentityGenerator> BuildIdentityGeneratorProvider(Table table)
-		{
-			var generatorsMap = table.Columns
-				.Where(c => c.IsIdentity)
-				.Select(c =>
-				{
-					var values = table.Rows
-						.Select(r =>
-							r.Value.GetValue(c.Name) is { } value && int.TryParse(value, out var number)
-								? number
-								: (int?) null)
-						.Where(v => v != null)
-						.Cast<int>()
-						.ToArray();
-
-					return (column: c, generator: new IdentityGenerator(values));
-				})
-				.ToDictionary(pair => pair.column, pair => pair.generator);
-
-			return c => generatorsMap.TryGetValue(c, out var generator)
-				? generator
-				: throw BuildTableError(table.Name, $"Can't find identity generator for column with name '{c.Name}'");
-		}
-
 		private static OrderedItem<(string[] columns, OrderedItem<Row>[] rows)>[] GroupRowsByColumns(
 			IReadOnlyCollection<OrderedItem<Row>> rows) =>
 			rows
@@ -151,8 +124,7 @@ namespace Reseed.Rendering.Insertion
 		private static string RenderRows(
 			ObjectName tableName,
 			Column[] columns,
-			IEnumerable<OrderedItem<Row>> rows,
-			Func<Column, IdentityGenerator> getIdentityGenerator)
+			IEnumerable<OrderedItem<Row>> rows)
 		{
 			var rowValues = rows
 				.OrderBy(r => r.Order)
@@ -160,7 +132,7 @@ namespace Reseed.Rendering.Insertion
 				{
 					var renderedValues = columns
 						.OrderBy(c => c.Order)
-						.Select(c => GetColumnValue(tableName, c, row.Value, getIdentityGenerator))
+						.Select(c => GetColumnValue(tableName, c, row.Value))
 						.Where(c => c != null)
 						.Select(RenderValue);
 
@@ -173,8 +145,7 @@ namespace Reseed.Rendering.Insertion
 		private static ColumnValue GetColumnValue(
 			ObjectName tableName,
 			Column column,
-			Row row,
-			Func<Column, IdentityGenerator> getIdentityGenerator)
+			Row row)
 		{
 			var value = row.GetValue(column.Name);
 			if (value != null)
@@ -187,19 +158,11 @@ namespace Reseed.Rendering.Insertion
 				return null;
 			}
 
-			if (column.IsIdentity)
-			{
-				var generator = getIdentityGenerator(column);
-				return new ColumnValue(column, generator.NextValue());
-			}
-			else
-			{
-				return column.DefaultValue != null
-					? new ColumnValue(column, column.DefaultValue)
-					: throw BuildTableError(tableName,
-						$"Column '{column.Name}' is required and doesn't have default value, " +
-						"but value is not provided");
-			}
+			return column.DefaultValue != null
+				? new ColumnValue(column, column.DefaultValue)
+				: throw BuildTableError(tableName,
+					$"Column '{column.Name}' is required and doesn't have default value, " +
+					"but value is not provided");
 		}
 
 		private static string RenderValue(ColumnValue value)
