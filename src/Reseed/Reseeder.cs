@@ -59,18 +59,17 @@ namespace Reseed
 			{
 				try
 				{
-					if (dbAction is DbScript script)
+					switch (dbAction)
 					{
-						ExecuteScript(connection, script);
-					}
-					else if (dbAction is SqlBulkCopyAction bulkCopy)
-					{
-						ExecuteSqlBulkCopy(connection, bulkCopy);
-					}
-					else
-					{
-						throw new NotSupportedException(
-							$"Unknown {nameof(IDbAction)} type {dbAction.GetType().FullName}");
+						case DbScript script:
+							ExecuteScript(connection, script);
+							break;
+						case SqlBulkCopyAction bulkCopy:
+							ExecuteSqlBulkCopy(connection, bulkCopy);
+							break;
+						default:
+							throw new NotSupportedException(
+								$"Unknown {nameof(IDbAction)} type {dbAction.GetType().FullName}");
 					}
 				}
 				catch (SqlException ex)
