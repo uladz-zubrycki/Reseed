@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data.Common;
 using System.Data.SqlClient;
+using System.Linq;
 using JetBrains.Annotations;
 using Reseed.Data;
 using Reseed.Data.FileSystem;
@@ -82,13 +83,26 @@ namespace Reseed
 
 		private IReadOnlyCollection<Entity> GetEntities(IDataProvider dataProvider)
 		{
-			var entities = dataProvider.GetEntities();
-			if (entities.Count == 0)
+			if (dataProvider is IVerboseDataProvider verboseProvider)
 			{
-				throw BuildNoEntitiesException(dataProvider);
-			}
+				var loadResult = verboseProvider.GetEntitiesDetailed();
+				if (loadResult.Entities.Count == 0)
+				{
+					throw BuildNoEntitiesException(verboseProvider, loadResult);
+				}
 
-			return entities;
+				return loadResult.Entities;
+			}
+			else
+			{
+				var entities = dataProvider.GetEntities();
+				if (entities.Count == 0)
+				{
+					throw BuildNoEntitiesException(dataProvider);
+				}
+
+				return entities;
+			}
 		}
 
 		private IReadOnlyCollection<TableSchema> LoadSchemas()
@@ -131,9 +145,28 @@ namespace Reseed
 			bulkCopy.WriteToServer(reader);
 		}
 
-		private InvalidOperationException BuildNoEntitiesException(IDataProvider dataProvider) =>
-			new($"The specified {nameof(IDataProvider)} wasn't able to find any entities, " +
-			    $"while at least one is required. Make sure {dataProvider.GetType().Name} configuration is correct");
+		private InvalidOperationException BuildNoEntitiesException(IDataProvider dataProvider) => 
+			new(BuildDataProviderNoEntitiesErrorMessage(dataProvider));
+
+		private InvalidOperationException BuildNoEntitiesException(
+			IVerboseDataProvider dataProvider,
+			EntityLoadResult loadResult)
+		{
+			return new InvalidOperationException(
+				BuildDataProviderNoEntitiesErrorMessage(dataProvider) +
+				BuildSourcesMessage(". Loaded", loadResult.LoadedSources) +
+				BuildSourcesMessage(". Skipped", loadResult.SkippedSources));
+
+			static string BuildSourcesMessage(string sourcesName, IReadOnlyCollection<DataFile> sources) =>
+				sources.Count > 0
+					? $"{sourcesName} sources are {string.Join(", ", sources.Select(s => s.ToString()))}"
+					: string.Empty;
+		}
+
+		private static string BuildDataProviderNoEntitiesErrorMessage(IDataProvider dataProvider) =>
+			$"The specified {nameof(IDataProvider)} wasn't able to find any entities, " +
+			"while at least one is required. " +
+			$"Make sure {dataProvider.GetType().Name} configuration is correct";
 
 		private static InvalidOperationException BuildNoSchemasException() =>
 			new("The specified database doesn't contain any tables, " +

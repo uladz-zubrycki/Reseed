@@ -6,9 +6,4 @@ namespace Reseed.Data
 	{
 		IReadOnlyCollection<Entity> GetEntities();
 	}
-
-	internal interface IVerboseDataProvider : IDataProvider
-	{
-		// TODO
-	}
 }

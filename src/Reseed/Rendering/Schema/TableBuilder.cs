@@ -227,7 +227,7 @@ namespace Reseed.Rendering.Schema
 
 		private static string BuildOriginErrorMessage(params DataFile[] origins) =>
 			origins.Length == 1
-				? $"Error in '{origins[0].Name}' test data file at '{origins[0].Path}'"
-				: $"Error in multiple test data files: {string.Join(", ", origins.Select(o => $"'{o.Name}' at '{o.Path}'"))}";
+				? $"Error in test data file {origins[0]}"
+				: $"Error in multiple test data files: {string.Join(", ", origins.Select(o => o.ToString()))}";
 	}
 }
