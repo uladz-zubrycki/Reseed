@@ -74,8 +74,7 @@ namespace Reseed
 				}
 				catch (SqlException ex)
 				{
-					throw new InvalidOperationException(
-						$"Error on '{dbAction.Name}' action execution", ex);
+					throw new DbActionExecutionException(dbAction, ex);
 				}
 			}
 		}
