@@ -24,13 +24,27 @@ namespace Reseed.Samples.NUnit
 
 		public async Task StartAsync()
 		{
-			await server.StartAsync();
+			await StartServerAsync();
 			EnsureDatabase.For.SqlDatabase(server.ConnectionString);
 
 			var migrationResult = MigrateDatabase(server.ConnectionString, scriptsFolder);
 			if (!migrationResult.Successful)
 			{
 				throw new InvalidOperationException("Can't apply database migrations", migrationResult.Error);
+			}
+		}
+
+		private async Task StartServerAsync()
+		{
+			try
+			{
+				await server.StartAsync();
+			}
+			catch (TimeoutException ex)
+			{
+				throw new InvalidOperationException(
+					"Can't start sql server container, make sure docker is running",
+					ex);
 			}
 		}
 
