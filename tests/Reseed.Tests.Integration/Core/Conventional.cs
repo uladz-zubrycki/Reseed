@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq.Expressions;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -48,6 +49,34 @@ namespace Reseed.Tests.Integration.Core
 			await assertDataDeleted(sqlEngine);
 
 			reseeder.Execute(dbActions.CleanupDatabase);
+		}
+
+		public static async Task AssertGenerationFails(
+			TestFixtureBase fixture,
+			RenderMode reseederRenderMode,
+			Expression<Func<Exception, bool>> assertError)
+		{
+			await using var database = await CreateConventionalDatabase(fixture);
+			var reseeder = new Reseeder(database.ConnectionString);
+			var assertErrorFun = assertError.Compile();
+
+			try
+			{
+				_ = reseeder.Generate(
+					reseederRenderMode,
+					CreateConventionalDataProvider(fixture));
+			}
+			catch (Exception ex) when (assertErrorFun(ex))
+			{
+				Assert.Pass();
+			}
+			catch (Exception ex)
+			{
+				Assert.Fail(
+					"Generation failed with unexpected exception." +
+					$"Expected exception matching filter '{assertError}', " +
+					$"but got '{ex}'");
+			}
 		}
 
 		private static Func<string, bool> GetTestDataFileFilter(
