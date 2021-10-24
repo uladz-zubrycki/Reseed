@@ -1,0 +1,40 @@
+﻿<Users>
+    <User>
+        <Id>1</Id>
+        <FirstName>John</FirstName>
+        <LastName>Doe</LastName>
+        <Age>23</Age>
+        <ManagerId>3</ManagerId>
+    </User>
+    <User>
+        <Id>2</Id>
+        <FirstName>Jack</FirstName>
+        <LastName>Bart</LastName>
+        <Age>40</Age>
+        <ManagerId>4</ManagerId>
+    </User>
+    <User>
+        <Id>3</Id>
+        <FirstName>Ann</FirstName>
+        <LastName>Ken</LastName>
+        <ManagerId>5</ManagerId>
+    </User>
+    <!--
+        4 has the same columns as 3, but it can't go to the same group,
+        as it depends on 1, which in its turn has the same columns 
+        as 2, but 2 depends on 4, so should go after it. 
+        The very first implementation wasn't able to address such graph correctly.
+    -->
+    <User>
+        <Id>4</Id>
+        <FirstName>Ed</FirstName>
+        <LastName>Sal</LastName>
+        <ManagerId>1</ManagerId>
+    </User>
+    <User>
+        <Id>5</Id>
+        <FirstName>Ed</FirstName>
+        <LastName>Sal</LastName>
+        <Age>55</Age>
+    </User>
+</Users>

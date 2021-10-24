@@ -41,6 +41,12 @@
     <None Update="Data\SingleTableWithForeignKeyTests\02_ShouldInsert_ForeignKeyEvery.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Update="Data\SingleTableWithForeignKeyTests\04_ShouldPreserveRowOrderWhileGroupingRowsByColumns.sql">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Data\SingleTableWithForeignKeyTests\04_ShouldPreserveRowOrderWhileGroupingRowsByColumns.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Update="Data\SingleTableWithForeignKeyTests\03_ShouldInsert_ForeignKeyMixed.sql">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

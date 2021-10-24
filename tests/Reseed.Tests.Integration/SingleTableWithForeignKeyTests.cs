@@ -29,6 +29,13 @@ namespace Reseed.Tests.Integration
 		public Task ShouldInsert_ForeignKeyMixed() => 
 			TestUserTableSeed(4);
 
+		[Test]
+		// Should not break row ordering, while grouping rows by columns, which is done
+		// to avoid column names repetition in the script and provide rows
+		// with same columns in the only VALUES clause. See InsertScriptRenderer.GroupRowsByColumns
+		public Task ShouldPreserveRowOrderWhileGroupingRowsByColumns() => 
+			TestUserTableSeed(5);
+
 		private async Task TestUserTableSeed(int userCount)
 		{
 			await Conventional.AssertSeedSucceeds(
