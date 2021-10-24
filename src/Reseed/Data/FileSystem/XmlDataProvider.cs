@@ -4,10 +4,11 @@ using System.IO;
 using System.Linq;
 using System.Xml.Linq;
 using JetBrains.Annotations;
+using Reseed.Utils;
 
 namespace Reseed.Data.FileSystem
 {
-	internal sealed class XmlDataProvider: IDataProvider
+	internal sealed class XmlDataProvider: IVerboseDataProvider
 	{
 		private readonly string dataFolder;
 		private readonly string filePattern;
@@ -23,7 +24,7 @@ namespace Reseed.Data.FileSystem
 			this.fileFilter = fileFilter ?? throw new ArgumentNullException(nameof(fileFilter));
 		}
 
-		public IReadOnlyCollection<Entity> GetEntities()
+		public EntityLoadResult GetEntitiesDetailed()
 		{
 			if (!Directory.Exists(dataFolder))
 			{
@@ -38,14 +39,25 @@ namespace Reseed.Data.FileSystem
 			if (!files.Any())
 			{
 				throw new InvalidOperationException(
-					$"At least one xml data file is required, but found none at '{dataFolder}'");
+					$"At least one xml data file is required, but found none at '{dataFolder}'. " +
+					"Check that data files exist and aren't filtered out " +
+					$"by either {nameof(filePattern)} or {nameof(fileFilter)}");
 			}
 
-			return files
-				.Where(f => this.fileFilter(Path.GetFileName(f)))
+			var (matchingFiles, skippedFiles) = files.PartitionBy(this.fileFilter);
+
+			var entities = matchingFiles
 				.SelectMany(ReadFile)
 				.ToArray();
+
+			return new EntityLoadResult(
+				entities,
+				matchingFiles.Select(f => new DataFile(f)).ToArray(),
+				skippedFiles.Select(f => new DataFile(f)).ToArray());
 		}
+
+		public IReadOnlyCollection<Entity> GetEntities() => 
+			GetEntitiesDetailed().Entities;
 
 		private static Entity[] ReadFile([NotNull] string path)
 		{
@@ -124,7 +136,7 @@ namespace Reseed.Data.FileSystem
 
 		private static Exception BuildDocumentError(DataFile origin, string error) =>
 			new InvalidOperationException(
-				$"Can't process xml data file '{origin.Name}' at '{origin.Path}'. " +
+				$"Can't process xml data file {origin}. " +
 				error);
 	}
 }

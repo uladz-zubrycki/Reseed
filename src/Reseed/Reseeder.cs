@@ -2,10 +2,12 @@
 using System.Collections.Generic;
 using System.Data.Common;
 using System.Data.SqlClient;
+using System.Linq;
 using JetBrains.Annotations;
 using Reseed.Data;
 using Reseed.Data.FileSystem;
 using Reseed.Dsl;
+using Reseed.Extending;
 using Reseed.Graphs;
 using Reseed.Ordering;
 using Reseed.Rendering;
@@ -33,13 +35,14 @@ namespace Reseed
 			if (mode == null) throw new ArgumentNullException(nameof(mode));
 			if (dataProvider == null) throw new ArgumentNullException(nameof(dataProvider));
 
-			var entities = dataProvider.GetEntities();
-			var schemas = MsSqlSchemaProvider.LoadSchema(connectionString);
+			var entities = GetEntities(dataProvider);
+			var schemas = LoadSchemas();
 			var tables = TableBuilder.Build(schemas, entities);
-			DataValidator.Validate(tables);
+			var extendedTables = TableExtender.Extend(tables);
+			DataValidator.Validate(extendedTables);
 
 			var orderedSchemas = NodeOrderer<TableSchema>.Order(schemas);
-			var containers = TableOrderer.Order(tables, orderedSchemas);
+			var containers = TableOrderer.Order(extendedTables, orderedSchemas);
 			return Renderer.Render(orderedSchemas, containers, mode);
 		}
 
@@ -58,26 +61,59 @@ namespace Reseed
 			{
 				try
 				{
-					if (dbAction is DbScript script)
+					switch (dbAction)
 					{
-						ExecuteScript(connection, script);
-					}
-					else if (dbAction is SqlBulkCopyAction bulkCopy)
-					{
-						ExecuteSqlBulkCopy(connection, bulkCopy);
-					}
-					else
-					{
-						throw new NotSupportedException(
-							$"Unknown {nameof(IDbAction)} type {dbAction.GetType().FullName}");
+						case DbScript script:
+							ExecuteScript(connection, script);
+							break;
+						case SqlBulkCopyAction bulkCopy:
+							ExecuteSqlBulkCopy(connection, bulkCopy);
+							break;
+						default:
+							throw new NotSupportedException(
+								$"Unknown {nameof(IDbAction)} type {dbAction.GetType().FullName}");
 					}
 				}
 				catch (SqlException ex)
 				{
-					throw new InvalidOperationException(
-						$"Error on '{dbAction.Name}' action execution", ex);
+					throw new DbActionExecutionException(dbAction, ex);
 				}
 			}
+		}
+
+		private IReadOnlyCollection<Entity> GetEntities(IDataProvider dataProvider)
+		{
+			if (dataProvider is IVerboseDataProvider verboseProvider)
+			{
+				var loadResult = verboseProvider.GetEntitiesDetailed();
+				if (loadResult.Entities.Count == 0)
+				{
+					throw BuildNoEntitiesException(verboseProvider, loadResult);
+				}
+
+				return loadResult.Entities;
+			}
+			else
+			{
+				var entities = dataProvider.GetEntities();
+				if (entities.Count == 0)
+				{
+					throw BuildNoEntitiesException(dataProvider);
+				}
+
+				return entities;
+			}
+		}
+
+		private IReadOnlyCollection<TableSchema> LoadSchemas()
+		{
+			var schemas = MsSqlSchemaProvider.LoadSchema(connectionString);
+			if (schemas.Count == 0)
+			{
+				throw BuildNoSchemasException();
+			}
+
+			return schemas;
 		}
 
 		private static void ExecuteScript(SqlConnection connection, DbScript script)
@@ -108,5 +144,34 @@ namespace Reseed
 			using var reader = command.ExecuteReader();
 			bulkCopy.WriteToServer(reader);
 		}
+
+		private InvalidOperationException BuildNoEntitiesException(IDataProvider dataProvider) => 
+			new(BuildDataProviderNoEntitiesErrorMessage(dataProvider));
+
+		private InvalidOperationException BuildNoEntitiesException(
+			IVerboseDataProvider dataProvider,
+			EntityLoadResult loadResult)
+		{
+			return new InvalidOperationException(
+				BuildDataProviderNoEntitiesErrorMessage(dataProvider) +
+				BuildSourcesMessage(". Loaded", loadResult.LoadedSources) +
+				BuildSourcesMessage(". Skipped", loadResult.SkippedSources));
+
+			static string BuildSourcesMessage(string sourcesName, IReadOnlyCollection<DataFile> sources) =>
+				sources.Count > 0
+					? $"{sourcesName} sources are {string.Join(", ", sources.Select(s => s.ToString()))}"
+					: string.Empty;
+		}
+
+		private static string BuildDataProviderNoEntitiesErrorMessage(IDataProvider dataProvider) =>
+			$"The specified {nameof(IDataProvider)} wasn't able to find any entities, " +
+			"while at least one is required. " +
+			$"Make sure {dataProvider.GetType().Name} configuration is correct";
+
+		private static InvalidOperationException BuildNoSchemasException() =>
+			new("The specified database doesn't contain any tables, " +
+			    $"therefore can't be used as {nameof(Reseeder)} target. " +
+			    "Make sure that all the database migrations are properly applied if any" +
+			    $"before using {nameof(Reseeder)}");
 	}
 }

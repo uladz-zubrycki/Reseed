@@ -1,12 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using JetBrains.Annotations;
 using Reseed.Schema;
+using Reseed.Utils;
 
 namespace Reseed.Rendering.Schema
 {
-	internal sealed class TableDefinition : IEquatable<TableDefinition>
+	public sealed class TableDefinition : IEquatable<TableDefinition>
 	{
+		private readonly HashSet<string> columnNames;
 		public readonly ObjectName Name;
 		public readonly Key PrimaryKey;
 		public readonly IReadOnlyCollection<Column> Columns;
@@ -22,6 +25,13 @@ namespace Reseed.Rendering.Schema
 			this.Name = name ?? throw new ArgumentNullException(nameof(name));
 			this.PrimaryKey = primaryKey;
 			this.Columns = columns;
+			this.columnNames = Columns.Select(c => c.Name).ToHashSet();
+		}
+
+		public bool HasColumn([NotNull] string columnName)
+		{
+			if (columnName == null) throw new ArgumentNullException(nameof(columnName));
+			return this.columnNames.Contains(columnName);
 		}
 
 		public TableDefinition MapTableName([NotNull] Func<ObjectName, ObjectName> mapper)

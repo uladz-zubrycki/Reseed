@@ -54,11 +54,11 @@ namespace Reseed.Dsl.Cleanup
 
 		public static CleanupOptions IncludeNone(
 			CleanupKind kind,
-			[CanBeNull] Func<IncludingDataCleanupFilter, IncludingDataCleanupFilter> configure = null,
+			[NotNull] Func<IncludingDataCleanupFilter, IncludingDataCleanupFilter> configure,
 			[CanBeNull] IReadOnlyCollection<(ObjectName table, string script)> customScripts = null)
 		{
-			var configureFilter = configure ?? Fn.Identity<IncludingDataCleanupFilter>();
-			var filter = configureFilter(new IncludingDataCleanupFilter());
+			if (configure == null) throw new ArgumentNullException(nameof(configure));
+			var filter = configure(new IncludingDataCleanupFilter());
 			return new CleanupOptions(
 				kind,
 				filter,

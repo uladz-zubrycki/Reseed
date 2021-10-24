@@ -211,7 +211,7 @@ namespace Reseed.Schema
 			|		col.[column_id] = fk.[parent_column_id]) OR
 			|	(col.[object_id] = fk.[referenced_object_id] AND 
 			|		col.[column_id] = fk.[referenced_column_id])
-			|WHERE 0 = %FK_COUNT% OR constraint_object_id IN (%FK_IDS%)"
+			|WHERE constraint_object_id IN (%FK_IDS%)"
 			.Replace(
 				"%FK_IDS%",
 				string.Join(",", foreignKeyIds.Select(id => $"'{id}'")))

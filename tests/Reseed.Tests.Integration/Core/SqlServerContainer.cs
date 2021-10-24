@@ -7,18 +7,25 @@ using DotNet.Testcontainers.Containers.Configurations.Abstractions;
 using DotNet.Testcontainers.Containers.Modules.Databases;
 using DotNet.Testcontainers.Containers.WaitStrategies;
 
-namespace Reseed.Samples.NUnit
+namespace Reseed.Tests.Integration.Core
 {
-	public class SqlServerContainer: IAsyncDisposable
+	public sealed class SqlServerContainer: IAsyncDisposable
 	{
 		private readonly string scriptsFolder;
+		private readonly Func<string, bool> scriptFilter;
 		private readonly MsSqlTestcontainer server;
 
 		public string ConnectionString => server.ConnectionString;
 
 		public SqlServerContainer(string scriptsFolder)
+			: this(scriptsFolder, _ => true)
+		{
+		}
+
+		public SqlServerContainer(string scriptsFolder, Func<string, bool> scriptFilter)
 		{
 			this.scriptsFolder = scriptsFolder ?? throw new ArgumentNullException(nameof(scriptsFolder));
+			this.scriptFilter = scriptFilter ?? throw new ArgumentNullException(nameof(scriptFilter));
 			this.server = CreateDatabaseContainer();
 		}
 
@@ -27,7 +34,11 @@ namespace Reseed.Samples.NUnit
 			await StartServerAsync();
 			EnsureDatabase.For.SqlDatabase(server.ConnectionString);
 
-			var migrationResult = MigrateDatabase(server.ConnectionString, scriptsFolder);
+			var migrationResult = MigrateDatabase(
+				server.ConnectionString,
+				scriptsFolder,
+				scriptFilter);
+
 			if (!migrationResult.Successful)
 			{
 				throw new InvalidOperationException("Can't apply database migrations", migrationResult.Error);
@@ -54,14 +65,17 @@ namespace Reseed.Samples.NUnit
 		private static MsSqlTestcontainer CreateDatabaseContainer() =>
 			new TestcontainersBuilder<MsSqlTestcontainer>()
 				.WithDatabase(new DbContainerConfiguration("MsSqlContainerDb", "!A1B2c3d4_"))
-				.WithName("sql-db")
+				.WithName($"sql-db_{Guid.NewGuid()}")
 				.Build();
 
-		private static DatabaseUpgradeResult MigrateDatabase(string connectionString, string scriptsPath)
+		private static DatabaseUpgradeResult MigrateDatabase(
+			string connectionString,
+			string scriptsPath,
+			Func<string, bool> scriptFilter)
 		{
 			var upgrade = DeployChanges.To
 				.SqlDatabase(connectionString, "dbo")
-				.WithScriptsFromFileSystem(scriptsPath)
+				.WithScriptsFromFileSystem(scriptsPath, scriptFilter)
 				.LogToConsole()
 				.WithTransactionPerScript()
 				.Build();

@@ -11,6 +11,7 @@ namespace Reseed.Rendering
 	public interface IDbAction
 	{
 		public string Name { get; }
+		public string ToVerboseString();
 	}
 
 	[PublicAPI]
@@ -25,7 +26,9 @@ namespace Reseed.Rendering
 			this.Text = text ?? throw new ArgumentNullException(nameof(text));
 		}
 
-		public override string ToString() => $"Script: {Name}";
+		public override string ToString() => $"Script: '{Name}'";
+
+		public string ToVerboseString() => $"'{Name}' script '{Text}'";
 
 		internal DbScript Map([NotNull] Func<string, string> mapper, string name = null)
 		{
@@ -77,6 +80,10 @@ namespace Reseed.Rendering
 			Name = name ?? throw new ArgumentNullException(nameof(name));
 		}
 
-		public override string ToString() => $"SqlBulkCopy: {Name}";
+		public override string ToString() => $"SqlBulkCopy: '{Name}'";
+
+		public string ToVerboseString() =>
+			$"'{Name}' bulk copy into '{DestinationTable}', " +
+			$"{SourceScript}";
 	}
 }

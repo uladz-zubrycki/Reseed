@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using Reseed.Graphs;
-using Reseed.Rendering;
 using Reseed.Rendering.Schema;
 using Reseed.Schema;
 using Reseed.Utils;
@@ -83,7 +82,7 @@ namespace Reseed.Ordering
 				(r, tr) => r.Map(_ => tr),
 				(row, references) => new TableRow(
 					row,
-					tableDefinitionMap[row.TableName],
+					tableDefinitionMap[row.Table.Name],
 					references));
 		}
 

@@ -8,7 +8,7 @@ namespace Reseed.Schema
 	// additional information
 	//
 	// Consider splitting into multiple types, if we need more precise representation
-	internal sealed class DataType
+	public sealed class DataType
 	{
 		private readonly bool isReal;
 
