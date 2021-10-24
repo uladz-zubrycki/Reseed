@@ -182,6 +182,8 @@ namespace Reseed.Rendering.Schema
 						: "";
 
 				return new InvalidOperationException(
+					"Some of the entities found don't have matching database tables. " +
+					"Make sure that names are correct and expected. " +
 					$"Can't find corresponding sql table for entity '{tableName.Name}'{schemaNameMisprintMessage}. " +
 					$"{BuildOriginErrorMessage(origins)}");
 			};

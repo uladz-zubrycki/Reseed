@@ -16,19 +16,25 @@ namespace Reseed.Schema
 			using var connection = new SqlConnection(connectionString);
 			connection.Open();
 			var tables = SchemaReader.LoadTables(connection);
-			var foreignKeys = SchemaReader.LoadForeignKeys(connection, tables);
-			return NodeBuilder<TableSchema>.CollectNodes(
-				tables, 
-				foreignKeys, 
-				(r, t) => r.Map(_ => t),
-				CreateTableSchema);
+			if (tables.Count == 0)
+			{
+				return Array.Empty<TableSchema>();
+			}
+			else
+			{
+				var foreignKeys = SchemaReader.LoadForeignKeys(connection, tables);
+				return NodeBuilder<TableSchema>.CollectNodes(
+					tables,
+					foreignKeys,
+					(r, t) => r.Map(_ => t),
+					CreateTableSchema);
+			}
 		}
 
 		private static TableSchema CreateTableSchema(
 			TableData table,
 			Reference<TableSchema>[] references) =>
-			new(
-				table.Name,
+			new(table.Name,
 				table.Columns,
 				table.PrimaryKey,
 				references);

@@ -53,6 +53,21 @@
     <None Update="Data\SingleTableWithForeignKeyTests\01_ShouldInsert_ForeignKeyMissing.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Update="Data\GenerationValidationTests\01_ShouldFailGracefully_NoSchemas.sql">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Data\GenerationValidationTests\01_ShouldFailGracefully_NoSchemas.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Data\GenerationValidationTests\02_ShouldFailGracefully_NoEntities.sql">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Data\GenerationValidationTests\03_ShouldFailGracefully_UnknownEntity.sql">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Data\GenerationValidationTests\03_ShouldFailGracefully_UnknownEntity.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>

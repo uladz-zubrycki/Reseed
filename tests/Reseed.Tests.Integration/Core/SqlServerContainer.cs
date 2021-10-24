@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using DbUp;
 using DbUp.Engine;
+using DbUp.Helpers;
 using DotNet.Testcontainers.Containers.Builders;
 using DotNet.Testcontainers.Containers.Configurations.Abstractions;
 using DotNet.Testcontainers.Containers.Modules.Databases;
@@ -77,6 +78,7 @@ namespace Reseed.Tests.Integration.Core
 				.SqlDatabase(connectionString, "dbo")
 				.WithScriptsFromFileSystem(scriptsPath, scriptFilter)
 				.LogToConsole()
+				.JournalTo(new NullJournal())
 				.WithTransactionPerScript()
 				.Build();
 			
