@@ -106,15 +106,41 @@ namespace Reseed.Rendering.Insertion
 			return string.Join(Environment.NewLine, groups);
 		}
 
-		private static OrderedItem<(string[] columns, OrderedItem<Row>[] rows)>[] GroupRowsByColumns(
-			IReadOnlyCollection<OrderedItem<Row>> rows) =>
-			rows
-				.GroupBy(r => r.Value.Columns.ToArray(),
-					InlineEqualityComparer<string[]>.Create(cs => string.Join(";",  cs)))
-				.Select(gr => (columns: gr.Key, rows: gr.ToArray()))
-				.OrderBy(gr => gr.rows.Select(r => r.Order).Min())
-				.Select((gr, i) => Ordered(i, gr))
+		private static IEnumerable<OrderedItem<(IReadOnlyCollection<string> columns, Row[] rows)>> 
+			GroupRowsByColumns(
+			IReadOnlyCollection<OrderedItem<Row>> rows)
+		{
+			var comparer = InlineEqualityComparer<IReadOnlyCollection<string>>.Create(
+				cs => string.Join(";", cs));
+			var orderedRows = rows.Order().ToArray();
+			var groups = new List<(IReadOnlyCollection<string>, Row[])>();
+			var firstRow = orderedRows.First();
+			var currentColumns = firstRow.Columns;
+			var currentGroup = new List<Row> {firstRow};
+
+			foreach (var row in orderedRows.Skip(1))
+			{
+				if (comparer.Equals(currentColumns, row.Columns))
+				{
+					currentGroup.Add(row);
+				}
+				else
+				{
+					groups.Add((currentColumns, currentGroup.ToArray()));
+					currentColumns = row.Columns;
+					currentGroup = new List<Row> {row};
+				}
+			}
+
+			if (currentGroup.Count > 0)
+			{
+				groups.Add((currentColumns, currentGroup.ToArray()));
+			}
+
+			return groups
+				.WithNaturalOrder()
 				.ToArray();
+		}
 
 		private static string RenderColumns(IEnumerable<Column> columns) =>
 			string.Join(", ", columns
@@ -124,15 +150,14 @@ namespace Reseed.Rendering.Insertion
 		private static string RenderRows(
 			ObjectName tableName,
 			Column[] columns,
-			IEnumerable<OrderedItem<Row>> rows)
+			IReadOnlyCollection<Row> rows)
 		{
 			var rowValues = rows
-				.OrderBy(r => r.Order)
 				.Select(row =>
 				{
 					var renderedValues = columns
 						.OrderBy(c => c.Order)
-						.Select(c => GetColumnValue(tableName, c, row.Value))
+						.Select(c => GetColumnValue(tableName, c, row))
 						.Where(c => c != null)
 						.Select(RenderValue);
 
