@@ -15,9 +15,6 @@ namespace Reseed.Graphs
 			return nodes.Count switch
 			{
 				0 => OrderedGraph<T>.Empty,
-				1 => new OrderedGraph<T>(
-					nodes.WithNaturalOrder().ToArray(),
-					Array.Empty<MutualReference<T>>()),
 				_ => OrderNodes(nodes)
 			};
 
