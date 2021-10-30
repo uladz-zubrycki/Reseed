@@ -1,17 +1,28 @@
-﻿using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using NUnit.Framework;
+using Reseed.Dsl;
 using Reseed.Tests.Integration.Core;
 
 namespace Reseed.Tests.Integration
 {
 	[Parallelizable(ParallelScope.All)]
-	public sealed class SingleTableWithForeignKeyTests: TestFixtureBase
+	[TestFixtureSource(typeof(RenderModes), nameof(RenderModes.Every))]
+	public sealed class SingleTableWithForeignKeyTests : TestFixtureBase
 	{
+		private readonly RenderMode mode;
+
+		public SingleTableWithForeignKeyTests(RenderMode mode)
+		{
+			this.mode = mode;
+		}
+
 		[Test]
 		// Should insert single table data, when there are entities
 		// none of the rows has FK set.
 		// No ordering is needed, so could be any.
-		public Task ShouldInsert_ForeignKeyMissing() => 
+		public Task ShouldInsert_ForeignKeyMissing() =>
 			TestUserTableSeed(4);
 
 		[Test]
@@ -19,28 +30,28 @@ namespace Reseed.Tests.Integration
 		// every row has FK set, therefore there is a cycle
 		// FK needs to be disabled for the graph with cycle,
 		// rest of the rows should be ordered by their FK values.
-		public Task ShouldInsert_ForeignKeyEvery() => 
+		public Task ShouldInsert_ForeignKeyEvery() =>
 			TestUserTableSeed(5);
 
 		[Test]
 		// Should insert single table data, when there are entities
 		// some of the rows has FK set.
 		// Rows should be ordered by their FK values.
-		public Task ShouldInsert_ForeignKeyMixed() => 
+		public Task ShouldInsert_ForeignKeyMixed() =>
 			TestUserTableSeed(4);
 
 		[Test]
 		// Should not break row ordering, while grouping rows by columns, which is done
 		// to avoid column names repetition in the script and provide rows
 		// with same columns in the only VALUES clause. See InsertScriptRenderer.GroupRowsByColumns
-		public Task ShouldPreserveRowOrderWhileGroupingRowsByColumns() => 
+		public Task ShouldPreserveRowOrderWhileGroupingRowsByColumns() =>
 			TestUserTableSeed(5);
 
 		private async Task TestUserTableSeed(int userCount)
 		{
 			await Conventional.AssertSeedSucceeds(
 				this,
-				RenderModes.SimpleScriptPreferTruncate,
+				this.mode,
 				async sql => Assert.AreEqual(userCount, await GetUsersCount(sql)),
 				async sql => Assert.AreEqual(0, await GetUsersCount(sql)));
 
