@@ -17,14 +17,30 @@ namespace Reseed.Rendering.TemporaryTables
 		public static IReadOnlyCollection<OrderedItem<DbScript>> Render(
 			[NotNull] string tempSchemaName,
 			[NotNull] IReadOnlyCollection<TableSchema> tempTables,
-			[NotNull] IReadOnlyCollection<OrderedItem<ITableContainer>> tempContainers) =>
-			OrderedItem.OrderedCollection(
-				new DbScript("Create temp schema", RenderCreateSchema(tempSchemaName)),
-				new DbScript("Create temp tables", RenderCreateTables(tempTables)),
-				new DbScript(
-					"Create temp tables foreign keys",
-					RenderCreateForeignKeys(tempTables.SelectMany(t => t.GetRelations()))),
-				InsertScriptRenderer.Render(tempContainers).Map(_ => _, "Fill temp tables"));
+			[NotNull] IReadOnlyCollection<OrderedItem<ITableContainer>> tempContainers)
+		{
+			if (tempSchemaName == null) throw new ArgumentNullException(nameof(tempSchemaName));
+			if (tempTables == null) throw new ArgumentNullException(nameof(tempTables));
+			if (tempContainers == null) throw new ArgumentNullException(nameof(tempContainers));
+			if (tempContainers.Count == 0)
+				throw new ArgumentException("Value cannot be an empty collection.", nameof(tempContainers));
+
+			var foreignKeys = tempTables
+				.SelectMany(t => t.GetRelations())
+				.ToArray();
+
+			return new List<DbScript>()
+				.AddScript(new DbScript("Create temp schema", RenderCreateSchema(tempSchemaName)))
+				.AddScript(new DbScript("Create temp tables", RenderCreateTables(tempTables)))
+				.AddScriptWhen(
+					() => new DbScript(
+						"Create temp tables foreign keys",
+						RenderCreateForeignKeys(foreignKeys)),
+					foreignKeys.Length > 0)
+				.AddScript(InsertScriptRenderer.Render(tempContainers).Map(_ => _, "Fill temp tables"))
+				.WithNaturalOrder()
+				.ToArray();
+		}
 
 		private static string RenderCreateTables(IReadOnlyCollection<TableSchema> tables) =>
 			string.Join(Environment.NewLine + Environment.NewLine,

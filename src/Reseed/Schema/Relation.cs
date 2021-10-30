@@ -1,5 +1,6 @@
 ﻿using System;
 using JetBrains.Annotations;
+using Reseed.Utils;
 using Testing.Common.Api.Schema;
 
 namespace Reseed.Schema
@@ -25,12 +26,20 @@ namespace Reseed.Schema
 		public override string ToString() => 
 			$"{Name}: {this.Source}({this.Association.SourceKey}) -> {this.Target}({this.Association.TargetKey})";
 
-		public Reference<T> GetReference() => new(this.Association, this.Target);
+		public Relation<TOut> Map<TOut>([NotNull] Func<T, TOut> mapItem) =>
+			Map(mapItem, Fn.Identity<Association>());
 
-		public Relation<TOut> Map<TOut>([NotNull] Func<T, TOut> mapper)
+		public Relation<TOut> Map<TOut>(
+			[NotNull] Func<T, TOut> mapItem,
+			[NotNull] Func<Association, Association> mapAssociation)
 		{
-			if (mapper == null) throw new ArgumentNullException(nameof(mapper));
-			return new Relation<TOut>(mapper(this.Source), mapper(this.Target), this.Association);
+			if (mapItem == null) throw new ArgumentNullException(nameof(mapItem));
+			if (mapAssociation == null) throw new ArgumentNullException(nameof(mapAssociation));
+
+			return new Relation<TOut>(
+				mapItem(this.Source), 
+				mapItem(this.Target), 
+				mapAssociation(this.Association));
 		}
 
 		public override bool Equals(object obj) => Equals(obj as Relation<T>);

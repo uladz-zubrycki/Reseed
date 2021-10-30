@@ -69,6 +69,12 @@ namespace Reseed.Ordering
 			return source.OrderBy(o => o.Order).Select(o => o.Value);
 		}
 
+		public static IEnumerable<T> Unordered<T>([NotNull] this IEnumerable<OrderedItem<T>> source)
+		{
+			if (source == null) throw new ArgumentNullException(nameof(source));
+			return source.Select(o => o.Value);
+		}
+
 		public static IEnumerable<OrderedItem<T>> WithNaturalOrder<T>([NotNull] this IEnumerable<T> source)
 		{
 			if (source == null) throw new ArgumentNullException(nameof(source));
