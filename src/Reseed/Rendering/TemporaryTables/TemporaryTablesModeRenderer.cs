@@ -126,7 +126,7 @@ namespace Reseed.Rendering.TemporaryTables
 			IReadOnlyCollection<OrderedItem<ITableContainer>> containers)
 		{
 			var names = containers
-				.SelectMany(oc => oc.Value.TableNames)
+				.SelectMany(oc => GetTableNames(oc.Value))
 				.ToHashSet();
 
 			return tables.FilterDeep(t => names.Contains(t.Name));
@@ -140,8 +140,7 @@ namespace Reseed.Rendering.TemporaryTables
 				.Nodes
 				.Select(ot => ot.Value)
 				.MapDeep<TableSchema, TableSchema>(
-					(r, t) =>
-						r.Map(_ => t, a => CreateTempAssociation(tempSchemaName, a)),
+					(r, t) => r.Map(_ => t, a => CreateTempAssociation(tempSchemaName, a)),
 					(t, rs) =>
 						new TableSchema(
 							CreateTempTableName(tempSchemaName, t.Name),
@@ -152,9 +151,26 @@ namespace Reseed.Rendering.TemporaryTables
 		private static OrderedItem<ITableContainer>[] MapContainers(
 			string tempSchemaName,
 			IReadOnlyCollection<OrderedItem<ITableContainer>> containers) =>
-			containers
-				.Select(oc => oc.Map(
-					c => c.MapTableName(n => CreateTempTableName(tempSchemaName, n))))
+			containers.Select(oc => oc.Map<ITableContainer>(c => c switch
+				{
+					Table t => t.MapName(n => CreateTempTableName(tempSchemaName, n)),
+					MutualRowGroup rg => rg.Map(
+						n => CreateTempTableName(tempSchemaName, n),
+						a => CreateTempAssociation(tempSchemaName, a)),
+					MutualTableGroup tg => tg.Map(n => CreateTempTableName(tempSchemaName, n)),
+					_ => throw new NotSupportedException(
+						$"Unknown {nameof(ITableContainer)} type '{c.GetType().Name}'")
+				}))
 				.ToArray();
+
+		private static ObjectName[] GetTableNames(ITableContainer container) =>
+			container switch
+			{
+				Table t => new[] { t.Name },
+				MutualRowGroup rg => rg.Tables.Select(t => t.Name).ToArray(),
+				MutualTableGroup tg => tg.Tables.Select(t => t.Name).ToArray(),
+				_ => throw new NotSupportedException(
+					$"Unknown {nameof(ITableContainer)} type '{container.GetType().Name}'")
+			};
 	}
 }

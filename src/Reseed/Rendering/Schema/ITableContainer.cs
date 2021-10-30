@@ -11,8 +11,6 @@ namespace Reseed.Rendering.Schema
 {
 	internal interface ITableContainer
 	{
-		IReadOnlyCollection<ObjectName> TableNames { get; }
-		ITableContainer MapTableName([NotNull] Func<ObjectName, ObjectName> mapper);
 	}
 
 	public sealed class Table : ITableContainer
@@ -22,7 +20,6 @@ namespace Reseed.Rendering.Schema
 
 		public ObjectName Name => this.Definition.Name;
 		public IReadOnlyCollection<Column> Columns => this.Definition.Columns;
-		IReadOnlyCollection<ObjectName> ITableContainer.TableNames => new[] { Name };
 
 		public Table(
 			[NotNull] TableDefinition definition,
@@ -39,23 +36,23 @@ namespace Reseed.Rendering.Schema
 
 		public override string ToString() => this.Definition.ToString();
 
-		public Table MapRows(Func<Row, Row> mapper)
+		public Table MapName([NotNull] Func<ObjectName, ObjectName> mapName)
 		{
-			if (mapper == null) throw new ArgumentNullException(nameof(mapper));
+			if (mapName == null) throw new ArgumentNullException(nameof(mapName));
 			return new Table(
-				this.Definition,
+				this.Definition.MapTableName(mapName),
 				this.Rows
-					.Select(o => o.Map(mapper))
+					.Select(o => o.Map(r => r.MapTableName(mapName)))
 					.ToArray());
 		}
 
-		ITableContainer ITableContainer.MapTableName(Func<ObjectName, ObjectName> mapper)
+		public Table MapRows([NotNull] Func<Row, Row> mapRow)
 		{
-			if (mapper == null) throw new ArgumentNullException(nameof(mapper));
+			if (mapRow == null) throw new ArgumentNullException(nameof(mapRow));
 			return new Table(
-				this.Definition.MapTableName(mapper),
+				this.Definition,
 				this.Rows
-					.Select(o => o.Map(r => r.MapTableName(mapper)))
+					.Select(o => o.Map(mapRow))
 					.ToArray());
 		}
 	}
@@ -65,8 +62,6 @@ namespace Reseed.Rendering.Schema
 		private readonly Dictionary<ObjectName, TableDefinition> tableNameMap;
 		public readonly IReadOnlyCollection<TableDefinition> Tables;
 		public readonly IReadOnlyCollection<OrderedItem<Row>> Rows;
-
-		public IReadOnlyCollection<ObjectName> TableNames { get; }
 
 		public MutualTableGroup(
 			[NotNull] IReadOnlyCollection<TableDefinition> tables,
@@ -83,7 +78,6 @@ namespace Reseed.Rendering.Schema
 			this.Tables = tables;
 			this.Rows = rows;
 			this.tableNameMap = tables.ToDictionary(t => t.Name);
-			TableNames = tables.Select(t => t.Name).ToArray();
 		}
 
 		public IReadOnlyCollection<OrderedItem<Table>> GetTables()
@@ -124,15 +118,15 @@ namespace Reseed.Rendering.Schema
 		public override string ToString() =>
 			$"{string.Join(", ", this.Tables.Select(t => t.ToString()))}";
 
-		public virtual ITableContainer MapTableName(Func<ObjectName, ObjectName> mapper)
+		public MutualTableGroup Map([NotNull] Func<ObjectName, ObjectName> mapTableName)
 		{
-			if (mapper == null) throw new ArgumentNullException(nameof(mapper));
+			if (mapTableName == null) throw new ArgumentNullException(nameof(mapTableName));
 			return new MutualTableGroup(
 				this.Tables
-					.Select(d => d.MapTableName(mapper))
+					.Select(d => d.MapTableName(mapTableName))
 					.ToArray(),
 				this.Rows
-					.Select(o => o.Map(r => r.MapTableName(mapper)))
+					.Select(o => o.Map(r => r.MapTableName(mapTableName)))
 					.ToArray());
 		}
 		
@@ -174,19 +168,22 @@ namespace Reseed.Rendering.Schema
 			this.ForeignKeys = foreignKeys;
 		}
 
-		public override ITableContainer MapTableName(Func<ObjectName, ObjectName> mapper)
+		public MutualRowGroup Map(
+			[NotNull] Func<ObjectName, ObjectName> mapTableName,
+			[NotNull] Func<Association, Association> mapAssociation)
 		{
-			if (mapper == null) throw new ArgumentNullException(nameof(mapper));
+			if (mapTableName == null) throw new ArgumentNullException(nameof(mapTableName));
+			if (mapAssociation == null) throw new ArgumentNullException(nameof(mapAssociation));
 
 			return new MutualRowGroup(
 				this.Tables
-					.Select(d => d.MapTableName(mapper))
+					.Select(d => d.MapTableName(mapTableName))
 					.ToArray(),
 				this.Rows
-					.Select(o => o.Map(r => r.MapTableName(mapper)))
+					.Select(o => o.Map(r => r.MapTableName(mapTableName)))
 					.ToArray(),
 				this.ForeignKeys
-					.Select(fk => fk.Map(mapper))
+					.Select(fk => fk.Map(mapTableName, mapAssociation))
 					.ToArray());
 		}
 	}

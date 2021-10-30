@@ -1,12 +1,23 @@
-﻿using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using NUnit.Framework;
+using Reseed.Dsl;
 using Reseed.Tests.Integration.Core;
 
 namespace Reseed.Tests.Integration
 {
 	[Parallelizable(ParallelScope.All)]
+	[TestFixtureSource(typeof(RenderModes), nameof(RenderModes.Every))]
 	public sealed class SingleTableTests: TestFixtureBase
 	{
+		private readonly RenderMode mode;
+
+		public SingleTableTests(RenderMode mode)
+		{
+			this.mode = mode;
+		}
+
 		[Test]
 		// Should insert single table data, when there are entities
 		// and every column is provided 
@@ -31,7 +42,7 @@ namespace Reseed.Tests.Integration
 		{
 			await Conventional.AssertSeedSucceeds(
 				this,
-				RenderModes.SimpleScriptPreferTruncate,
+				this.mode,
 				async sql => Assert.AreEqual(userCount, await GetUsersCount(sql)),
 				async sql => Assert.AreEqual(0, await GetUsersCount(sql)));
 

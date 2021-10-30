@@ -48,28 +48,24 @@ namespace Reseed.Rendering.Cleanup
 				toClean.PartitionBy(o => !cleanupOptions.GetCustomScript(o.Value.Name, out _));
 
 			var persistentTables = rest.Concat(customClean).ToArray();
-			var scripts = new List<DbScript>(2)
-			{
-				new(
-					"Delete from tables",
-					string.Join(Environment.NewLine + Environment.NewLine,
-						RenderDeleteFromTables(
-							FilterGraph(orderedTables, defaultClean),
-							ChooseIncomingRelationsGetter(
-								tables,
-								persistentTables,
-								deleteKind.ConstraintsResolution))))
-			};
-
-			if (customClean.Any())
-			{
-				scripts.Add(new DbScript("Custom cleanup scripts", RenderCustomCleanupScripts(
-					customClean,
-					BuildCustomScriptGetter(cleanupOptions),
-					BuildIncomingRelationsGetter(persistentTables))));
-			}
-
-			return scripts.WithNaturalOrder().ToArray();
+			return new List<DbScript>(2)
+				.AddScriptWhen(
+					() => new DbScript("Delete from tables",
+						string.Join(Environment.NewLine + Environment.NewLine,
+							RenderDeleteFromTables(
+								FilterGraph(orderedTables, defaultClean),
+								ChooseIncomingRelationsGetter(
+									tables,
+									persistentTables,
+									deleteKind.ConstraintsResolution)))),
+					defaultClean.Length > 0)
+				.AddScriptWhen(() => new DbScript("Custom cleanup scripts", RenderCustomCleanupScripts(
+						customClean,
+						BuildCustomScriptGetter(cleanupOptions),
+						BuildIncomingRelationsGetter(persistentTables))),
+					customClean.Length > 0)
+				.WithNaturalOrder()
+				.ToArray();
 		}
 
 		private static IReadOnlyCollection<OrderedItem<DbScript>> RenderPreferTruncateKind(
@@ -93,35 +89,27 @@ namespace Reseed.Rendering.Cleanup
 
 			var persistentTables = rest.Concat(customClean).ToArray();
 
-			var scripts = new List<DbScript>(3);
-			if (toTruncate.Length > 0)
-			{
-				scripts.Add(new DbScript(
-					"Truncate tables",
-					RenderTruncateTables(toTruncate.Select(o => o.Value))));
-			}
-
-			if (toDelete.Length > 0)
-			{
-				scripts.Add(new DbScript(
-					"Delete from tables",
-					RenderDeleteFromTables(
-						FilterGraph(orderedTables, toDelete),
-						ChooseIncomingRelationsGetter(
-							tables,
-							persistentTables,
-							truncateKind.ConstraintsResolution))));
-			}
-
-			if (customClean.Length > 0)
-			{
-				scripts.Add(new DbScript("Custom cleanup scripts", RenderCustomCleanupScripts(
-					customClean,
-					BuildCustomScriptGetter(cleanupOptions),
-					BuildIncomingRelationsGetter(persistentTables))));
-			}
-
-			return scripts.WithNaturalOrder().ToArray();
+			return new List<DbScript>(3)
+				.AddScriptWhen(
+					() => new DbScript("Truncate tables", RenderTruncateTables(toTruncate.Unordered())),
+					toTruncate.Length > 0)
+				.AddScriptWhen(
+					() => new DbScript("Delete from tables",
+						RenderDeleteFromTables(
+							FilterGraph(orderedTables, toDelete),
+							ChooseIncomingRelationsGetter(
+								tables,
+								persistentTables,
+								truncateKind.ConstraintsResolution))),
+					toDelete.Length > 0)
+				.AddScriptWhen(
+					() => new DbScript("Custom cleanup scripts", RenderCustomCleanupScripts(
+						customClean,
+						BuildCustomScriptGetter(cleanupOptions),
+						BuildIncomingRelationsGetter(persistentTables))),
+					customClean.Length > 0)
+				.WithNaturalOrder()
+				.ToArray();
 		}
 
 		private static IReadOnlyCollection<OrderedItem<DbScript>> RenderTruncateKind(
@@ -141,34 +129,38 @@ namespace Reseed.Rendering.Cleanup
 			var (toDelete, toTruncate) =
 				defaultClean.PartitionBy(o => truncateKind.ShouldUseDelete(o.Value.Name));
 
-			var tablesToTruncate = toTruncate.Select(o => o.Value).ToArray();
+			var tablesToTruncate = toTruncate.Unordered().ToArray();
 			var foreignKeys =
 				tablesToTruncate.SelectMany(getAllIncomingRelations).Distinct().ToArray();
 
 			var persistentTables = rest.Concat(customClean).ToArray();
 
-			var scripts = new List<DbScript>(5)
-			{
-				new("Drop Foreign Keys", RenderDropForeignKeys(foreignKeys, false)),
-				new("Truncate from tables", RenderTruncateTables(tablesToTruncate)),
-				new("Delete from tables", RenderDeleteFromTables(
-					FilterGraph(orderedTables, toDelete),
-					ChooseIncomingRelationsGetter(
-						tables,
-						persistentTables,
-						truncateKind.ConstraintsResolution)))
-			};
-
-			if (customClean.Any())
-			{
-				scripts.Add(new DbScript("Custom cleanup scripts", RenderCustomCleanupScripts(
-					customClean,
-					BuildCustomScriptGetter(cleanupOptions),
-					BuildIncomingRelationsGetter(persistentTables))));
-			}
-
-			scripts.Add(new DbScript("Create Foreign Keys", RenderCreateForeignKeys(foreignKeys)));
-			return scripts.WithNaturalOrder().ToArray();
+			return new List<DbScript>(5)
+				.AddScriptWhen(
+					() => new DbScript("Drop Foreign Keys", RenderDropForeignKeys(foreignKeys, false)),
+					foreignKeys.Length > 0)
+				.AddScriptWhen(
+					() => new DbScript("Truncate from tables", RenderTruncateTables(tablesToTruncate)),
+					tablesToTruncate.Length > 0)
+				.AddScriptWhen(
+					() => new DbScript("Delete from tables", RenderDeleteFromTables(
+						FilterGraph(orderedTables, toDelete),
+						ChooseIncomingRelationsGetter(
+							tables,
+							persistentTables,
+							truncateKind.ConstraintsResolution))),
+					toDelete.Length > 0)
+				.AddScriptWhen(
+					() => new DbScript("Custom cleanup scripts", RenderCustomCleanupScripts(
+						customClean,
+						BuildCustomScriptGetter(cleanupOptions),
+						BuildIncomingRelationsGetter(persistentTables))),
+					customClean.Length > 0)
+				.AddScriptWhen(
+					() => new DbScript("Create Foreign Keys", RenderCreateForeignKeys(foreignKeys)),
+					foreignKeys.Length > 0)
+				.WithNaturalOrder()
+				.ToArray();
 		}
 
 		private static Func<TableSchema, Relation<TableSchema>[]> ChooseIncomingRelationsGetter(
@@ -191,30 +183,29 @@ namespace Reseed.Rendering.Cleanup
 			OrderedGraph<TableSchema> tables,
 			Func<TableSchema, Relation<TableSchema>[]> getIncomingRelations)
 		{
-			return string.Join(Environment.NewLine,
-					MutualReferenceResolver.MergeChunks(
-							tables,
-							ts => string.Join(
-								Environment.NewLine,
-								ts.Select(t => RenderCleanupTables(
-									new[] { t.Value },
-									getIncomingRelations(t.Value),
-									GetCleanupScript))),
-							ms =>
-							{
-								var foreignKeys = ms.Relations
-									.Concat(ms.Items.SelectMany(o => getIncomingRelations(o.Value)))
-									.Distinct()
-									.ToArray();
+			var scripts = MutualReferenceResolver.MergeChunks(
+				tables,
+				ts => string.Join(
+					Environment.NewLine,
+					ts.Select(t => RenderCleanupTables(
+						new[] { t.Value },
+						getIncomingRelations(t.Value),
+						GetCleanupScript))),
+				ms =>
+				{
+					var foreignKeys = ms.Relations
+						.Concat(ms.Items.SelectMany(o => getIncomingRelations(o.Value)))
+						.Distinct()
+						.ToArray();
 
-								return RenderCleanupTables(
-									ms.Items.Order(),
-									foreignKeys,
-									GetCleanupScript);
-							},
-							MutualGroupOrderMode.Min)
-						.Order())
-				.MergeEmptyLines();
+					return RenderCleanupTables(
+						ms.Items.Order(),
+						foreignKeys,
+						GetCleanupScript);
+				},
+				MutualGroupOrderMode.Min);
+
+			return string.Join(Environment.NewLine, scripts.Order()).MergeEmptyLines();
 
 			static string GetCleanupScript(ObjectName t) => $"DELETE FROM {t.GetSqlName()};";
 		}
@@ -243,8 +234,7 @@ namespace Reseed.Rendering.Cleanup
 			return string.Join(string.Empty,
 				decoratedSeparator,
 				fkDecorator.Decorate(string.Join(Environment.NewLine,
-					tables
-						.Select(s => getCleanupScript(s.Name)))),
+					tables.Select(s => getCleanupScript(s.Name)))),
 				decoratedSeparator);
 		}
 

@@ -19,23 +19,22 @@ namespace Reseed.Rendering.TemporaryTables
 			if (tables == null) throw new ArgumentNullException(nameof(tables));
 			if (mapTableName == null) throw new ArgumentNullException(nameof(mapTableName));
 
+			var scripts = MutualReferenceResolver.MergeChunks(
+				tables,
+				ts => string.Join(Environment.NewLine + Environment.NewLine,
+					ts.Order().Select(t =>
+						RenderInsertFromTempTables(
+							new[] { t },
+							Array.Empty<Relation<TableSchema>>(),
+							mapTableName))),
+				ts => RenderInsertFromTempTables(
+					ts.Items.Order(),
+					ts.Relations,
+					mapTableName));
+
 			return new DbScript(
 				"Insert from temp tables",
-				string.Join(Environment.NewLine + Environment.NewLine,
-					MutualReferenceResolver.MergeChunks(
-						tables,
-						ts =>
-							string.Join(Environment.NewLine + Environment.NewLine,
-								ts.Order().Select(t =>
-									RenderInsertFromTempTables(
-										new[] { t },
-										Array.Empty<Relation<TableSchema>>(),
-										mapTableName))),
-						ts =>
-							RenderInsertFromTempTables(
-								ts.Items.Order(),
-								ts.Relations,
-								mapTableName)).Order()));
+				string.Join(Environment.NewLine + Environment.NewLine, scripts.Order()));
 		}
 
 		private static string RenderInsertFromTempTables(
@@ -66,15 +65,13 @@ namespace Reseed.Rendering.TemporaryTables
 		}
 
 		private static IdentityInsertDecorator CreateIdentityDecorator(TableSchema table) =>
-			new(
-				table.Name,
+			new(table.Name,
 				table.Columns.Any(c => c.IsIdentity));
 
 		private static DisableForeignKeysDecorator CreateForeignKeysDecorator(
 			IReadOnlyCollection<Relation<TableSchema>> foreignKeys) =>
-			new(
-				foreignKeys
-					.Select(r => r.Map(t => t.Name))
-					.ToArray());
+			new(foreignKeys
+				.Select(r => r.Map(t => t.Name))
+				.ToArray());
 	}
 }
