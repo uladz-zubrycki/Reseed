@@ -55,13 +55,13 @@ namespace Reseed.Generation.TemporaryTables
 
 		private static SeedActionsBuilder AddInsertFrom(
 			[NotNull] this SeedActionsBuilder builder,
-			[NotNull] TemporaryTablesInsertDefinition options,
+			[NotNull] TemporaryTablesInsertDefinition insertDefinition,
 			[NotNull] string tempSchemaName,
 			[NotNull] OrderedGraph<TableSchema> tables,
 			[NotNull] IReadOnlyCollection<OrderedItem<ITableContainer>> containers)
 		{
 			var filteredGraph = FilterTables(tables, containers);
-			return options switch
+			return insertDefinition switch
 			{
 				TemporaryTablesInsertScriptDefinition =>
 					builder.Add(SeedStage.Insert,
@@ -69,22 +69,22 @@ namespace Reseed.Generation.TemporaryTables
 							filteredGraph,
 							n => CreateTempTableName(tempSchemaName, n))),
 
-				TemporaryTablesInsertProcedureDefinition procedureOptions =>
+				TemporaryTablesInsertProcedureDefinition procedureDefinition =>
 					AddInsertProcedure(
 						builder,
-						procedureOptions.ProcedureName,
+						procedureDefinition.ProcedureName,
 						filteredGraph,
 						n => CreateTempTableName(tempSchemaName, n)),
 
-				TemporaryTablesInsertSqlBulkCopyDefinition bulkCopyOptions =>
+				TemporaryTablesInsertSqlBulkCopyDefinition bulkCopyDefinition =>
 					builder.Add(SeedStage.Insert,
 						TemporaryTablesSqlBulkCopyGenerator.GenerateInsertActions(
 							filteredGraph,
 							n => CreateTempTableName(tempSchemaName, n),
-							bulkCopyOptions)),
+							bulkCopyDefinition)),
 
 				_ => throw new NotSupportedException(
-					$"Unknown {nameof(TemporaryTablesInsertDefinition)} '{options.GetType().FullName}' value")
+					$"Unknown {nameof(TemporaryTablesInsertDefinition)} '{insertDefinition.GetType().FullName}' value")
 			};
 		}
 

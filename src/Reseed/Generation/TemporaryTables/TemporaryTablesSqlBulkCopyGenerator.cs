@@ -21,7 +21,7 @@ namespace Reseed.Generation.TemporaryTables
 		public static IReadOnlyCollection<OrderedItem<SqlBulkCopyAction>> GenerateInsertActions(
 			[NotNull] OrderedGraph<TableSchema> tables,
 			[NotNull] Func<ObjectName, ObjectName> mapTableName,
-			TemporaryTablesInsertSqlBulkCopyDefinition options)
+			TemporaryTablesInsertSqlBulkCopyDefinition insertDefinition)
 		{
 			if (tables == null) throw new ArgumentNullException(nameof(tables));
 
@@ -37,7 +37,7 @@ namespace Reseed.Generation.TemporaryTables
 							$"Insert into {t.Name.GetSqlName()}",
 							RenderSelectScript(mapTableName(t.Name), columns),
 							t.Name,
-							options.CustomizeBulkCopy(DefaultOptions),
+							insertDefinition.CustomizeBulkCopy(DefaultOptions),
 							columns
 								.Select(c => new SqlBulkCopyColumnMapping(
 									c.Name,
