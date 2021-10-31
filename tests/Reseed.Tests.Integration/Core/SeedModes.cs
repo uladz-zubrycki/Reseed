@@ -16,13 +16,13 @@ namespace Reseed.Tests.Integration.Core
 			ConfigureCleanup = f => f.IncludeSchemas("dbo");
 
 		private static readonly CleanupConfiguration DeleteCleanupMode = 
-			CleanupConfiguration.IncludeNone(CleanupKind.Delete(), ConfigureCleanup);
+			CleanupConfiguration.IncludeNone(CleanupMode.Delete(), ConfigureCleanup);
 
 		private static readonly CleanupConfiguration PreferTruncateCleanupMode = 
-			CleanupConfiguration.IncludeNone(CleanupKind.PreferTruncate(), ConfigureCleanup);
+			CleanupConfiguration.IncludeNone(CleanupMode.PreferTruncate(), ConfigureCleanup);
 
 		private static readonly CleanupConfiguration TruncateCleanupMode = 
-			CleanupConfiguration.IncludeNone(CleanupKind.Truncate(), ConfigureCleanup);
+			CleanupConfiguration.IncludeNone(CleanupMode.Truncate(), ConfigureCleanup);
 
 		private static SimpleInsertDefinition SimpleProcedureDefinition => 
 			SimpleInsertDefinition.Procedure(new ObjectName("spDeleteData"));

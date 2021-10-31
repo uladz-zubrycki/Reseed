@@ -10,17 +10,17 @@ namespace Reseed.Configuration.Cleanup
 	[PublicAPI]
 	public sealed class CleanupConfiguration
 	{
-		internal readonly CleanupKind Kind;
+		internal readonly CleanupMode Mode;
 		private readonly ICleanupFilter filter;
 		private readonly Dictionary<ObjectName, string> customScripts;
 
 		private CleanupConfiguration(
-			CleanupKind kind,
+			CleanupMode mode,
 			[NotNull] ICleanupFilter filter,
 			[NotNull] IReadOnlyCollection<(ObjectName table, string script)> customScripts)
 		{
 			if (customScripts == null) throw new ArgumentNullException(nameof(customScripts));
-			this.Kind = kind;
+			this.Mode = mode;
 			this.filter = filter ?? throw new ArgumentNullException(nameof(filter));
 
 			VerifyCustomScripts(customScripts, filter);
@@ -40,27 +40,27 @@ namespace Reseed.Configuration.Cleanup
 		}
 
 		public static CleanupConfiguration IncludeAll(
-			CleanupKind kind,
+			CleanupMode mode,
 			[CanBeNull] Func<ExcludingCleanupFilter, ExcludingCleanupFilter> configure = null,
 			[CanBeNull] IReadOnlyCollection<(ObjectName table, string script)> customScripts = null)
 		{
 			var configureFilter = configure ?? Fn.Identity<ExcludingCleanupFilter>();
 			var filter = configureFilter(new ExcludingCleanupFilter());
 			return new CleanupConfiguration(
-				kind,
+				mode,
 				filter,
 				customScripts ?? Array.Empty<(ObjectName table, string script)>());
 		}
 
 		public static CleanupConfiguration IncludeNone(
-			CleanupKind kind,
+			CleanupMode mode,
 			[NotNull] Func<IncludingCleanupFilter, IncludingCleanupFilter> configure,
 			[CanBeNull] IReadOnlyCollection<(ObjectName table, string script)> customScripts = null)
 		{
 			if (configure == null) throw new ArgumentNullException(nameof(configure));
 			var filter = configure(new IncludingCleanupFilter());
 			return new CleanupConfiguration(
-				kind,
+				mode,
 				filter,
 				customScripts ?? Array.Empty<(ObjectName table, string script)>());
 		}
