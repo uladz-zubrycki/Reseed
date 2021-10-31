@@ -12,7 +12,7 @@ namespace Reseed.Rendering.Simple
 {
 	internal static class SimpleModeRenderer
 	{
-		public static DbActions Render(
+		public static SeedActions Render(
 			[NotNull] OrderedGraph<TableSchema> tables,
 			[NotNull] IReadOnlyCollection<OrderedItem<ITableContainer>> containers,
 			[NotNull] SimpleMode mode)
@@ -21,7 +21,7 @@ namespace Reseed.Rendering.Simple
 			if (containers == null) throw new ArgumentNullException(nameof(containers));
 			if (mode == null) throw new ArgumentNullException(nameof(mode));
 
-			return new DbActionsBuilder()
+			return new SeedActionsBuilder()
 				.AddSimpleInsertActions(mode.InsertDefinition, containers)
 				.AddCleanup(mode.CleanupDefinition, tables)
 				.Build();

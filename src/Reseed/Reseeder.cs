@@ -28,7 +28,7 @@ namespace Reseed
 		}
 
 		// todo: refactor api to support independent Insert/Delete actions rendering
-		public DbActions Generate(
+		public SeedActions Generate(
 			[NotNull] RenderMode mode,
 			[NotNull] IDataProvider dataProvider)
 		{
@@ -46,7 +46,7 @@ namespace Reseed
 			return Renderer.Render(orderedSchemas, containers, mode);
 		}
 
-		public void Execute([NotNull] IReadOnlyCollection<OrderedItem<IDbAction>> actions)
+		public void Execute([NotNull] IReadOnlyCollection<OrderedItem<ISeedAction>> actions)
 		{
 			if (actions == null) throw new ArgumentNullException(nameof(actions));
 			if (actions.Count == 0)
@@ -57,13 +57,13 @@ namespace Reseed
 			using var connection = new SqlConnection(connectionString);
 			connection.Open();
 
-			foreach (var dbAction in actions.Order())
+			foreach (var action in actions.Order())
 			{
 				try
 				{
-					switch (dbAction)
+					switch (action)
 					{
-						case DbScript script:
+						case SqlScriptAction script:
 							ExecuteScript(connection, script);
 							break;
 						case SqlBulkCopyAction bulkCopy:
@@ -71,12 +71,12 @@ namespace Reseed
 							break;
 						default:
 							throw new NotSupportedException(
-								$"Unknown {nameof(IDbAction)} type {dbAction.GetType().FullName}");
+								$"Unknown {nameof(ISeedAction)} type {action.GetType().FullName}");
 					}
 				}
 				catch (SqlException ex)
 				{
-					throw new DbActionExecutionException(dbAction, ex);
+					throw new SeedActionExecutionException(action, ex);
 				}
 			}
 		}
@@ -116,10 +116,10 @@ namespace Reseed
 			return schemas;
 		}
 
-		private static void ExecuteScript(SqlConnection connection, DbScript script)
+		private static void ExecuteScript(SqlConnection connection, SqlScriptAction scriptAction)
 		{
 			using var command = connection.CreateCommand();
-			command.CommandText = script.Text;
+			command.CommandText = scriptAction.Text;
 			command.ExecuteNonQuery();
 		}
 

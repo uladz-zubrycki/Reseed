@@ -11,8 +11,8 @@ namespace Reseed.Rendering.Cleanup
 {
 	internal static class CleanupActionsBuilder
 	{
-		public static DbActionsBuilder AddCleanup(
-			[NotNull] this DbActionsBuilder builder,
+		public static SeedActionsBuilder AddCleanup(
+			[NotNull] this SeedActionsBuilder builder,
 			[NotNull] CleanupDefinition definition,
 			[NotNull] OrderedGraph<TableSchema> tables)
 		{
@@ -23,27 +23,27 @@ namespace Reseed.Rendering.Cleanup
 			return definition switch
 			{
 				CleanupScriptDefinition scriptDefinition => builder
-					.Add(DbActionStage.Delete, DeleteScriptRenderer.Render(tables, scriptDefinition.Options)),
+					.Add(SeedStage.Delete, DeleteScriptRenderer.Render(tables, scriptDefinition.Options)),
 
 				CleanupProcedureDefinition procedureDefinition => builder
-					.Add(DbActionStage.PrepareDb, RenderCreateProcedureScripts(
+					.Add(SeedStage.PrepareDb, RenderCreateProcedureScripts(
 						procedureDefinition.ProcedureName, tables, procedureDefinition.Options))
-					.Add(DbActionStage.Delete, RenderExecuteProcedureScript(
+					.Add(SeedStage.Delete, RenderExecuteProcedureScript(
 						CommonScriptNames.ExecuteDeleteSp, procedureDefinition.ProcedureName))
-					.Add(DbActionStage.CleanupDb, RenderDropProcedureScript(
+					.Add(SeedStage.CleanupDb, RenderDropProcedureScript(
 						CommonScriptNames.DropDeleteSp, procedureDefinition.ProcedureName)),
 
 				_ => throw new NotSupportedException($"Unknown cleanup mode '{definition.GetType().Name}'")
 			};
 		}
 
-		private static IReadOnlyCollection<OrderedItem<DbScript>> RenderCreateProcedureScripts(
+		private static IReadOnlyCollection<OrderedItem<SqlScriptAction>> RenderCreateProcedureScripts(
 			[NotNull] ObjectName name,
 			[NotNull] OrderedGraph<TableSchema> schemas,
 			[NotNull] CleanupOptions options)
 		{
 			var dropProcedure = RenderDropProcedureScript(CommonScriptNames.DropDeleteSp, name);
-			var createProcedure = DbScript
+			var createProcedure = SqlScriptAction
 				.Join(CommonScriptNames.DeleteScript, DeleteScriptRenderer.Render(schemas, options).Order())
 				.Map(s => RenderCreateStoredProcedure(name, s), CommonScriptNames.CreateDeleteSp);
 

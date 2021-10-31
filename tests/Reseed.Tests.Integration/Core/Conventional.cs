@@ -36,19 +36,19 @@ namespace Reseed.Tests.Integration.Core
 			await using var database = await CreateConventionalDatabase(fixture);
 			var reseeder = new Reseeder(database.ConnectionString);
 			var sqlEngine = new SqlEngine(database.ConnectionString);
-			var dbActions = reseeder.Generate(
+			var actions = reseeder.Generate(
 				reseederRenderMode,
 				CreateConventionalDataProvider(fixture));
 
-			reseeder.Execute(dbActions.PrepareDatabase);
+			reseeder.Execute(actions.PrepareDatabase);
 			
-			reseeder.Execute(dbActions.InsertData);
+			reseeder.Execute(actions.InsertData);
 			await assertDataInserted(sqlEngine);
 
-			reseeder.Execute(dbActions.DeleteData);
+			reseeder.Execute(actions.DeleteData);
 			await assertDataDeleted(sqlEngine);
 
-			reseeder.Execute(dbActions.CleanupDatabase);
+			reseeder.Execute(actions.CleanupDatabase);
 		}
 
 		public static async Task AssertGenerationFails(

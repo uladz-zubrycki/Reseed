@@ -11,14 +11,14 @@ namespace Reseed.Rendering.Insertion
 {
 	internal static class InsertScriptRenderer
 	{
-		public static DbScript Render(
+		public static SqlScriptAction Render(
 			IReadOnlyCollection<OrderedItem<ITableContainer>> containers)
 		{
 			if (containers == null) throw new ArgumentNullException(nameof(containers));
 			if (containers.Count == 0)
 				throw new ArgumentException("Value cannot be an empty collection.", nameof(containers));
 
-			return new DbScript(
+			return new SqlScriptAction(
 				CommonScriptNames.InsertScript,
 				string.Join(Environment.NewLine + Environment.NewLine, containers
 					.OrderBy(t => t.Order)

@@ -12,7 +12,7 @@ namespace Reseed.Rendering.TemporaryTables
 {
 	internal static class TemporaryTablesCleanupScriptRenderer
 	{
-		public static IReadOnlyCollection<OrderedItem<DbScript>> Render(
+		public static IReadOnlyCollection<OrderedItem<SqlScriptAction>> Render(
 			[NotNull] string tempSchemaName,
 			[NotNull] IReadOnlyCollection<TableSchema> tables)
 		{
@@ -20,16 +20,16 @@ namespace Reseed.Rendering.TemporaryTables
 				.SelectMany(t => t.GetRelations())
 				.ToArray();
 
-			return new List<DbScript>()
+			return new List<SqlScriptAction>()
 				.AddScriptWhen(
-					() => new DbScript(
+					() => new SqlScriptAction(
 						"Drop temp tables foreign keys",
 						RenderDropForeignKeys(
 							foreignKeys,
 							true)),
 					foreignKeys.Length > 0)
-				.AddScript(new DbScript("Drop temp tables", RenderDropTables(tables)))
-				.AddScript(new DbScript("Drop temp schema", RenderDropSchema(tempSchemaName)))
+				.AddScript(new SqlScriptAction("Drop temp tables", RenderDropTables(tables)))
+				.AddScript(new SqlScriptAction("Drop temp schema", RenderDropSchema(tempSchemaName)))
 				.WithNaturalOrder()
 				.ToArray();
 		}

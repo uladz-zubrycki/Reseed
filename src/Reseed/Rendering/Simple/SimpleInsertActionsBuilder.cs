@@ -12,8 +12,8 @@ namespace Reseed.Rendering.Simple
 {
 	internal static class SimpleInsertActionsBuilder
 	{
-		public static DbActionsBuilder AddSimpleInsertActions(
-			[NotNull] this DbActionsBuilder builder,
+		public static SeedActionsBuilder AddSimpleInsertActions(
+			[NotNull] this SeedActionsBuilder builder,
 			[NotNull] SimpleInsertDefinition definition,
 			[NotNull] IReadOnlyCollection<OrderedItem<ITableContainer>> containers)
 		{
@@ -23,20 +23,20 @@ namespace Reseed.Rendering.Simple
 
 			return definition switch
 			{
-				SimpleInsertScriptDefinition => builder.Add(DbActionStage.Insert, InsertScriptRenderer.Render(containers)),
+				SimpleInsertScriptDefinition => builder.Add(SeedStage.Insert, InsertScriptRenderer.Render(containers)),
 				
 				SimpleInsertProcedureDefinition procedureMode => builder
-					.Add(DbActionStage.PrepareDb, RenderCreateProcedureScripts(procedureMode.ProcedureName, containers))
-					.Add(DbActionStage.Insert,
+					.Add(SeedStage.PrepareDb, RenderCreateProcedureScripts(procedureMode.ProcedureName, containers))
+					.Add(SeedStage.Insert,
 						RenderExecuteProcedureScript(CommonScriptNames.ExecuteInsertSp, procedureMode.ProcedureName))
-					.Add(DbActionStage.CleanupDb,
+					.Add(SeedStage.CleanupDb,
 						RenderDropProcedureScript(CommonScriptNames.DropInsertSp, procedureMode.ProcedureName)),
 				
 				_ => throw new NotSupportedException($"Unknown cleanup mode '{definition.GetType().Name}'")
 			};
 		}
 
-		private static IReadOnlyCollection<OrderedItem<DbScript>> RenderCreateProcedureScripts(
+		private static IReadOnlyCollection<OrderedItem<SqlScriptAction>> RenderCreateProcedureScripts(
 			[NotNull] ObjectName name,
 			[NotNull] IReadOnlyCollection<OrderedItem<ITableContainer>> containers)
 		{

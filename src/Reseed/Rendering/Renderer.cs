@@ -15,7 +15,7 @@ namespace Reseed.Rendering
 {
 	internal static class Renderer
 	{
-		public static DbActions Render(
+		public static SeedActions Render(
 			[NotNull] OrderedGraph<TableSchema> tables,
 			[NotNull] IReadOnlyCollection<OrderedItem<ITableContainer>> containers,
 			[NotNull] RenderMode mode)

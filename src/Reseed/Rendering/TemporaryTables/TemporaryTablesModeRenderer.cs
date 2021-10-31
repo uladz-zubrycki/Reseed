@@ -15,7 +15,7 @@ namespace Reseed.Rendering.TemporaryTables
 {
 	internal static class TemporaryTablesModeRenderer
 	{
-		public static DbActions Render(
+		public static SeedActions Render(
 			[NotNull] OrderedGraph<TableSchema> tables,
 			[NotNull] IReadOnlyCollection<OrderedItem<ITableContainer>> containers,
 			[NotNull] TemporaryTablesMode mode)
@@ -24,9 +24,9 @@ namespace Reseed.Rendering.TemporaryTables
 			if (containers == null) throw new ArgumentNullException(nameof(containers));
 			if (mode == null) throw new ArgumentNullException(nameof(mode));
 
-			return new DbActionsBuilder()
+			return new SeedActionsBuilder()
 				.AddCleanup(mode.CleanupDefinition, tables)
-				.Add(DbActionStage.PrepareDb, RenderInit(
+				.Add(SeedStage.PrepareDb, RenderInit(
 					mode.SchemaName,
 					tables,
 					containers).Order())
@@ -35,14 +35,14 @@ namespace Reseed.Rendering.TemporaryTables
 					mode.SchemaName,
 					tables,
 					containers)
-				.Add(DbActionStage.CleanupDb, RenderDrop(
+				.Add(SeedStage.CleanupDb, RenderDrop(
 					mode.SchemaName,
 					tables,
 					containers).Order())
 				.Build();
 		}
 
-		private static IReadOnlyCollection<OrderedItem<DbScript>> RenderInit(
+		private static IReadOnlyCollection<OrderedItem<SqlScriptAction>> RenderInit(
 			[NotNull] string tempSchemaName,
 			[NotNull] OrderedGraph<TableSchema> tables,
 			[NotNull] IReadOnlyCollection<OrderedItem<ITableContainer>> containers)
@@ -53,8 +53,8 @@ namespace Reseed.Rendering.TemporaryTables
 				MapContainers(tempSchemaName, containers));
 		}
 
-		private static DbActionsBuilder AddInsertFrom(
-			[NotNull] this DbActionsBuilder builder,
+		private static SeedActionsBuilder AddInsertFrom(
+			[NotNull] this SeedActionsBuilder builder,
 			[NotNull] TemporaryTablesInsertDefinition options,
 			[NotNull] string tempSchemaName,
 			[NotNull] OrderedGraph<TableSchema> tables,
@@ -63,7 +63,7 @@ namespace Reseed.Rendering.TemporaryTables
 			return options switch
 			{
 				TemporaryTablesInsertScriptDefinition _ =>
-					builder.Add(DbActionStage.Insert,
+					builder.Add(SeedStage.Insert,
 						TemporaryTableInsertScriptRenderer.Render(
 							FilterTables(tables, containers),
 							n => CreateTempTableName(tempSchemaName, n))),
@@ -76,7 +76,7 @@ namespace Reseed.Rendering.TemporaryTables
 						n => CreateTempTableName(tempSchemaName, n)),
 
 				TemporaryTablesInsertSqlBulkCopyDefinition bulkCopyOptions =>
-					builder.Add(DbActionStage.Insert,
+					builder.Add(SeedStage.Insert,
 						TemporaryTablesSqlBulkCopyRenderer.RenderInsert(
 							FilterTables(tables, containers),
 							n => CreateTempTableName(tempSchemaName, n),
@@ -87,8 +87,8 @@ namespace Reseed.Rendering.TemporaryTables
 			};
 		}
 
-		private static DbActionsBuilder AddInsertProcedure(
-			[NotNull] DbActionsBuilder builder,
+		private static SeedActionsBuilder AddInsertProcedure(
+			[NotNull] SeedActionsBuilder builder,
 			[NotNull] ObjectName procedureName,
 			[NotNull] OrderedGraph<TableSchema> tables,
 			[NotNull] Func<ObjectName, ObjectName> mapTableName)
@@ -101,13 +101,13 @@ namespace Reseed.Rendering.TemporaryTables
 				procedureName);
 
 			return builder
-				.Add(DbActionStage.PrepareDb, dropProcedure, createProcedure)
-				.Add(DbActionStage.Insert, RenderExecuteProcedureScript(
+				.Add(SeedStage.PrepareDb, dropProcedure, createProcedure)
+				.Add(SeedStage.Insert, RenderExecuteProcedureScript(
 					CommonScriptNames.ExecuteInsertSp, procedureName))
-				.Add(DbActionStage.CleanupDb, dropProcedure);
+				.Add(SeedStage.CleanupDb, dropProcedure);
 		}
 
-		private static IReadOnlyCollection<OrderedItem<DbScript>> RenderDrop(
+		private static IReadOnlyCollection<OrderedItem<SqlScriptAction>> RenderDrop(
 			[NotNull] string tempSchemaName,
 			[NotNull] OrderedGraph<TableSchema> tables,
 			[NotNull] IReadOnlyCollection<OrderedItem<ITableContainer>> containers) =>

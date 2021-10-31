@@ -14,7 +14,7 @@ namespace Reseed.Rendering.TemporaryTables
 {
 	internal static class TemporaryTablesInitScriptRenderer
 	{
-		public static IReadOnlyCollection<OrderedItem<DbScript>> Render(
+		public static IReadOnlyCollection<OrderedItem<SqlScriptAction>> Render(
 			[NotNull] string tempSchemaName,
 			[NotNull] IReadOnlyCollection<TableSchema> tempTables,
 			[NotNull] IReadOnlyCollection<OrderedItem<ITableContainer>> tempContainers)
@@ -29,11 +29,11 @@ namespace Reseed.Rendering.TemporaryTables
 				.SelectMany(t => t.GetRelations())
 				.ToArray();
 
-			return new List<DbScript>()
-				.AddScript(new DbScript("Create temp schema", RenderCreateSchema(tempSchemaName)))
-				.AddScript(new DbScript("Create temp tables", RenderCreateTables(tempTables)))
+			return new List<SqlScriptAction>()
+				.AddScript(new SqlScriptAction("Create temp schema", RenderCreateSchema(tempSchemaName)))
+				.AddScript(new SqlScriptAction("Create temp tables", RenderCreateTables(tempTables)))
 				.AddScriptWhen(
-					() => new DbScript(
+					() => new SqlScriptAction(
 						"Create temp tables foreign keys",
 						RenderCreateForeignKeys(foreignKeys)),
 					foreignKeys.Length > 0)

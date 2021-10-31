@@ -18,7 +18,7 @@ namespace Reseed.Rendering.TemporaryTables
 			SqlBulkCopyOptions.KeepNulls |
 			SqlBulkCopyOptions.TableLock;
 
-		public static IReadOnlyCollection<OrderedItem<IDbAction>> RenderInsert(
+		public static IReadOnlyCollection<OrderedItem<ISeedAction>> RenderInsert(
 			[NotNull] OrderedGraph<TableSchema> tables,
 			[NotNull] Func<ObjectName, ObjectName> mapTableName,
 			TemporaryTablesInsertSqlBulkCopyDefinition options)
@@ -26,7 +26,7 @@ namespace Reseed.Rendering.TemporaryTables
 			if (tables == null) throw new ArgumentNullException(nameof(tables));
 
 			return tables.Nodes
-				.Select(ot => ot.Map<IDbAction>(
+				.Select(ot => ot.Map<ISeedAction>(
 					t =>
 					{
 						IReadOnlyCollection<ColumnSchema> columns = t.Columns

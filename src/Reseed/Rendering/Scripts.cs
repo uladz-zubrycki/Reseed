@@ -10,10 +10,10 @@ namespace Reseed.Rendering
 {
 	internal static class Scripts
 	{
-		public static DbScript RenderExecuteProcedureScript(string scriptName, ObjectName procedureName) => 
+		public static SqlScriptAction RenderExecuteProcedureScript(string scriptName, ObjectName procedureName) => 
 			new(scriptName, RenderExecuteProcedure(procedureName));
 
-		public static DbScript RenderDropProcedureScript(string scriptName, ObjectName procedureName) => 
+		public static SqlScriptAction RenderDropProcedureScript(string scriptName, ObjectName procedureName) => 
 			new(scriptName, RenderDropProcedure(procedureName));
 
 		public static string RenderCreateStoredProcedure([NotNull] ObjectName name, [NotNull] string body)

@@ -12,7 +12,7 @@ namespace Reseed.Rendering.TemporaryTables
 {
 	internal static class TemporaryTableInsertScriptRenderer
 	{
-		public static DbScript Render(
+		public static SqlScriptAction Render(
 			[NotNull] OrderedGraph<TableSchema> tables,
 			[NotNull] Func<ObjectName, ObjectName> mapTableName)
 		{
@@ -32,7 +32,7 @@ namespace Reseed.Rendering.TemporaryTables
 					ts.Relations,
 					mapTableName));
 
-			return new DbScript(
+			return new SqlScriptAction(
 				"Insert from temp tables",
 				string.Join(Environment.NewLine + Environment.NewLine, scripts.Order()));
 		}

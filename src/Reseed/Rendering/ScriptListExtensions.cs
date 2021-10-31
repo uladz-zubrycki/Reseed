@@ -6,19 +6,19 @@ namespace Reseed.Rendering
 {
 	public static class ScriptListExtensions
 	{
-		public static List<DbScript> AddScript(
-			[NotNull] this List<DbScript> scripts,
-			[NotNull] DbScript script)
+		public static List<SqlScriptAction> AddScript(
+			[NotNull] this List<SqlScriptAction> scripts,
+			[NotNull] SqlScriptAction scriptAction)
 		{
 			if (scripts == null) throw new ArgumentNullException(nameof(scripts));
-			if (script == null) throw new ArgumentNullException(nameof(script));
-			scripts.Add(script);
+			if (scriptAction == null) throw new ArgumentNullException(nameof(scriptAction));
+			scripts.Add(scriptAction);
 			return scripts;
 		}
 
-		public static List<DbScript> AddScriptWhen(
-			[NotNull] this List<DbScript> scripts,
-			[NotNull] Func<DbScript> factory,
+		public static List<SqlScriptAction> AddScriptWhen(
+			[NotNull] this List<SqlScriptAction> scripts,
+			[NotNull] Func<SqlScriptAction> factory,
 			bool condition)
 		{
 			if (scripts == null) throw new ArgumentNullException(nameof(scripts));
