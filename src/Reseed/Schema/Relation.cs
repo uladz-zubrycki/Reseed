@@ -1,6 +1,6 @@
 ﻿using System;
 using JetBrains.Annotations;
-using Reseed.Internals.Utils;
+using Reseed.Utils;
 using Testing.Common.Api.Schema;
 
 namespace Reseed.Schema

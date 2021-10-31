@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Data.SqlClient;
 using JetBrains.Annotations;
-using Reseed.Internals.Graphs;
+using Reseed.Graphs;
 using Testing.Common.Api.Schema;
 
 namespace Reseed.Schema

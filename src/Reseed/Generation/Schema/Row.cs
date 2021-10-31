@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
 using Reseed.Data.FileSystem;
-using Reseed.Internals.Utils;
 using Reseed.Schema;
+using Reseed.Utils;
 
 namespace Reseed.Generation.Schema
 {

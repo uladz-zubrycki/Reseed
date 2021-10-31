@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
 
-namespace Reseed.Internals.Utils
+namespace Reseed.Utils
 {
 	internal static class DictionaryExtensions
 	{

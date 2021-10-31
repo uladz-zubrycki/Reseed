@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Linq;
-using Reseed.Internals.Utils;
+using Reseed.Utils;
 using static Reseed.Ordering.OrderedItem;
 
 namespace Reseed.Schema

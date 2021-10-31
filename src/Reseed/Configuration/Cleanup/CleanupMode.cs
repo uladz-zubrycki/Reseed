@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using JetBrains.Annotations;
-using Reseed.Internals.Utils;
 using Reseed.Schema;
+using Reseed.Utils;
 
 namespace Reseed.Configuration.Cleanup
 {

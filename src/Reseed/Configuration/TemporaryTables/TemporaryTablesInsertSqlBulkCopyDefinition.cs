@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Data.SqlClient;
-using Reseed.Internals.Utils;
+using Reseed.Utils;
 
 namespace Reseed.Configuration.TemporaryTables
 {

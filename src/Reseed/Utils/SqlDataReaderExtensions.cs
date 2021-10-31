@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Data.SqlClient;
 
-namespace Reseed.Internals.Utils
+namespace Reseed.Utils
 {
 	internal static class SqlDataReaderExtensions
 	{

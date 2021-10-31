@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Linq;
 using JetBrains.Annotations;
-using Reseed.Internals.Utils;
 using Reseed.Ordering;
+using Reseed.Utils;
 
 namespace Reseed.Schema
 {

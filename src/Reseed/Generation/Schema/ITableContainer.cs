@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
-using Reseed.Internals.Utils;
 using Reseed.Ordering;
 using Reseed.Schema;
+using Reseed.Utils;
 using static Reseed.Ordering.OrderedItem;
 
 namespace Reseed.Generation.Schema

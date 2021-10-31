@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using JetBrains.Annotations;
 using Reseed.Generation.Schema;
-using Reseed.Internals.Graphs;
+using Reseed.Graphs;
 using Testing.Common.Api.Schema;
 
 namespace Reseed.Ordering

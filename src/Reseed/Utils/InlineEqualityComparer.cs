@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using JetBrains.Annotations;
 
-namespace Reseed.Internals.Utils
+namespace Reseed.Utils
 {
 	internal sealed class InlineEqualityComparer<T, TResult> : EqualityComparer<T>
 	{
