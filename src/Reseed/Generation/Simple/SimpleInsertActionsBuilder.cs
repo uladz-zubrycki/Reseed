@@ -27,13 +27,13 @@ namespace Reseed.Generation.Simple
 					SeedStage.Insert, 
 					InsertScriptRenderer.Render(containers)),
 				
-				SimpleInsertProcedureDefinition procedureMode => builder
+				SimpleInsertProcedureDefinition procedureDefinition => builder
 					.Add(SeedStage.PrepareDb, 
-						RenderCreateProcedureScripts(procedureMode.ProcedureName, containers))
+						RenderCreateProcedureScripts(procedureDefinition.ProcedureName, containers))
 					.Add(SeedStage.Insert,
-						RenderExecuteProcedureScript(ScriptNames.ExecuteInsertSp, procedureMode.ProcedureName))
+						RenderExecuteProcedureScript(ScriptNames.ExecuteInsertSp, procedureDefinition.ProcedureName))
 					.Add(SeedStage.CleanupDb,
-						RenderDropProcedureScript(ScriptNames.DropInsertSp, procedureMode.ProcedureName)),
+						RenderDropProcedureScript(ScriptNames.DropInsertSp, procedureDefinition.ProcedureName)),
 				
 				_ => throw new NotSupportedException($"Unknown {nameof(SimpleInsertDefinition)} '{definition.GetType().Name}'")
 			};

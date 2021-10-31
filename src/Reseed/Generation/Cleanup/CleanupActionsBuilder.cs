@@ -33,7 +33,8 @@ namespace Reseed.Generation.Cleanup
 					.Add(SeedStage.CleanupDb, RenderDropProcedureScript(
 						ScriptNames.DropDeleteSp, procedureDefinition.ProcedureName)),
 
-				_ => throw new NotSupportedException($"Unknown cleanup mode '{definition.GetType().Name}'")
+				_ => throw new NotSupportedException(
+					$"Unknown {nameof(CleanupDefinition)} '{definition.GetType().Name}'")
 			};
 		}
 
