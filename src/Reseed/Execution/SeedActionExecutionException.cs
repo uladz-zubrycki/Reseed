@@ -1,7 +1,7 @@
 ﻿using System;
 using Reseed.Generation;
 
-namespace Reseed
+namespace Reseed.Execution
 {
 	public sealed class SeedActionExecutionException : Exception
 	{
