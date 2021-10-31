@@ -1,4 +1,4 @@
-﻿namespace Reseed.Dsl.Simple
+﻿namespace Reseed.Configuration.Simple
 {
 	internal sealed class SimpleInsertScriptDefinition : SimpleInsertDefinition { }
 }

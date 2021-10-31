@@ -1,6 +1,6 @@
 ﻿using JetBrains.Annotations;
 
-namespace Reseed.Dsl.Cleanup
+namespace Reseed.Configuration.Cleanup
 {
 	[PublicAPI]
 	public enum ConstraintsResolutionKind

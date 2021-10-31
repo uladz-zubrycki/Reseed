@@ -2,7 +2,7 @@
 using JetBrains.Annotations;
 using Reseed.Schema;
 
-namespace Reseed.Dsl.TemporaryTables
+namespace Reseed.Configuration.TemporaryTables
 {
 	internal sealed class TemporaryTablesInsertProcedureDefinition : TemporaryTablesInsertDefinition
 	{

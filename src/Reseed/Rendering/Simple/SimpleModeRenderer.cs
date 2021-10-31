@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using JetBrains.Annotations;
-using Reseed.Dsl.Simple;
+using Reseed.Configuration.Simple;
 using Reseed.Graphs;
 using Reseed.Ordering;
 using Reseed.Rendering.Cleanup;

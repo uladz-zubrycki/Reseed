@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using JetBrains.Annotations;
-using Reseed.Dsl;
-using Reseed.Dsl.Simple;
-using Reseed.Dsl.TemporaryTables;
+using Reseed.Configuration;
+using Reseed.Configuration.Simple;
+using Reseed.Configuration.TemporaryTables;
 using Reseed.Graphs;
 using Reseed.Ordering;
 using Reseed.Rendering.Schema;
@@ -18,7 +18,7 @@ namespace Reseed.Rendering
 		public static SeedActions Render(
 			[NotNull] OrderedGraph<TableSchema> tables,
 			[NotNull] IReadOnlyCollection<OrderedItem<ITableContainer>> containers,
-			[NotNull] RenderMode mode)
+			[NotNull] SeedMode mode)
 		{
 			if (tables == null) throw new ArgumentNullException(nameof(tables));
 			if (containers == null) throw new ArgumentNullException(nameof(containers));

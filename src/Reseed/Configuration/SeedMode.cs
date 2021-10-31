@@ -1,19 +1,19 @@
 ﻿using JetBrains.Annotations;
-using Reseed.Dsl.Cleanup;
-using Reseed.Dsl.Simple;
-using Reseed.Dsl.TemporaryTables;
+using Reseed.Configuration.Cleanup;
+using Reseed.Configuration.Simple;
+using Reseed.Configuration.TemporaryTables;
 
-namespace Reseed.Dsl
+namespace Reseed.Configuration
 {
 	[PublicAPI]
-	public abstract class RenderMode
+	public abstract class SeedMode
 	{
-		public static RenderMode Simple(
+		public static SeedMode Simple(
 			[NotNull] SimpleInsertDefinition insertDefinition,
 			[NotNull] CleanupDefinition cleanupDefinition) =>
 			new SimpleMode(insertDefinition, cleanupDefinition);
 
-		public static RenderMode TemporaryTables(
+		public static SeedMode TemporaryTables(
 			[NotNull] string schemaName,
 			[NotNull] TemporaryTablesInsertDefinition insertDefinition,
 			[NotNull] CleanupDefinition cleanupDefinition) =>

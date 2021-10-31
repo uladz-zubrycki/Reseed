@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
-using Reseed.Dsl.TemporaryTables;
+using Reseed.Configuration.TemporaryTables;
 using Reseed.Graphs;
 using Reseed.Ordering;
 using Reseed.Rendering.Cleanup;

@@ -4,7 +4,7 @@ using JetBrains.Annotations;
 using Reseed.Schema;
 using Reseed.Utils;
 
-namespace Reseed.Dsl.Cleanup
+namespace Reseed.Configuration.Cleanup
 {
 	[PublicAPI]
 	public abstract class CleanupKind

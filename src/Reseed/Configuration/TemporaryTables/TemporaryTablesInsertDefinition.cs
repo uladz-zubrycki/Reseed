@@ -3,7 +3,7 @@ using System.Data.SqlClient;
 using JetBrains.Annotations;
 using Reseed.Schema;
 
-namespace Reseed.Dsl.TemporaryTables
+namespace Reseed.Configuration.TemporaryTables
 {
 	[PublicAPI]
 	public abstract class TemporaryTablesInsertDefinition

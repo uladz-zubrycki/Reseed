@@ -1,10 +1,10 @@
 ﻿using System;
 using JetBrains.Annotations;
-using Reseed.Dsl.Cleanup;
+using Reseed.Configuration.Cleanup;
 
-namespace Reseed.Dsl.Simple
+namespace Reseed.Configuration.Simple
 {
-	internal sealed class SimpleMode : RenderMode
+	internal sealed class SimpleMode : SeedMode
 	{
 		public readonly SimpleInsertDefinition InsertDefinition;
 		public readonly CleanupDefinition CleanupDefinition;

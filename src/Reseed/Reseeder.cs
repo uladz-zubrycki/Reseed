@@ -4,9 +4,9 @@ using System.Data.Common;
 using System.Data.SqlClient;
 using System.Linq;
 using JetBrains.Annotations;
+using Reseed.Configuration;
 using Reseed.Data;
 using Reseed.Data.FileSystem;
-using Reseed.Dsl;
 using Reseed.Extending;
 using Reseed.Graphs;
 using Reseed.Ordering;
@@ -29,7 +29,7 @@ namespace Reseed
 
 		// todo: refactor api to support independent Insert/Delete actions rendering
 		public SeedActions Generate(
-			[NotNull] RenderMode mode,
+			[NotNull] SeedMode mode,
 			[NotNull] IDataProvider dataProvider)
 		{
 			if (mode == null) throw new ArgumentNullException(nameof(mode));

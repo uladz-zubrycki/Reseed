@@ -2,7 +2,7 @@
 using System.Data.SqlClient;
 using Reseed.Utils;
 
-namespace Reseed.Dsl.TemporaryTables
+namespace Reseed.Configuration.TemporaryTables
 {
 	internal sealed class TemporaryTablesInsertSqlBulkCopyDefinition : TemporaryTablesInsertDefinition
 	{

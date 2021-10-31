@@ -2,7 +2,7 @@
 using JetBrains.Annotations;
 using Reseed.Schema;
 
-namespace Reseed.Dsl.Cleanup
+namespace Reseed.Configuration.Cleanup
 {
 	[PublicAPI]
 	public abstract class CleanupDefinition

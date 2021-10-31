@@ -1,18 +1,16 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using NUnit.Framework;
 using NUnit.Framework.Internal;
-using Reseed.Dsl;
-using Reseed.Dsl.Cleanup;
-using Reseed.Dsl.Simple;
-using Reseed.Dsl.TemporaryTables;
+using Reseed.Configuration;
+using Reseed.Configuration.Cleanup;
+using Reseed.Configuration.Simple;
+using Reseed.Configuration.TemporaryTables;
 using Reseed.Schema;
 
 namespace Reseed.Tests.Integration.Core
 {
-	public static class RenderModes
+	public static class SeedModes
 	{
 		private static readonly Func<IncludingDataCleanupFilter, IncludingDataCleanupFilter> 
 			ConfigureCleanup = f => f.IncludeSchemas("dbo");
@@ -32,78 +30,78 @@ namespace Reseed.Tests.Integration.Core
 		private static TemporaryTablesInsertDefinition TempTablesProcedureDefinition => 
 			TemporaryTablesInsertDefinition.Procedure(new ObjectName("spDeleteData"));
 
-		public static readonly RenderMode SimpleScriptDelete =
-			RenderMode.Simple(
+		public static readonly SeedMode SimpleScriptDelete =
+			SeedMode.Simple(
 				SimpleInsertDefinition.Script(),
 				CleanupDefinition.Script(DeleteCleanupMode));
 
-		public static readonly RenderMode SimpleScriptPreferTruncate =
-			RenderMode.Simple(
+		public static readonly SeedMode SimpleScriptPreferTruncate =
+			SeedMode.Simple(
 				SimpleInsertDefinition.Script(),
 				CleanupDefinition.Script(PreferTruncateCleanupMode));
 
-		public static readonly RenderMode SimpleScriptTruncate =
-			RenderMode.Simple(
+		public static readonly SeedMode SimpleScriptTruncate =
+			SeedMode.Simple(
 				SimpleInsertDefinition.Script(),
 				CleanupDefinition.Script(TruncateCleanupMode));
 
-		public static readonly RenderMode SimpleSpDelete =
-			RenderMode.Simple(
+		public static readonly SeedMode SimpleSpDelete =
+			SeedMode.Simple(
 				SimpleProcedureDefinition,
 				CleanupDefinition.Script(DeleteCleanupMode));
 
-		public static readonly RenderMode SimpleSpPreferTruncate =
-			RenderMode.Simple(
+		public static readonly SeedMode SimpleSpPreferTruncate =
+			SeedMode.Simple(
 				SimpleProcedureDefinition,
 				CleanupDefinition.Script(PreferTruncateCleanupMode));
 
-		public static readonly RenderMode SimpleSpTruncate =
-			RenderMode.Simple(
+		public static readonly SeedMode SimpleSpTruncate =
+			SeedMode.Simple(
 				SimpleProcedureDefinition,
 				CleanupDefinition.Script(TruncateCleanupMode));
 
-		public static readonly RenderMode TempTablesScriptDelete =
-			RenderMode.TemporaryTables(
+		public static readonly SeedMode TempTablesScriptDelete =
+			SeedMode.TemporaryTables(
 				"temp",
 				TemporaryTablesInsertDefinition.Script(), 
 				CleanupDefinition.Script(DeleteCleanupMode));
 
-		public static readonly RenderMode TempTablesScriptPreferTruncate =
-			RenderMode.TemporaryTables(
+		public static readonly SeedMode TempTablesScriptPreferTruncate =
+			SeedMode.TemporaryTables(
 				"temp",
 				TemporaryTablesInsertDefinition.Script(), 
 				CleanupDefinition.Script(PreferTruncateCleanupMode));
 
-		public static readonly RenderMode TempTablesScriptTruncate =
-			RenderMode.TemporaryTables(
+		public static readonly SeedMode TempTablesScriptTruncate =
+			SeedMode.TemporaryTables(
 				"temp",
 				TemporaryTablesInsertDefinition.Script(), 
 				CleanupDefinition.Script(TruncateCleanupMode));
 
-		public static readonly RenderMode TempTablesSpDelete =
-			RenderMode.TemporaryTables(
+		public static readonly SeedMode TempTablesSpDelete =
+			SeedMode.TemporaryTables(
 				"temp",
 				TempTablesProcedureDefinition,
 				CleanupDefinition.Script(DeleteCleanupMode));
 
-		public static readonly RenderMode TempTablesSpPreferTruncate =
-			RenderMode.TemporaryTables(
+		public static readonly SeedMode TempTablesSpPreferTruncate =
+			SeedMode.TemporaryTables(
 				"temp",
 				TempTablesProcedureDefinition,
 				CleanupDefinition.Script(PreferTruncateCleanupMode));
 
-		public static readonly RenderMode TempTablesSpTruncate =
-			RenderMode.TemporaryTables(
+		public static readonly SeedMode TempTablesSpTruncate =
+			SeedMode.TemporaryTables(
 				"temp",
 				TempTablesProcedureDefinition,
 				CleanupDefinition.Script(TruncateCleanupMode));
 
 		public static TestFixtureParameters[] Every()
 		{
-			var renderModeType = typeof(RenderMode);
-			return typeof(RenderModes)
+			var seedModeType = typeof(SeedMode);
+			return typeof(SeedModes)
 				.GetFields(BindingFlags.Public | BindingFlags.Static)
-				.Where(f => f.FieldType == renderModeType)
+				.Where(f => f.FieldType == seedModeType)
 				.Select(f => (name: f.Name, value: f.GetValue(null)))
 				.Select(f => new TestFixtureParameters(f.value)
 				{

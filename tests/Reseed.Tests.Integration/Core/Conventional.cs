@@ -6,8 +6,8 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using NUnit.Framework;
+using Reseed.Configuration;
 using Reseed.Data;
-using Reseed.Dsl;
 
 namespace Reseed.Tests.Integration.Core
 {
@@ -29,7 +29,7 @@ namespace Reseed.Tests.Integration.Core
 
 		public static async Task AssertSeedSucceeds(
 			TestFixtureBase fixture,
-			RenderMode reseederRenderMode,
+			SeedMode seedMode,
 			Func<SqlEngine, Task> assertDataInserted,
 			Func<SqlEngine, Task> assertDataDeleted)
 		{
@@ -37,7 +37,7 @@ namespace Reseed.Tests.Integration.Core
 			var reseeder = new Reseeder(database.ConnectionString);
 			var sqlEngine = new SqlEngine(database.ConnectionString);
 			var actions = reseeder.Generate(
-				reseederRenderMode,
+				seedMode,
 				CreateConventionalDataProvider(fixture));
 
 			reseeder.Execute(actions.PrepareDatabase);
@@ -53,7 +53,7 @@ namespace Reseed.Tests.Integration.Core
 
 		public static async Task AssertGenerationFails(
 			TestFixtureBase fixture,
-			RenderMode reseederRenderMode,
+			SeedMode seedMode,
 			Expression<Func<Exception, bool>> assertError)
 		{
 			await using var database = await CreateConventionalDatabase(fixture);
@@ -63,7 +63,7 @@ namespace Reseed.Tests.Integration.Core
 			try
 			{
 				_ = reseeder.Generate(
-					reseederRenderMode,
+					seedMode,
 					CreateConventionalDataProvider(fixture));
 			}
 			catch (Exception ex) when (assertErrorFun(ex))

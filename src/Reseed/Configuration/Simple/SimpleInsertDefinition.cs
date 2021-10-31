@@ -1,7 +1,7 @@
 ﻿using JetBrains.Annotations;
 using Reseed.Schema;
 
-namespace Reseed.Dsl.Simple
+namespace Reseed.Configuration.Simple
 {
 	[PublicAPI]
 	public abstract class SimpleInsertDefinition

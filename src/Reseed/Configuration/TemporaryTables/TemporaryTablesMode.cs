@@ -1,10 +1,10 @@
 ﻿using System;
 using JetBrains.Annotations;
-using Reseed.Dsl.Cleanup;
+using Reseed.Configuration.Cleanup;
 
-namespace Reseed.Dsl.TemporaryTables
+namespace Reseed.Configuration.TemporaryTables
 {
-	internal sealed class TemporaryTablesMode : RenderMode
+	internal sealed class TemporaryTablesMode : SeedMode
 	{
 		public readonly string SchemaName;
 		public readonly TemporaryTablesInsertDefinition InsertDefinition;
