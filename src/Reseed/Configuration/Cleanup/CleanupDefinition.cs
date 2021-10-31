@@ -7,25 +7,26 @@ namespace Reseed.Configuration.Cleanup
 	[PublicAPI]
 	public abstract class CleanupDefinition
 	{
-		internal readonly CleanupOptions Options;
+		internal readonly CleanupConfiguration Configuration;
 
-		protected CleanupDefinition([NotNull] CleanupOptions options)
+		protected CleanupDefinition([NotNull] CleanupConfiguration configuration)
 		{
-			this.Options = options ?? throw new ArgumentNullException(nameof(options));
+			this.Configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
 		}
 
-		public static CleanupDefinition Script([NotNull] CleanupOptions options) =>
-			new CleanupScriptDefinition(options);
+		public static CleanupDefinition Script([NotNull] CleanupConfiguration configuration) =>
+			new CleanupScriptDefinition(configuration);
 
 		public static CleanupDefinition Procedure(
 			[NotNull] ObjectName procedureName,
-			[NotNull] CleanupOptions cleanupOptions) =>
-			new CleanupProcedureDefinition(procedureName, cleanupOptions);
+			[NotNull] CleanupConfiguration configuration) =>
+			new CleanupProcedureDefinition(procedureName, configuration);
 	}
 
 	internal sealed class CleanupScriptDefinition : CleanupDefinition
 	{
-		public CleanupScriptDefinition([NotNull] CleanupOptions options) : base(options) { }
+		public CleanupScriptDefinition([NotNull] CleanupConfiguration configuration) 
+			: base(configuration) { }
 	}
 
 	internal sealed class CleanupProcedureDefinition : CleanupDefinition
@@ -34,7 +35,7 @@ namespace Reseed.Configuration.Cleanup
 
 		public CleanupProcedureDefinition(
 			[NotNull] ObjectName procedureName, 
-			[NotNull] CleanupOptions options) : base(options)
+			[NotNull] CleanupConfiguration configuration) : base(configuration)
 		{
 			this.ProcedureName = procedureName ?? throw new ArgumentNullException(nameof(procedureName));
 		}

@@ -23,11 +23,11 @@ namespace Reseed.Generation.Cleanup
 			return definition switch
 			{
 				CleanupScriptDefinition scriptDefinition => builder
-					.Add(SeedStage.Delete, DeleteScriptRenderer.Render(tables, scriptDefinition.Options)),
+					.Add(SeedStage.Delete, DeleteScriptRenderer.Render(tables, scriptDefinition.Configuration)),
 
 				CleanupProcedureDefinition procedureDefinition => builder
 					.Add(SeedStage.PrepareDb, RenderCreateProcedureScripts(
-						procedureDefinition.ProcedureName, tables, procedureDefinition.Options))
+						procedureDefinition.ProcedureName, tables, procedureDefinition.Configuration))
 					.Add(SeedStage.Delete, RenderExecuteProcedureScript(
 						ScriptNames.ExecuteDeleteSp, procedureDefinition.ProcedureName))
 					.Add(SeedStage.CleanupDb, RenderDropProcedureScript(
@@ -40,11 +40,11 @@ namespace Reseed.Generation.Cleanup
 		private static IReadOnlyCollection<OrderedItem<SqlScriptAction>> RenderCreateProcedureScripts(
 			[NotNull] ObjectName name,
 			[NotNull] OrderedGraph<TableSchema> schemas,
-			[NotNull] CleanupOptions options)
+			[NotNull] CleanupConfiguration configuration)
 		{
 			var dropProcedure = RenderDropProcedureScript(ScriptNames.DropDeleteSp, name);
 			var createProcedure = SqlScriptAction
-				.Join(ScriptNames.DeleteScript, DeleteScriptRenderer.Render(schemas, options))
+				.Join(ScriptNames.DeleteScript, DeleteScriptRenderer.Render(schemas, configuration))
 				.Map(s => RenderCreateStoredProcedure(name, s), ScriptNames.CreateDeleteSp);
 
 			return OrderedItem.OrderedCollection(dropProcedure, createProcedure);

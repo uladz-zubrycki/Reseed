@@ -8,13 +8,13 @@ using Reseed.Utils;
 namespace Reseed.Configuration.Cleanup
 {
 	[PublicAPI]
-	public sealed class CleanupOptions
+	public sealed class CleanupConfiguration
 	{
 		internal readonly CleanupKind Kind;
 		private readonly ICleanupFilter filter;
 		private readonly Dictionary<ObjectName, string> customScripts;
 
-		private CleanupOptions(
+		private CleanupConfiguration(
 			CleanupKind kind,
 			[NotNull] ICleanupFilter filter,
 			[NotNull] IReadOnlyCollection<(ObjectName table, string script)> customScripts)
@@ -39,27 +39,27 @@ namespace Reseed.Configuration.Cleanup
 			return this.customScripts.TryGetValue(table, out script);
 		}
 
-		public static CleanupOptions IncludeAll(
+		public static CleanupConfiguration IncludeAll(
 			CleanupKind kind,
 			[CanBeNull] Func<ExcludingCleanupFilter, ExcludingCleanupFilter> configure = null,
 			[CanBeNull] IReadOnlyCollection<(ObjectName table, string script)> customScripts = null)
 		{
 			var configureFilter = configure ?? Fn.Identity<ExcludingCleanupFilter>();
 			var filter = configureFilter(new ExcludingCleanupFilter());
-			return new CleanupOptions(
+			return new CleanupConfiguration(
 				kind,
 				filter,
 				customScripts ?? Array.Empty<(ObjectName table, string script)>());
 		}
 
-		public static CleanupOptions IncludeNone(
+		public static CleanupConfiguration IncludeNone(
 			CleanupKind kind,
 			[NotNull] Func<IncludingCleanupFilter, IncludingCleanupFilter> configure,
 			[CanBeNull] IReadOnlyCollection<(ObjectName table, string script)> customScripts = null)
 		{
 			if (configure == null) throw new ArgumentNullException(nameof(configure));
 			var filter = configure(new IncludingCleanupFilter());
-			return new CleanupOptions(
+			return new CleanupConfiguration(
 				kind,
 				filter,
 				customScripts ?? Array.Empty<(ObjectName table, string script)>());

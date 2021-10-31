@@ -16,36 +16,36 @@ namespace Reseed.Generation.Cleanup
 	{
 		public static IReadOnlyCollection<OrderedItem<SqlScriptAction>> Render(
 			[NotNull] OrderedGraph<TableSchema> tables,
-			[NotNull] CleanupOptions options)
+			[NotNull] CleanupConfiguration configuration)
 		{
 			if (tables == null) throw new ArgumentNullException(nameof(tables));
-			if (options == null) throw new ArgumentNullException(nameof(options));
+			if (configuration == null) throw new ArgumentNullException(nameof(configuration));
 
 			var reversedTables = tables.Reverse();
-			return options.Kind switch
+			return configuration.Kind switch
 			{
 				DeleteCleanupKind deleteOptions =>
-					RenderDeleteScripts(reversedTables, options, deleteOptions),
+					RenderDeleteScripts(reversedTables, configuration, deleteOptions),
 				PreferTruncateCleanupKind preferTruncateMode =>
-					RenderPreferTruncateScripts(reversedTables, options, preferTruncateMode),
+					RenderPreferTruncateScripts(reversedTables, configuration, preferTruncateMode),
 				TruncateCleanupKind truncateMode =>
-					RenderTruncateScripts(reversedTables, options, truncateMode),
+					RenderTruncateScripts(reversedTables, configuration, truncateMode),
 				_ => throw new NotSupportedException(
-					$"Unknown {nameof(CleanupKind)} value '{options.Kind}'")
+					$"Unknown {nameof(CleanupKind)} value '{configuration.Kind}'")
 			};
 		}
 
 		private static IReadOnlyCollection<OrderedItem<SqlScriptAction>> RenderDeleteScripts(
 			OrderedGraph<TableSchema> orderedTables,
-			CleanupOptions cleanupOptions,
+			CleanupConfiguration cleanupConfiguration,
 			DeleteCleanupKind deleteKind)
 		{
 			var tables = orderedTables.Nodes;
 			var (toClean, rest) =
-				tables.PartitionBy(o => cleanupOptions.ShouldClean(o.Value.Name));
+				tables.PartitionBy(o => cleanupConfiguration.ShouldClean(o.Value.Name));
 
 			var (defaultClean, customClean) =
-				toClean.PartitionBy(o => !cleanupOptions.GetCustomScript(o.Value.Name, out _));
+				toClean.PartitionBy(o => !cleanupConfiguration.GetCustomScript(o.Value.Name, out _));
 
 			var persistentTables = rest.Concat(customClean).ToArray();
 			return new List<SqlScriptAction>(2)
@@ -62,7 +62,7 @@ namespace Reseed.Generation.Cleanup
 				.AddScriptWhen(() => new SqlScriptAction("Custom cleanup scripts",
 						RenderCustomCleanupScripts(
 							customClean,
-							BuildCustomScriptGetter(cleanupOptions),
+							BuildCustomScriptGetter(cleanupConfiguration),
 							BuildIncomingRelationsGetter(persistentTables))),
 					customClean.Length > 0)
 				.WithNaturalOrder()
@@ -71,17 +71,17 @@ namespace Reseed.Generation.Cleanup
 
 		private static IReadOnlyCollection<OrderedItem<SqlScriptAction>> RenderPreferTruncateScripts(
 			OrderedGraph<TableSchema> orderedTables,
-			CleanupOptions cleanupOptions,
+			CleanupConfiguration cleanupConfiguration,
 			PreferTruncateCleanupKind truncateKind)
 		{
 			var tables = orderedTables.Nodes;
 			var getAllIncomingRelations = BuildIncomingRelationsGetter(tables);
 
 			var (toClean, rest) =
-				tables.PartitionBy(o => cleanupOptions.ShouldClean(o.Value.Name));
+				tables.PartitionBy(o => cleanupConfiguration.ShouldClean(o.Value.Name));
 
 			var (defaultClean, customClean) =
-				toClean.PartitionBy(o => !cleanupOptions.GetCustomScript(o.Value.Name, out _));
+				toClean.PartitionBy(o => !cleanupConfiguration.GetCustomScript(o.Value.Name, out _));
 
 			var (toDelete, toTruncate) =
 				defaultClean.PartitionBy(o =>
@@ -108,7 +108,7 @@ namespace Reseed.Generation.Cleanup
 					() => new SqlScriptAction("Custom cleanup scripts",
 						RenderCustomCleanupScripts(
 							customClean,
-							BuildCustomScriptGetter(cleanupOptions),
+							BuildCustomScriptGetter(cleanupConfiguration),
 							BuildIncomingRelationsGetter(persistentTables))),
 					customClean.Length > 0)
 				.WithNaturalOrder()
@@ -117,17 +117,17 @@ namespace Reseed.Generation.Cleanup
 
 		private static IReadOnlyCollection<OrderedItem<SqlScriptAction>> RenderTruncateScripts(
 			OrderedGraph<TableSchema> orderedTables,
-			CleanupOptions cleanupOptions,
+			CleanupConfiguration cleanupConfiguration,
 			TruncateCleanupKind truncateKind)
 		{
 			var tables = orderedTables.Nodes;
 			var getAllIncomingRelations = BuildIncomingRelationsGetter(tables);
 
 			var (toClean, rest) =
-				tables.PartitionBy(o => cleanupOptions.ShouldClean(o.Value.Name));
+				tables.PartitionBy(o => cleanupConfiguration.ShouldClean(o.Value.Name));
 
 			var (defaultClean, customClean) =
-				toClean.PartitionBy(o => !cleanupOptions.GetCustomScript(o.Value.Name, out _));
+				toClean.PartitionBy(o => !cleanupConfiguration.GetCustomScript(o.Value.Name, out _));
 
 			var (toDelete, toTruncate) =
 				defaultClean.PartitionBy(o => truncateKind.ShouldUseDelete(o.Value.Name));
@@ -160,7 +160,7 @@ namespace Reseed.Generation.Cleanup
 					() => new SqlScriptAction("Custom cleanup scripts",
 						RenderCustomCleanupScripts(
 							customClean,
-							BuildCustomScriptGetter(cleanupOptions),
+							BuildCustomScriptGetter(cleanupConfiguration),
 							BuildIncomingRelationsGetter(persistentTables))),
 					customClean.Length > 0)
 				.AddScriptWhen(
@@ -275,8 +275,8 @@ namespace Reseed.Generation.Cleanup
 					: Array.Empty<Relation<TableSchema>>();
 		}
 
-		private static Func<ObjectName, string> BuildCustomScriptGetter(CleanupOptions options) =>
-			t => options.GetCustomScript(t, out var s)
+		private static Func<ObjectName, string> BuildCustomScriptGetter(CleanupConfiguration configuration) =>
+			t => configuration.GetCustomScript(t, out var s)
 				? s
 				: throw new InvalidOperationException($"There is no custom script for table {t}");
 	}
