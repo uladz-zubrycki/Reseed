@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using JetBrains.Annotations;
-using Reseed.Graphs;
-using Reseed.Rendering;
-using Reseed.Rendering.Schema;
+using Reseed.Generation.Schema;
+using Reseed.Internals.Graphs;
 using Testing.Common.Api.Schema;
 
 namespace Reseed.Ordering

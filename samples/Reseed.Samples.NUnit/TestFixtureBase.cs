@@ -2,11 +2,11 @@
 using System.IO;
 using System.Threading.Tasks;
 using NUnit.Framework;
+using Reseed.Configuration;
+using Reseed.Configuration.Cleanup;
+using Reseed.Configuration.Simple;
 using Reseed.Data;
-using Reseed.Dsl;
-using Reseed.Dsl.Cleanup;
-using Reseed.Dsl.Simple;
-using Reseed.Rendering;
+using Reseed.Generation;
 
 namespace Reseed.Samples.NUnit
 {
@@ -48,7 +48,7 @@ namespace Reseed.Samples.NUnit
 		private readonly string reseederDataPath;
 		private SqlServerContainer server;
 		private Reseeder reseeder;
-		private DbActions dbActions;
+		private SeedActions seedActions;
 
 		public string ConnectionString => server?.ConnectionString;
 
@@ -64,25 +64,25 @@ namespace Reseed.Samples.NUnit
 			await server.StartAsync();
 
 			reseeder = new Reseeder(server.ConnectionString);
-			dbActions = GenerateDbActions(reseeder, reseederDataPath);
-			reseeder.Execute(dbActions.PrepareDatabase);
+			seedActions = GenerateSeedActions(reseeder, reseederDataPath);
+			reseeder.Execute(seedActions.PrepareDatabase);
 		}
 
 		public Task InsertDataAsync()
 		{
-			reseeder.Execute(dbActions.InsertData);
+			reseeder.Execute(seedActions.InsertData);
 			return Task.CompletedTask;
 		}
 
 		public Task DeleteDataAsync()
 		{
-			reseeder.Execute(dbActions.DeleteData);
+			reseeder.Execute(seedActions.DeleteData);
 			return Task.CompletedTask;
 		}
 
 		public async Task CleanupAsync()
 		{
-			reseeder.Execute(dbActions.CleanupDatabase);
+			reseeder.Execute(seedActions.CleanupDatabase);
 			if (server != null)
 			{
 				await server.DisposeAsync();
@@ -91,11 +91,11 @@ namespace Reseed.Samples.NUnit
 
 		// Configure Reseeder behavior. The simplest mode of behavior is used,
 		// which leads to generation of plain sql scripts for Insert and Delete actions.
-		private static DbActions GenerateDbActions(Reseeder seeder, string dataFolder) =>
+		private static SeedActions GenerateSeedActions(Reseeder seeder, string dataFolder) =>
 			seeder.Generate(
-				RenderMode.Simple(
+				SeedMode.Simple(
 					SimpleInsertDefinition.Script(),
-					CleanupDefinition.Script(CleanupOptions.IncludeAll(CleanupKind.PreferTruncate()))),
+					CleanupDefinition.Script(CleanupConfiguration.IncludeAll(CleanupMode.PreferTruncate()))),
 				DataProvider.Xml(dataFolder));
 	}
 }

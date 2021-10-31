@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Linq;
 using JetBrains.Annotations;
-using Reseed.Rendering.Schema;
+using Reseed.Generation.Schema;
 
 namespace Reseed.Extending.IdentityGeneration
 {

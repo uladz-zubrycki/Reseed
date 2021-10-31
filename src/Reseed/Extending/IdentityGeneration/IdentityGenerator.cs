@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using JetBrains.Annotations;
-using Reseed.Utils;
+using Reseed.Internals.Utils;
 
 namespace Reseed.Extending.IdentityGeneration
 {

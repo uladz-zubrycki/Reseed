@@ -36,7 +36,7 @@ namespace Reseed.Tests.Integration
 		private Task AssertSeedFails(Expression<Func<Exception, bool>> assertError) =>
 			Conventional.AssertGenerationFails(
 				this,
-				RenderModes.SimpleScriptPreferTruncate,
+				SeedModes.SimpleScriptPreferTruncate,
 				assertError);
 	}
 }

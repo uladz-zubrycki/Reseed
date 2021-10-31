@@ -6,8 +6,8 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using NUnit.Framework;
+using Reseed.Configuration;
 using Reseed.Data;
-using Reseed.Dsl;
 
 namespace Reseed.Tests.Integration.Core
 {
@@ -29,31 +29,31 @@ namespace Reseed.Tests.Integration.Core
 
 		public static async Task AssertSeedSucceeds(
 			TestFixtureBase fixture,
-			RenderMode reseederRenderMode,
+			SeedMode seedMode,
 			Func<SqlEngine, Task> assertDataInserted,
 			Func<SqlEngine, Task> assertDataDeleted)
 		{
 			await using var database = await CreateConventionalDatabase(fixture);
 			var reseeder = new Reseeder(database.ConnectionString);
 			var sqlEngine = new SqlEngine(database.ConnectionString);
-			var dbActions = reseeder.Generate(
-				reseederRenderMode,
+			var actions = reseeder.Generate(
+				seedMode,
 				CreateConventionalDataProvider(fixture));
 
-			reseeder.Execute(dbActions.PrepareDatabase);
+			reseeder.Execute(actions.PrepareDatabase);
 			
-			reseeder.Execute(dbActions.InsertData);
+			reseeder.Execute(actions.InsertData);
 			await assertDataInserted(sqlEngine);
 
-			reseeder.Execute(dbActions.DeleteData);
+			reseeder.Execute(actions.DeleteData);
 			await assertDataDeleted(sqlEngine);
 
-			reseeder.Execute(dbActions.CleanupDatabase);
+			reseeder.Execute(actions.CleanupDatabase);
 		}
 
 		public static async Task AssertGenerationFails(
 			TestFixtureBase fixture,
-			RenderMode reseederRenderMode,
+			SeedMode seedMode,
 			Expression<Func<Exception, bool>> assertError)
 		{
 			await using var database = await CreateConventionalDatabase(fixture);
@@ -63,7 +63,7 @@ namespace Reseed.Tests.Integration.Core
 			try
 			{
 				_ = reseeder.Generate(
-					reseederRenderMode,
+					seedMode,
 					CreateConventionalDataProvider(fixture));
 			}
 			catch (Exception ex) when (assertErrorFun(ex))

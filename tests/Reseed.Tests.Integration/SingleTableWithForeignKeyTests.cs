@@ -2,18 +2,18 @@
 using System.Linq;
 using System.Threading.Tasks;
 using NUnit.Framework;
-using Reseed.Dsl;
+using Reseed.Configuration;
 using Reseed.Tests.Integration.Core;
 
 namespace Reseed.Tests.Integration
 {
 	[Parallelizable(ParallelScope.All)]
-	[TestFixtureSource(typeof(RenderModes), nameof(RenderModes.Every))]
+	[TestFixtureSource(typeof(SeedModes), nameof(SeedModes.Every))]
 	public sealed class SingleTableWithForeignKeyTests : TestFixtureBase
 	{
-		private readonly RenderMode mode;
+		private readonly SeedMode mode;
 
-		public SingleTableWithForeignKeyTests(RenderMode mode)
+		public SingleTableWithForeignKeyTests(SeedMode mode)
 		{
 			this.mode = mode;
 		}
