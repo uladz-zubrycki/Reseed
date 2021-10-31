@@ -3,7 +3,7 @@
 namespace Reseed.Configuration.Cleanup
 {
 	[PublicAPI]
-	public enum ConstraintsResolutionKind
+	public enum ConstraintResolutionBehavior
 	{
 		/// <summary>
 		/// Orders tables by their foreign key constraints to be able to execute DELETE FROM.

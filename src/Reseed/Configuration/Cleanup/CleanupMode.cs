@@ -9,11 +9,11 @@ namespace Reseed.Configuration.Cleanup
 	[PublicAPI]
 	public abstract class CleanupMode
 	{
-		internal readonly ConstraintsResolutionKind ConstraintsResolution;
+		internal readonly ConstraintResolutionBehavior ConstraintBehavior;
 
-		protected CleanupMode(ConstraintsResolutionKind constraintsResolution)
+		protected CleanupMode(ConstraintResolutionBehavior constraintBehavior)
 		{
-			this.ConstraintsResolution = constraintsResolution;
+			this.ConstraintBehavior = constraintBehavior;
 		}
 
 		/// <summary>
@@ -24,39 +24,39 @@ namespace Reseed.Configuration.Cleanup
 		/// To fix this either drop required views/indexes manually or choose delete mode for these tables.
 		/// </summary>
 		public static CleanupMode Truncate(
-			ObjectName[] forceDeleteForTables = null,
-			ConstraintsResolutionKind resolutionKind = ConstraintsResolutionKind.OrderTables) => 
-			new TruncateCleanupMode(resolutionKind, forceDeleteForTables ?? Array.Empty<ObjectName>());
+			ObjectName[] useDeleteForTables = null,
+			ConstraintResolutionBehavior constraintBehavior = ConstraintResolutionBehavior.OrderTables) => 
+			new TruncateCleanupMode(constraintBehavior, useDeleteForTables ?? Array.Empty<ObjectName>());
 
 		/// <summary>
 		/// Uses TRUNCATE to clean data from tables, which aren't referenced by any foreign key.
 		/// Cleans data with use of DELETE FROM otherwise.
 		/// </summary>
 		public static CleanupMode PreferTruncate(
-			ObjectName[] forceDeleteForTables = null,
-			ConstraintsResolutionKind resolutionKind = ConstraintsResolutionKind.OrderTables) =>
-			new PreferTruncateCleanupMode(resolutionKind, forceDeleteForTables ?? Array.Empty<ObjectName>());
+			ObjectName[] useDeleteForTables = null,
+			ConstraintResolutionBehavior constraintBehavior = ConstraintResolutionBehavior.OrderTables) =>
+			new PreferTruncateCleanupMode(constraintBehavior, useDeleteForTables ?? Array.Empty<ObjectName>());
 
 		/// <summary>
 		/// Uses DELETE FROM to clean data from provided tables.
 		/// </summary>
 		public static CleanupMode Delete(
-			ConstraintsResolutionKind resolutionKind = ConstraintsResolutionKind.OrderTables) =>
-			new DeleteCleanupMode(resolutionKind);
+			ConstraintResolutionBehavior constraintBehavior = ConstraintResolutionBehavior.OrderTables) =>
+			new DeleteCleanupMode(constraintBehavior);
 	}
 
 	internal sealed class DeleteCleanupMode : CleanupMode
 	{
-		public DeleteCleanupMode(ConstraintsResolutionKind constraintsResolution) 
-			: base(constraintsResolution) { }
+		public DeleteCleanupMode(ConstraintResolutionBehavior constraintBehavior) 
+			: base(constraintBehavior) { }
 	}
 
 	internal sealed class PreferTruncateCleanupMode : TruncateCleanupMode
 	{
 		public PreferTruncateCleanupMode(
-			ConstraintsResolutionKind constraintsResolution,
+			ConstraintResolutionBehavior constraintBehavior,
 			[NotNull] IReadOnlyCollection<ObjectName> useDeleteForTables) 
-			: base(constraintsResolution, useDeleteForTables) { }
+			: base(constraintBehavior, useDeleteForTables) { }
 	}
 
 	internal class TruncateCleanupMode : CleanupMode
@@ -64,9 +64,9 @@ namespace Reseed.Configuration.Cleanup
 		private readonly HashSet<ObjectName> useDeleteForTables;
 
 		public TruncateCleanupMode(
-			ConstraintsResolutionKind constraintsResolution,
+			ConstraintResolutionBehavior constraintBehavior,
 			[NotNull] IReadOnlyCollection<ObjectName> useDeleteForTables) 
-			: base(constraintsResolution)
+			: base(constraintBehavior)
 		{
 			if (useDeleteForTables == null) throw new ArgumentNullException(nameof(useDeleteForTables));
 			this.useDeleteForTables = useDeleteForTables.ToHashSet();

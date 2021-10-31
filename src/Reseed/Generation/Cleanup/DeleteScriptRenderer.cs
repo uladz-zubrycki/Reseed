@@ -57,7 +57,7 @@ namespace Reseed.Generation.Cleanup
 								ChooseIncomingRelationsGetter(
 									tables,
 									persistentTables,
-									cleanupMode.ConstraintsResolution)))),
+									cleanupMode.ConstraintBehavior)))),
 					defaultClean.Length > 0)
 				.AddScriptWhen(() => new SqlScriptAction("Custom cleanup scripts",
 						RenderCustomCleanupScripts(
@@ -102,7 +102,7 @@ namespace Reseed.Generation.Cleanup
 							ChooseIncomingRelationsGetter(
 								tables,
 								persistentTables,
-								cleanupMode.ConstraintsResolution))),
+								cleanupMode.ConstraintBehavior))),
 					toDelete.Length > 0)
 				.AddScriptWhen(
 					() => new SqlScriptAction("Custom cleanup scripts",
@@ -154,7 +154,7 @@ namespace Reseed.Generation.Cleanup
 							ChooseIncomingRelationsGetter(
 								tables,
 								persistentTables,
-								cleanupMode.ConstraintsResolution))),
+								cleanupMode.ConstraintBehavior))),
 					toDelete.Length > 0)
 				.AddScriptWhen(
 					() => new SqlScriptAction("Custom cleanup scripts",
@@ -174,13 +174,13 @@ namespace Reseed.Generation.Cleanup
 		private static Func<TableSchema, Relation<TableSchema>[]> ChooseIncomingRelationsGetter(
 			IEnumerable<OrderedItem<TableSchema>> allTables,
 			IEnumerable<OrderedItem<TableSchema>> persistentTables,
-			ConstraintsResolutionKind resolutionKind) =>
+			ConstraintResolutionBehavior resolutionKind) =>
 			resolutionKind switch
 			{
-				ConstraintsResolutionKind.OrderTables => BuildIncomingRelationsGetter(persistentTables),
-				ConstraintsResolutionKind.DisableConstraints => BuildIncomingRelationsGetter(allTables),
+				ConstraintResolutionBehavior.OrderTables => BuildIncomingRelationsGetter(persistentTables),
+				ConstraintResolutionBehavior.DisableConstraints => BuildIncomingRelationsGetter(allTables),
 				_ => throw new NotSupportedException(
-					$"Unknown {nameof(ConstraintsResolutionKind)} value '{resolutionKind}'")
+					$"Unknown {nameof(ConstraintResolutionBehavior)} value '{resolutionKind}'")
 			};
 
 		private static string RenderTruncateTables(IEnumerable<TableSchema> tables) =>
