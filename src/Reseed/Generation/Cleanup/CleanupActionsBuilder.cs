@@ -44,7 +44,7 @@ namespace Reseed.Generation.Cleanup
 		{
 			var dropProcedure = RenderDropProcedureScript(ScriptNames.DropDeleteSp, name);
 			var createProcedure = SqlScriptAction
-				.Join(ScriptNames.DeleteScript, DeleteScriptRenderer.Render(schemas, options).Order())
+				.Join(ScriptNames.DeleteScript, DeleteScriptRenderer.Render(schemas, options))
 				.Map(s => RenderCreateStoredProcedure(name, s), ScriptNames.CreateDeleteSp);
 
 			return OrderedItem.OrderedCollection(dropProcedure, createProcedure);

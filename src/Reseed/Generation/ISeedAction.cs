@@ -39,12 +39,13 @@ namespace Reseed.Generation
 
 		internal static SqlScriptAction Join(
 			[NotNull] string name,
-			[NotNull] IEnumerable<SqlScriptAction> scripts)
+			[NotNull] IEnumerable<OrderedItem<SqlScriptAction>> scripts)
 		{
 			if (name == null) throw new ArgumentNullException(nameof(name));
 			if (scripts == null) throw new ArgumentNullException(nameof(scripts));
 
 			var parts = scripts
+				.Order()
 				.Select((s, i) =>
 					string.Join(
 						Environment.NewLine,
