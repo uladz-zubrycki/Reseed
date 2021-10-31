@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using Testing.Common.Api.Schema;
 
-namespace Reseed.Graphs
+namespace Reseed.Internals.Graphs
 {
 	internal interface IMutableNode<T> : INode<T> where T : IMutableNode<T>
 	{

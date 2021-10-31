@@ -4,7 +4,7 @@ using System.Linq;
 using JetBrains.Annotations;
 using Reseed.Schema;
 
-namespace Reseed.Graphs
+namespace Reseed.Internals.Graphs
 {
 	internal sealed class MutualReference<T> where T : class
 	{

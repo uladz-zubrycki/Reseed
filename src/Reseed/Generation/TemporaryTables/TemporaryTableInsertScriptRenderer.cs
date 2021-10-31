@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
 using Reseed.Generation.Insertion;
-using Reseed.Graphs;
+using Reseed.Internals.Graphs;
+using Reseed.Internals.Utils;
 using Reseed.Ordering;
 using Reseed.Schema;
-using Reseed.Utils;
 
 namespace Reseed.Generation.TemporaryTables
 {

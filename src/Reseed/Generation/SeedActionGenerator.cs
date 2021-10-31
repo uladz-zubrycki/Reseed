@@ -7,7 +7,7 @@ using Reseed.Configuration.TemporaryTables;
 using Reseed.Generation.Schema;
 using Reseed.Generation.Simple;
 using Reseed.Generation.TemporaryTables;
-using Reseed.Graphs;
+using Reseed.Internals.Graphs;
 using Reseed.Ordering;
 using Reseed.Schema;
 

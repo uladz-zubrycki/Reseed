@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using JetBrains.Annotations;
 
-namespace Reseed.Utils
+namespace Reseed.Internals.Utils
 {
 	internal static class EnumerableExtensions
 	{

@@ -2,11 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
+using Reseed.Internals.Utils;
 using Reseed.Schema;
-using Reseed.Utils;
 using Testing.Common.Api.Schema;
 
-namespace Reseed.Graphs
+namespace Reseed.Internals.Graphs
 {
 	internal sealed class ReferencePath<T> where T: class
 	{

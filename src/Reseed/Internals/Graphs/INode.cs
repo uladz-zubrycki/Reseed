@@ -5,7 +5,7 @@ using JetBrains.Annotations;
 using Reseed.Schema;
 using Testing.Common.Api.Schema;
 
-namespace Reseed.Graphs
+namespace Reseed.Internals.Graphs
 {
 	internal interface INode<T> where T : INode<T>
 	{

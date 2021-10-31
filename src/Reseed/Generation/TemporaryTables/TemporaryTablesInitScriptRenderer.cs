@@ -4,10 +4,10 @@ using System.Linq;
 using JetBrains.Annotations;
 using Reseed.Generation.Insertion;
 using Reseed.Generation.Schema;
-using Reseed.Graphs;
+using Reseed.Internals.Graphs;
+using Reseed.Internals.Utils;
 using Reseed.Ordering;
 using Reseed.Schema;
-using Reseed.Utils;
 using static Reseed.Generation.ScriptRenderer;
 
 namespace Reseed.Generation.TemporaryTables

@@ -6,7 +6,7 @@ using Reseed.Ordering;
 using Reseed.Schema;
 using static Reseed.Ordering.OrderedItem;
 
-namespace Reseed.Graphs
+namespace Reseed.Internals.Graphs
 {
 	internal static class MutualReferenceResolver
 	{

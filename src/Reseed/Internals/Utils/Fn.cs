@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Reseed.Utils
+namespace Reseed.Internals.Utils
 {
 	internal static class Fn
 	{

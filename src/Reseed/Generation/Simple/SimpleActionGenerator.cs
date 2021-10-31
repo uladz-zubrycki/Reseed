@@ -4,7 +4,7 @@ using JetBrains.Annotations;
 using Reseed.Configuration.Simple;
 using Reseed.Generation.Cleanup;
 using Reseed.Generation.Schema;
-using Reseed.Graphs;
+using Reseed.Internals.Graphs;
 using Reseed.Ordering;
 using Reseed.Schema;
 

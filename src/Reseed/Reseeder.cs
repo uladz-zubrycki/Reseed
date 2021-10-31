@@ -10,7 +10,7 @@ using Reseed.Data.FileSystem;
 using Reseed.Extending;
 using Reseed.Generation;
 using Reseed.Generation.Schema;
-using Reseed.Graphs;
+using Reseed.Internals.Graphs;
 using Reseed.Ordering;
 using Reseed.Schema;
 using Reseed.Validation;

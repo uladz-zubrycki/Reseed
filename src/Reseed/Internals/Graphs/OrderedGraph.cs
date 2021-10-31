@@ -4,7 +4,7 @@ using System.Linq;
 using JetBrains.Annotations;
 using Reseed.Ordering;
 
-namespace Reseed.Graphs
+namespace Reseed.Internals.Graphs
 {
 	internal sealed class OrderedGraph<T> where T : class
 	{

@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using JetBrains.Annotations;
 
-namespace Reseed.Utils
+namespace Reseed.Internals.Utils
 {
 	internal static class SqlFormatter
 	{
