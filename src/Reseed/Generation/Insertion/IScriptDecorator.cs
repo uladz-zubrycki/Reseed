@@ -1,4 +1,4 @@
-﻿namespace Reseed.Rendering.Insertion
+﻿namespace Reseed.Generation.Insertion
 {
 	internal interface IScriptDecorator
 	{

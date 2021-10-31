@@ -8,7 +8,7 @@ using Reseed.Ordering;
 using Reseed.Schema;
 using static Reseed.Ordering.OrderedItem;
 
-namespace Reseed.Rendering.Schema
+namespace Reseed.Generation.Schema
 {
 	internal static class TableBuilder
 	{

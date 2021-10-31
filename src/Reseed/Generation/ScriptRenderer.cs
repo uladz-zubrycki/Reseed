@@ -6,9 +6,9 @@ using Reseed.Ordering;
 using Reseed.Schema;
 using Reseed.Utils;
 
-namespace Reseed.Rendering
+namespace Reseed.Generation
 {
-	internal static class Scripts
+	internal static class ScriptRenderer
 	{
 		public static SqlScriptAction RenderExecuteProcedureScript(string scriptName, ObjectName procedureName) => 
 			new(scriptName, RenderExecuteProcedure(procedureName));
@@ -52,7 +52,7 @@ namespace Reseed.Rendering
 				.TrimMargin('|');
 		}
 
-		public static string RenderDropSchema([NotNull] string schemaName)
+		public static string RenderDropTemporarySchemaScript([NotNull] string schemaName)
 		{
 			if (schemaName == null) throw new ArgumentNullException(nameof(schemaName));
 			return $@"

@@ -6,7 +6,7 @@ using Reseed.Configuration;
 using Reseed.Configuration.Cleanup;
 using Reseed.Configuration.Simple;
 using Reseed.Data;
-using Reseed.Rendering;
+using Reseed.Generation;
 
 namespace Reseed.Samples.NUnit
 {

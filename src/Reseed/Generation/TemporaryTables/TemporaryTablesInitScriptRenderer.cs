@@ -2,15 +2,15 @@
 using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
+using Reseed.Generation.Insertion;
+using Reseed.Generation.Schema;
 using Reseed.Graphs;
 using Reseed.Ordering;
-using Reseed.Rendering.Insertion;
-using Reseed.Rendering.Schema;
 using Reseed.Schema;
 using Reseed.Utils;
-using static Reseed.Rendering.Scripts;
+using static Reseed.Generation.ScriptRenderer;
 
-namespace Reseed.Rendering.TemporaryTables
+namespace Reseed.Generation.TemporaryTables
 {
 	internal static class TemporaryTablesInitScriptRenderer
 	{

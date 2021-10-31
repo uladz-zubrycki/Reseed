@@ -3,19 +3,19 @@ using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
 using Reseed.Configuration.TemporaryTables;
+using Reseed.Generation.Cleanup;
+using Reseed.Generation.Schema;
 using Reseed.Graphs;
 using Reseed.Ordering;
-using Reseed.Rendering.Cleanup;
-using Reseed.Rendering.Schema;
 using Reseed.Schema;
 using Reseed.Utils;
-using static Reseed.Rendering.Scripts;
+using static Reseed.Generation.ScriptRenderer;
 
-namespace Reseed.Rendering.TemporaryTables
+namespace Reseed.Generation.TemporaryTables
 {
-	internal static class TemporaryTablesModeRenderer
+	internal static class TemporaryTablesActionGenerator
 	{
-		public static SeedActions Render(
+		public static SeedActions Generate(
 			[NotNull] OrderedGraph<TableSchema> tables,
 			[NotNull] IReadOnlyCollection<OrderedItem<ITableContainer>> containers,
 			[NotNull] TemporaryTablesMode mode)
@@ -25,24 +25,24 @@ namespace Reseed.Rendering.TemporaryTables
 			if (mode == null) throw new ArgumentNullException(nameof(mode));
 
 			return new SeedActionsBuilder()
-				.AddCleanup(mode.CleanupDefinition, tables)
-				.Add(SeedStage.PrepareDb, RenderInit(
+				.AddCleanupActions(mode.CleanupDefinition, tables)
+				.Add(SeedStage.PrepareDb, RenderInitScripts(
 					mode.SchemaName,
 					tables,
-					containers).Order())
+					containers))
 				.AddInsertFrom(
 					mode.InsertDefinition,
 					mode.SchemaName,
 					tables,
 					containers)
-				.Add(SeedStage.CleanupDb, RenderDrop(
+				.Add(SeedStage.CleanupDb, RenderDropScripts(
 					mode.SchemaName,
 					tables,
-					containers).Order())
+					containers))
 				.Build();
 		}
 
-		private static IReadOnlyCollection<OrderedItem<SqlScriptAction>> RenderInit(
+		private static IReadOnlyCollection<OrderedItem<SqlScriptAction>> RenderInitScripts(
 			[NotNull] string tempSchemaName,
 			[NotNull] OrderedGraph<TableSchema> tables,
 			[NotNull] IReadOnlyCollection<OrderedItem<ITableContainer>> containers)
@@ -60,25 +60,26 @@ namespace Reseed.Rendering.TemporaryTables
 			[NotNull] OrderedGraph<TableSchema> tables,
 			[NotNull] IReadOnlyCollection<OrderedItem<ITableContainer>> containers)
 		{
+			var filteredGraph = FilterTables(tables, containers);
 			return options switch
 			{
-				TemporaryTablesInsertScriptDefinition _ =>
+				TemporaryTablesInsertScriptDefinition =>
 					builder.Add(SeedStage.Insert,
 						TemporaryTableInsertScriptRenderer.Render(
-							FilterTables(tables, containers),
+							filteredGraph,
 							n => CreateTempTableName(tempSchemaName, n))),
 
 				TemporaryTablesInsertProcedureDefinition procedureOptions =>
 					AddInsertProcedure(
 						builder,
 						procedureOptions.ProcedureName,
-						FilterTables(tables, containers),
+						filteredGraph,
 						n => CreateTempTableName(tempSchemaName, n)),
 
 				TemporaryTablesInsertSqlBulkCopyDefinition bulkCopyOptions =>
 					builder.Add(SeedStage.Insert,
-						TemporaryTablesSqlBulkCopyRenderer.RenderInsert(
-							FilterTables(tables, containers),
+						TemporaryTablesSqlBulkCopyGenerator.GenerateInsertActions(
+							filteredGraph,
 							n => CreateTempTableName(tempSchemaName, n),
 							bulkCopyOptions)),
 
@@ -94,20 +95,20 @@ namespace Reseed.Rendering.TemporaryTables
 			[NotNull] Func<ObjectName, ObjectName> mapTableName)
 		{
 			var createProcedure = TemporaryTableInsertScriptRenderer.Render(tables, mapTableName)
-				.Map(s => RenderCreateStoredProcedure(procedureName, s), CommonScriptNames.CreateInsertSp);
+				.Map(s => RenderCreateStoredProcedure(procedureName, s), ScriptNames.CreateInsertSp);
 
 			var dropProcedure = RenderDropProcedureScript(
-				CommonScriptNames.DropInsertSp,
+				ScriptNames.DropInsertSp,
 				procedureName);
 
 			return builder
 				.Add(SeedStage.PrepareDb, dropProcedure, createProcedure)
 				.Add(SeedStage.Insert, RenderExecuteProcedureScript(
-					CommonScriptNames.ExecuteInsertSp, procedureName))
+					ScriptNames.ExecuteInsertSp, procedureName))
 				.Add(SeedStage.CleanupDb, dropProcedure);
 		}
 
-		private static IReadOnlyCollection<OrderedItem<SqlScriptAction>> RenderDrop(
+		private static IReadOnlyCollection<OrderedItem<SqlScriptAction>> RenderDropScripts(
 			[NotNull] string tempSchemaName,
 			[NotNull] OrderedGraph<TableSchema> tables,
 			[NotNull] IReadOnlyCollection<OrderedItem<ITableContainer>> containers) =>

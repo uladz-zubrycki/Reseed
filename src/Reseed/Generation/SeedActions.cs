@@ -4,7 +4,7 @@ using System.Linq;
 using JetBrains.Annotations;
 using Reseed.Ordering;
 
-namespace Reseed.Rendering
+namespace Reseed.Generation
 {
 	[PublicAPI]
 	public sealed class SeedActions

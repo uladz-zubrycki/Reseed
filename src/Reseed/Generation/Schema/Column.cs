@@ -2,7 +2,7 @@
 using JetBrains.Annotations;
 using Reseed.Schema;
 
-namespace Reseed.Rendering.Schema
+namespace Reseed.Generation.Schema
 {
 	public sealed class Column
 	{

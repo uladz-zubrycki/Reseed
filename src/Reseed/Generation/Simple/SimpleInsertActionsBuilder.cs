@@ -2,13 +2,13 @@
 using System.Collections.Generic;
 using JetBrains.Annotations;
 using Reseed.Configuration.Simple;
+using Reseed.Generation.Insertion;
+using Reseed.Generation.Schema;
 using Reseed.Ordering;
-using Reseed.Rendering.Insertion;
-using Reseed.Rendering.Schema;
 using Reseed.Schema;
-using static Reseed.Rendering.Scripts;
+using static Reseed.Generation.ScriptRenderer;
 
-namespace Reseed.Rendering.Simple
+namespace Reseed.Generation.Simple
 {
 	internal static class SimpleInsertActionsBuilder
 	{
@@ -23,16 +23,19 @@ namespace Reseed.Rendering.Simple
 
 			return definition switch
 			{
-				SimpleInsertScriptDefinition => builder.Add(SeedStage.Insert, InsertScriptRenderer.Render(containers)),
+				SimpleInsertScriptDefinition => builder.Add(
+					SeedStage.Insert, 
+					InsertScriptRenderer.Render(containers)),
 				
 				SimpleInsertProcedureDefinition procedureMode => builder
-					.Add(SeedStage.PrepareDb, RenderCreateProcedureScripts(procedureMode.ProcedureName, containers))
+					.Add(SeedStage.PrepareDb, 
+						RenderCreateProcedureScripts(procedureMode.ProcedureName, containers))
 					.Add(SeedStage.Insert,
-						RenderExecuteProcedureScript(CommonScriptNames.ExecuteInsertSp, procedureMode.ProcedureName))
+						RenderExecuteProcedureScript(ScriptNames.ExecuteInsertSp, procedureMode.ProcedureName))
 					.Add(SeedStage.CleanupDb,
-						RenderDropProcedureScript(CommonScriptNames.DropInsertSp, procedureMode.ProcedureName)),
+						RenderDropProcedureScript(ScriptNames.DropInsertSp, procedureMode.ProcedureName)),
 				
-				_ => throw new NotSupportedException($"Unknown cleanup mode '{definition.GetType().Name}'")
+				_ => throw new NotSupportedException($"Unknown {nameof(SimpleInsertDefinition)} '{definition.GetType().Name}'")
 			};
 		}
 
@@ -40,9 +43,9 @@ namespace Reseed.Rendering.Simple
 			[NotNull] ObjectName name,
 			[NotNull] IReadOnlyCollection<OrderedItem<ITableContainer>> containers)
 		{
-			var dropProcedure = RenderDropProcedureScript(CommonScriptNames.DropInsertSp, name);
+			var dropProcedure = RenderDropProcedureScript(ScriptNames.DropInsertSp, name);
 			var createProcedure = InsertScriptRenderer.Render(containers)
-				.Map(t => RenderCreateStoredProcedure(name, t), CommonScriptNames.CreateInsertSp);
+				.Map(t => RenderCreateStoredProcedure(name, t), ScriptNames.CreateInsertSp);
 
 			return OrderedItem.OrderedCollection(dropProcedure, createProcedure);
 		}

@@ -5,7 +5,7 @@ using JetBrains.Annotations;
 using Reseed.Schema;
 using Reseed.Utils;
 
-namespace Reseed.Rendering.Schema
+namespace Reseed.Generation.Schema
 {
 	public sealed class TableDefinition : IEquatable<TableDefinition>
 	{

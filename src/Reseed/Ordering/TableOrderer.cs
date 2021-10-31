@@ -2,9 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
+using Reseed.Generation.Schema;
 using Reseed.Graphs;
-using Reseed.Rendering;
-using Reseed.Rendering.Schema;
 using Reseed.Schema;
 
 namespace Reseed.Ordering

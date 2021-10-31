@@ -6,7 +6,7 @@ using JetBrains.Annotations;
 using Reseed.Ordering;
 using Reseed.Schema;
 
-namespace Reseed.Rendering
+namespace Reseed.Generation
 {
 	[PublicAPI]
 	public interface ISeedAction

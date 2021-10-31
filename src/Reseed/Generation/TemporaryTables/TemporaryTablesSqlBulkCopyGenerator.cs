@@ -9,16 +9,16 @@ using Reseed.Ordering;
 using Reseed.Schema;
 using Reseed.Utils;
 
-namespace Reseed.Rendering.TemporaryTables
+namespace Reseed.Generation.TemporaryTables
 {
-	internal static class TemporaryTablesSqlBulkCopyRenderer
+	internal static class TemporaryTablesSqlBulkCopyGenerator
 	{
 		private const SqlBulkCopyOptions DefaultOptions =
 			SqlBulkCopyOptions.KeepIdentity |
 			SqlBulkCopyOptions.KeepNulls |
 			SqlBulkCopyOptions.TableLock;
 
-		public static IReadOnlyCollection<OrderedItem<ISeedAction>> RenderInsert(
+		public static IReadOnlyCollection<OrderedItem<SqlBulkCopyAction>> GenerateInsertActions(
 			[NotNull] OrderedGraph<TableSchema> tables,
 			[NotNull] Func<ObjectName, ObjectName> mapTableName,
 			TemporaryTablesInsertSqlBulkCopyDefinition options)
@@ -26,7 +26,7 @@ namespace Reseed.Rendering.TemporaryTables
 			if (tables == null) throw new ArgumentNullException(nameof(tables));
 
 			return tables.Nodes
-				.Select(ot => ot.Map<ISeedAction>(
+				.Select(ot => ot.Map(
 					t =>
 					{
 						IReadOnlyCollection<ColumnSchema> columns = t.Columns

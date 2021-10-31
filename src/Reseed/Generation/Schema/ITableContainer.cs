@@ -7,7 +7,7 @@ using Reseed.Schema;
 using Reseed.Utils;
 using static Reseed.Ordering.OrderedItem;
 
-namespace Reseed.Rendering.Schema
+namespace Reseed.Generation.Schema
 {
 	internal interface ITableContainer
 	{

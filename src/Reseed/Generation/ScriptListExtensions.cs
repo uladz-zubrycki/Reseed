@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using JetBrains.Annotations;
 
-namespace Reseed.Rendering
+namespace Reseed.Generation
 {
 	public static class ScriptListExtensions
 	{

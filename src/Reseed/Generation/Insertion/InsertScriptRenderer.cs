@@ -1,13 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Reseed.Generation.Schema;
 using Reseed.Ordering;
-using Reseed.Rendering.Schema;
 using Reseed.Schema;
 using Reseed.Utils;
-using static Reseed.Ordering.OrderedItem;
 
-namespace Reseed.Rendering.Insertion
+namespace Reseed.Generation.Insertion
 {
 	internal static class InsertScriptRenderer
 	{
@@ -19,7 +18,7 @@ namespace Reseed.Rendering.Insertion
 				throw new ArgumentException("Value cannot be an empty collection.", nameof(containers));
 
 			return new SqlScriptAction(
-				CommonScriptNames.InsertScript,
+				ScriptNames.InsertScript,
 				string.Join(Environment.NewLine + Environment.NewLine, containers
 					.OrderBy(t => t.Order)
 					.Select(t => RenderContainer(t.Value))));

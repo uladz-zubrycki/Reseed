@@ -1,5 +1,5 @@
 ﻿using System;
-using Reseed.Rendering;
+using Reseed.Generation;
 
 namespace Reseed
 {

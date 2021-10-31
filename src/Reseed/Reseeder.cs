@@ -8,10 +8,10 @@ using Reseed.Configuration;
 using Reseed.Data;
 using Reseed.Data.FileSystem;
 using Reseed.Extending;
+using Reseed.Generation;
+using Reseed.Generation.Schema;
 using Reseed.Graphs;
 using Reseed.Ordering;
-using Reseed.Rendering;
-using Reseed.Rendering.Schema;
 using Reseed.Schema;
 using Reseed.Validation;
 
@@ -43,7 +43,7 @@ namespace Reseed
 
 			var orderedSchemas = NodeOrderer<TableSchema>.Order(schemas);
 			var containers = TableOrderer.Order(extendedTables, orderedSchemas);
-			return Renderer.Render(orderedSchemas, containers, mode);
+			return SeedActionGenerator.Generate(orderedSchemas, containers, mode);
 		}
 
 		public void Execute([NotNull] IReadOnlyCollection<OrderedItem<ISeedAction>> actions)

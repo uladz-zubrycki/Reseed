@@ -1,6 +1,6 @@
-﻿namespace Reseed.Rendering
+﻿namespace Reseed.Generation
 {
-	internal static class CommonScriptNames
+	internal static class ScriptNames
 	{
 		public static string InsertScript = "Insert data";
 		public static string DeleteScript = "Delete data";

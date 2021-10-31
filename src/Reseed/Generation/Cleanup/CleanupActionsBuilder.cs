@@ -5,13 +5,13 @@ using Reseed.Configuration.Cleanup;
 using Reseed.Graphs;
 using Reseed.Ordering;
 using Reseed.Schema;
-using static Reseed.Rendering.Scripts;
+using static Reseed.Generation.ScriptRenderer;
 
-namespace Reseed.Rendering.Cleanup
+namespace Reseed.Generation.Cleanup
 {
 	internal static class CleanupActionsBuilder
 	{
-		public static SeedActionsBuilder AddCleanup(
+		public static SeedActionsBuilder AddCleanupActions(
 			[NotNull] this SeedActionsBuilder builder,
 			[NotNull] CleanupDefinition definition,
 			[NotNull] OrderedGraph<TableSchema> tables)
@@ -29,9 +29,9 @@ namespace Reseed.Rendering.Cleanup
 					.Add(SeedStage.PrepareDb, RenderCreateProcedureScripts(
 						procedureDefinition.ProcedureName, tables, procedureDefinition.Options))
 					.Add(SeedStage.Delete, RenderExecuteProcedureScript(
-						CommonScriptNames.ExecuteDeleteSp, procedureDefinition.ProcedureName))
+						ScriptNames.ExecuteDeleteSp, procedureDefinition.ProcedureName))
 					.Add(SeedStage.CleanupDb, RenderDropProcedureScript(
-						CommonScriptNames.DropDeleteSp, procedureDefinition.ProcedureName)),
+						ScriptNames.DropDeleteSp, procedureDefinition.ProcedureName)),
 
 				_ => throw new NotSupportedException($"Unknown cleanup mode '{definition.GetType().Name}'")
 			};
@@ -42,10 +42,10 @@ namespace Reseed.Rendering.Cleanup
 			[NotNull] OrderedGraph<TableSchema> schemas,
 			[NotNull] CleanupOptions options)
 		{
-			var dropProcedure = RenderDropProcedureScript(CommonScriptNames.DropDeleteSp, name);
+			var dropProcedure = RenderDropProcedureScript(ScriptNames.DropDeleteSp, name);
 			var createProcedure = SqlScriptAction
-				.Join(CommonScriptNames.DeleteScript, DeleteScriptRenderer.Render(schemas, options).Order())
-				.Map(s => RenderCreateStoredProcedure(name, s), CommonScriptNames.CreateDeleteSp);
+				.Join(ScriptNames.DeleteScript, DeleteScriptRenderer.Render(schemas, options).Order())
+				.Map(s => RenderCreateStoredProcedure(name, s), ScriptNames.CreateDeleteSp);
 
 			return OrderedItem.OrderedCollection(dropProcedure, createProcedure);
 		}

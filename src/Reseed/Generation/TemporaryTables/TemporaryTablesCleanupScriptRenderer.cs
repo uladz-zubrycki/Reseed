@@ -5,10 +5,9 @@ using JetBrains.Annotations;
 using Reseed.Graphs;
 using Reseed.Ordering;
 using Reseed.Schema;
-using static Reseed.Ordering.OrderedItem;
-using static Reseed.Rendering.Scripts;
+using static Reseed.Generation.ScriptRenderer;
 
-namespace Reseed.Rendering.TemporaryTables
+namespace Reseed.Generation.TemporaryTables
 {
 	internal static class TemporaryTablesCleanupScriptRenderer
 	{
@@ -28,13 +27,13 @@ namespace Reseed.Rendering.TemporaryTables
 							foreignKeys,
 							true)),
 					foreignKeys.Length > 0)
-				.AddScript(new SqlScriptAction("Drop temp tables", RenderDropTables(tables)))
-				.AddScript(new SqlScriptAction("Drop temp schema", RenderDropSchema(tempSchemaName)))
+				.AddScript(new SqlScriptAction("Drop temp tables", RenderDropTemporaryTablesScripts(tables)))
+				.AddScript(new SqlScriptAction("Drop temp schema", RenderDropTemporarySchemaScript(tempSchemaName)))
 				.WithNaturalOrder()
 				.ToArray();
 		}
 
-		private static string RenderDropTables(IReadOnlyCollection<TableSchema> tables) =>
+		private static string RenderDropTemporaryTablesScripts(IReadOnlyCollection<TableSchema> tables) =>
 			string.Join(Environment.NewLine + Environment.NewLine,
 				tables.Select(t => RenderDropTable(t.Name)));
 	}

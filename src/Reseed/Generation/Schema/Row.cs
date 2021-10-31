@@ -6,7 +6,7 @@ using Reseed.Data.FileSystem;
 using Reseed.Schema;
 using Reseed.Utils;
 
-namespace Reseed.Rendering.Schema
+namespace Reseed.Generation.Schema
 {
 	public sealed class Row : IEquatable<Row>
 	{

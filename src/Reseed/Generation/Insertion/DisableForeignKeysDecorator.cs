@@ -4,7 +4,7 @@ using System.Linq;
 using JetBrains.Annotations;
 using Reseed.Schema;
 
-namespace Reseed.Rendering.Insertion
+namespace Reseed.Generation.Insertion
 {
 	internal sealed class DisableForeignKeysDecorator : IScriptDecorator
 	{

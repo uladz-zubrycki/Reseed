@@ -3,14 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
 using Reseed.Configuration.Cleanup;
+using Reseed.Generation.Insertion;
 using Reseed.Graphs;
 using Reseed.Ordering;
-using Reseed.Rendering.Insertion;
 using Reseed.Schema;
 using Reseed.Utils;
-using static Reseed.Rendering.Scripts;
+using static Reseed.Generation.ScriptRenderer;
 
-namespace Reseed.Rendering.Cleanup
+namespace Reseed.Generation.Cleanup
 {
 	internal static class DeleteScriptRenderer
 	{
@@ -25,17 +25,17 @@ namespace Reseed.Rendering.Cleanup
 			return options.Kind switch
 			{
 				DeleteCleanupKind deleteOptions =>
-					RenderDeleteKind(reversedTables, options, deleteOptions),
+					RenderDeleteScripts(reversedTables, options, deleteOptions),
 				PreferTruncateCleanupKind preferTruncateMode =>
-					RenderPreferTruncateKind(reversedTables, options, preferTruncateMode),
+					RenderPreferTruncateScripts(reversedTables, options, preferTruncateMode),
 				TruncateCleanupKind truncateMode =>
-					RenderTruncateKind(reversedTables, options, truncateMode),
+					RenderTruncateScripts(reversedTables, options, truncateMode),
 				_ => throw new NotSupportedException(
 					$"Unknown {nameof(CleanupKind)} value '{options.Kind}'")
 			};
 		}
 
-		private static IReadOnlyCollection<OrderedItem<SqlScriptAction>> RenderDeleteKind(
+		private static IReadOnlyCollection<OrderedItem<SqlScriptAction>> RenderDeleteScripts(
 			OrderedGraph<TableSchema> orderedTables,
 			CleanupOptions cleanupOptions,
 			DeleteCleanupKind deleteKind)
@@ -59,16 +59,17 @@ namespace Reseed.Rendering.Cleanup
 									persistentTables,
 									deleteKind.ConstraintsResolution)))),
 					defaultClean.Length > 0)
-				.AddScriptWhen(() => new SqlScriptAction("Custom cleanup scripts", RenderCustomCleanupScripts(
-						customClean,
-						BuildCustomScriptGetter(cleanupOptions),
-						BuildIncomingRelationsGetter(persistentTables))),
+				.AddScriptWhen(() => new SqlScriptAction("Custom cleanup scripts",
+						RenderCustomCleanupScripts(
+							customClean,
+							BuildCustomScriptGetter(cleanupOptions),
+							BuildIncomingRelationsGetter(persistentTables))),
 					customClean.Length > 0)
 				.WithNaturalOrder()
 				.ToArray();
 		}
 
-		private static IReadOnlyCollection<OrderedItem<SqlScriptAction>> RenderPreferTruncateKind(
+		private static IReadOnlyCollection<OrderedItem<SqlScriptAction>> RenderPreferTruncateScripts(
 			OrderedGraph<TableSchema> orderedTables,
 			CleanupOptions cleanupOptions,
 			PreferTruncateCleanupKind truncateKind)
@@ -91,7 +92,8 @@ namespace Reseed.Rendering.Cleanup
 
 			return new List<SqlScriptAction>(3)
 				.AddScriptWhen(
-					() => new SqlScriptAction("Truncate tables", RenderTruncateTables(toTruncate.Unordered())),
+					() => new SqlScriptAction("Truncate tables",
+						RenderTruncateTables(toTruncate.Unordered())),
 					toTruncate.Length > 0)
 				.AddScriptWhen(
 					() => new SqlScriptAction("Delete from tables",
@@ -103,16 +105,17 @@ namespace Reseed.Rendering.Cleanup
 								truncateKind.ConstraintsResolution))),
 					toDelete.Length > 0)
 				.AddScriptWhen(
-					() => new SqlScriptAction("Custom cleanup scripts", RenderCustomCleanupScripts(
-						customClean,
-						BuildCustomScriptGetter(cleanupOptions),
-						BuildIncomingRelationsGetter(persistentTables))),
+					() => new SqlScriptAction("Custom cleanup scripts",
+						RenderCustomCleanupScripts(
+							customClean,
+							BuildCustomScriptGetter(cleanupOptions),
+							BuildIncomingRelationsGetter(persistentTables))),
 					customClean.Length > 0)
 				.WithNaturalOrder()
 				.ToArray();
 		}
 
-		private static IReadOnlyCollection<OrderedItem<SqlScriptAction>> RenderTruncateKind(
+		private static IReadOnlyCollection<OrderedItem<SqlScriptAction>> RenderTruncateScripts(
 			OrderedGraph<TableSchema> orderedTables,
 			CleanupOptions cleanupOptions,
 			TruncateCleanupKind truncateKind)
@@ -137,27 +140,32 @@ namespace Reseed.Rendering.Cleanup
 
 			return new List<SqlScriptAction>(5)
 				.AddScriptWhen(
-					() => new SqlScriptAction("Drop Foreign Keys", RenderDropForeignKeys(foreignKeys, false)),
+					() => new SqlScriptAction("Drop Foreign Keys",
+						RenderDropForeignKeys(foreignKeys, false)),
 					foreignKeys.Length > 0)
 				.AddScriptWhen(
-					() => new SqlScriptAction("Truncate from tables", RenderTruncateTables(tablesToTruncate)),
+					() => new SqlScriptAction("Truncate from tables",
+						RenderTruncateTables(tablesToTruncate)),
 					tablesToTruncate.Length > 0)
 				.AddScriptWhen(
-					() => new SqlScriptAction("Delete from tables", RenderDeleteFromTables(
-						FilterGraph(orderedTables, toDelete),
-						ChooseIncomingRelationsGetter(
-							tables,
-							persistentTables,
-							truncateKind.ConstraintsResolution))),
+					() => new SqlScriptAction("Delete from tables",
+						RenderDeleteFromTables(
+							FilterGraph(orderedTables, toDelete),
+							ChooseIncomingRelationsGetter(
+								tables,
+								persistentTables,
+								truncateKind.ConstraintsResolution))),
 					toDelete.Length > 0)
 				.AddScriptWhen(
-					() => new SqlScriptAction("Custom cleanup scripts", RenderCustomCleanupScripts(
-						customClean,
-						BuildCustomScriptGetter(cleanupOptions),
-						BuildIncomingRelationsGetter(persistentTables))),
+					() => new SqlScriptAction("Custom cleanup scripts",
+						RenderCustomCleanupScripts(
+							customClean,
+							BuildCustomScriptGetter(cleanupOptions),
+							BuildIncomingRelationsGetter(persistentTables))),
 					customClean.Length > 0)
 				.AddScriptWhen(
-					() => new SqlScriptAction("Create Foreign Keys", RenderCreateForeignKeys(foreignKeys)),
+					() => new SqlScriptAction("Create Foreign Keys",
+						RenderCreateForeignKeys(foreignKeys)),
 					foreignKeys.Length > 0)
 				.WithNaturalOrder()
 				.ToArray();

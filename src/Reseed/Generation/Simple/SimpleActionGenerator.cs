@@ -2,17 +2,17 @@
 using System.Collections.Generic;
 using JetBrains.Annotations;
 using Reseed.Configuration.Simple;
+using Reseed.Generation.Cleanup;
+using Reseed.Generation.Schema;
 using Reseed.Graphs;
 using Reseed.Ordering;
-using Reseed.Rendering.Cleanup;
-using Reseed.Rendering.Schema;
 using Reseed.Schema;
 
-namespace Reseed.Rendering.Simple
+namespace Reseed.Generation.Simple
 {
-	internal static class SimpleModeRenderer
+	internal static class SimpleActionGenerator
 	{
-		public static SeedActions Render(
+		public static SeedActions Generate(
 			[NotNull] OrderedGraph<TableSchema> tables,
 			[NotNull] IReadOnlyCollection<OrderedItem<ITableContainer>> containers,
 			[NotNull] SimpleMode mode)
@@ -23,7 +23,7 @@ namespace Reseed.Rendering.Simple
 
 			return new SeedActionsBuilder()
 				.AddSimpleInsertActions(mode.InsertDefinition, containers)
-				.AddCleanup(mode.CleanupDefinition, tables)
+				.AddCleanupActions(mode.CleanupDefinition, tables)
 				.Build();
 		}
 	}

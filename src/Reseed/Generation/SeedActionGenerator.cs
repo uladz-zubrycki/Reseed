@@ -4,18 +4,18 @@ using JetBrains.Annotations;
 using Reseed.Configuration;
 using Reseed.Configuration.Simple;
 using Reseed.Configuration.TemporaryTables;
+using Reseed.Generation.Schema;
+using Reseed.Generation.Simple;
+using Reseed.Generation.TemporaryTables;
 using Reseed.Graphs;
 using Reseed.Ordering;
-using Reseed.Rendering.Schema;
-using Reseed.Rendering.Simple;
-using Reseed.Rendering.TemporaryTables;
 using Reseed.Schema;
 
-namespace Reseed.Rendering
+namespace Reseed.Generation
 {
-	internal static class Renderer
+	internal static class SeedActionGenerator
 	{
-		public static SeedActions Render(
+		public static SeedActions Generate(
 			[NotNull] OrderedGraph<TableSchema> tables,
 			[NotNull] IReadOnlyCollection<OrderedItem<ITableContainer>> containers,
 			[NotNull] SeedMode mode)
@@ -28,12 +28,12 @@ namespace Reseed.Rendering
 
 			return mode switch
 			{
-				SimpleMode simpleMode => SimpleModeRenderer.Render(
+				SimpleMode simpleMode => SimpleActionGenerator.Generate(
 					tables, 
 					containers, 
 					simpleMode),
 
-				TemporaryTablesMode temporaryTablesMode => TemporaryTablesModeRenderer.Render(
+				TemporaryTablesMode temporaryTablesMode => TemporaryTablesActionGenerator.Generate(
 					tables, 
 					containers,
 					temporaryTablesMode),
