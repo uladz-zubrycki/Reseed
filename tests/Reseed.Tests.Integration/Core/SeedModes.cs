@@ -12,7 +12,7 @@ namespace Reseed.Tests.Integration.Core
 {
 	public static class SeedModes
 	{
-		private static readonly Func<IncludingDataCleanupFilter, IncludingDataCleanupFilter> 
+		private static readonly Func<IncludingCleanupFilter, IncludingCleanupFilter> 
 			ConfigureCleanup = f => f.IncludeSchemas("dbo");
 
 		private static readonly CleanupOptions DeleteCleanupMode = 

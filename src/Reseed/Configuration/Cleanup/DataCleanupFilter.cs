@@ -5,18 +5,18 @@ using Reseed.Schema;
 
 namespace Reseed.Configuration.Cleanup
 {
-	internal interface IDataCleanupFilter
+	internal interface ICleanupFilter
 	{
 		bool ShouldClean(ObjectName table);
 	}
 
 	[PublicAPI]
-	public sealed class ExcludingDataCleanupFilter : IDataCleanupFilter
+	public sealed class ExcludingCleanupFilter : ICleanupFilter
 	{
 		private readonly List<string> excludedSchemas = new();
 		private readonly List<ObjectName> excludedTables = new();
 
-		public ExcludingDataCleanupFilter ExcludeSchemas([NotNull] params string[] schemas)
+		public ExcludingCleanupFilter ExcludeSchemas([NotNull] params string[] schemas)
 		{
 			if (schemas == null) throw new ArgumentNullException(nameof(schemas));
 			if (schemas.Length == 0)
@@ -26,7 +26,7 @@ namespace Reseed.Configuration.Cleanup
 			return this;
 		}
 
-		public ExcludingDataCleanupFilter ExcludeTables([NotNull] params ObjectName[] tables)
+		public ExcludingCleanupFilter ExcludeTables([NotNull] params ObjectName[] tables)
 		{
 			if (tables == null) throw new ArgumentNullException(nameof(tables));
 			if (tables.Length == 0) throw new ArgumentException("Value cannot be an empty collection.", nameof(tables));
@@ -35,18 +35,18 @@ namespace Reseed.Configuration.Cleanup
 			return this;
 		}
 
-		bool IDataCleanupFilter.ShouldClean(ObjectName table) =>
+		bool ICleanupFilter.ShouldClean(ObjectName table) =>
 			!this.excludedSchemas.Contains(table.Schema) &&
 			!this.excludedTables.Contains(table);
 	}
 
 	[PublicAPI]
-	public sealed class IncludingDataCleanupFilter : IDataCleanupFilter
+	public sealed class IncludingCleanupFilter : ICleanupFilter
 	{
 		private readonly List<string> includedSchemas = new();
 		private readonly List<ObjectName> includedTables = new();
 
-		public IncludingDataCleanupFilter IncludeSchemas([NotNull] params string[] schemas)
+		public IncludingCleanupFilter IncludeSchemas([NotNull] params string[] schemas)
 		{
 			if (schemas == null) throw new ArgumentNullException(nameof(schemas));
 			if (schemas.Length == 0)
@@ -56,7 +56,7 @@ namespace Reseed.Configuration.Cleanup
 			return this;
 		}
 
-		public IncludingDataCleanupFilter IncludeTables([NotNull] params ObjectName[] tables)
+		public IncludingCleanupFilter IncludeTables([NotNull] params ObjectName[] tables)
 		{
 			if (tables == null) throw new ArgumentNullException(nameof(tables));
 			if (tables.Length == 0) throw new ArgumentException("Value cannot be an empty collection.", nameof(tables));
@@ -65,7 +65,7 @@ namespace Reseed.Configuration.Cleanup
 			return this;
 		}
 
-		bool IDataCleanupFilter.ShouldClean(ObjectName table) =>
+		bool ICleanupFilter.ShouldClean(ObjectName table) =>
 			this.includedSchemas.Contains(table.Schema) ||
 			this.includedTables.Contains(table);
 	}

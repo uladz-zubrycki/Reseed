@@ -11,12 +11,12 @@ namespace Reseed.Configuration.Cleanup
 	public sealed class CleanupOptions
 	{
 		internal readonly CleanupKind Kind;
-		private readonly IDataCleanupFilter filter;
+		private readonly ICleanupFilter filter;
 		private readonly Dictionary<ObjectName, string> customScripts;
 
 		private CleanupOptions(
 			CleanupKind kind,
-			[NotNull] IDataCleanupFilter filter,
+			[NotNull] ICleanupFilter filter,
 			[NotNull] IReadOnlyCollection<(ObjectName table, string script)> customScripts)
 		{
 			if (customScripts == null) throw new ArgumentNullException(nameof(customScripts));
@@ -41,11 +41,11 @@ namespace Reseed.Configuration.Cleanup
 
 		public static CleanupOptions IncludeAll(
 			CleanupKind kind,
-			[CanBeNull] Func<ExcludingDataCleanupFilter, ExcludingDataCleanupFilter> configure = null,
+			[CanBeNull] Func<ExcludingCleanupFilter, ExcludingCleanupFilter> configure = null,
 			[CanBeNull] IReadOnlyCollection<(ObjectName table, string script)> customScripts = null)
 		{
-			var configureFilter = configure ?? Fn.Identity<ExcludingDataCleanupFilter>();
-			var filter = configureFilter(new ExcludingDataCleanupFilter());
+			var configureFilter = configure ?? Fn.Identity<ExcludingCleanupFilter>();
+			var filter = configureFilter(new ExcludingCleanupFilter());
 			return new CleanupOptions(
 				kind,
 				filter,
@@ -54,11 +54,11 @@ namespace Reseed.Configuration.Cleanup
 
 		public static CleanupOptions IncludeNone(
 			CleanupKind kind,
-			[NotNull] Func<IncludingDataCleanupFilter, IncludingDataCleanupFilter> configure,
+			[NotNull] Func<IncludingCleanupFilter, IncludingCleanupFilter> configure,
 			[CanBeNull] IReadOnlyCollection<(ObjectName table, string script)> customScripts = null)
 		{
 			if (configure == null) throw new ArgumentNullException(nameof(configure));
-			var filter = configure(new IncludingDataCleanupFilter());
+			var filter = configure(new IncludingCleanupFilter());
 			return new CleanupOptions(
 				kind,
 				filter,
@@ -67,7 +67,7 @@ namespace Reseed.Configuration.Cleanup
 
 		private static void VerifyCustomScripts(
 			IReadOnlyCollection<(ObjectName table, string script)> customScripts,
-			IDataCleanupFilter filter)
+			ICleanupFilter filter)
 		{
 			var duplicatedTables = customScripts
 				.GroupBy(t => t.table)
