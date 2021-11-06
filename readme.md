@@ -6,8 +6,7 @@
 *Reseed* library allows you to initialize and clean integration tests database in a convenient, reliable and fast way. 
 
 It covers cases similar to what a few other libraries intend to do:
-* [NDbUnit](https://github.com/NDbUnit/NDbUnit) inspired by [DbUnit](http://dbunit.sourceforge.net/);
-* [NDbUnit2](https://github.com/NAnt2/NDbUnit2);
+* [NDbUnit](https://github.com/NDbUnit/NDbUnit) and [NDbUnit2](https://github.com/NAnt2/NDbUnit2) inspired by [DbUnit](http://dbunit.sourceforge.net/dbunit/index.html);
 * [Respawn](https://github.com/jbogard/Respawn).
 
 It's written in C# and targets netstandard2.0, therefore could be used by both .NET Framework and .NET/.NET Core applications.
