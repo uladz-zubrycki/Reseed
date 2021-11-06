@@ -6,7 +6,7 @@ using Reseed.Configuration;
 using Reseed.Data;
 using Reseed.Data.FileSystem;
 using Reseed.Execution;
-using Reseed.Extending;
+using Reseed.Extension;
 using Reseed.Generation;
 using Reseed.Generation.Schema;
 using Reseed.Graphs;

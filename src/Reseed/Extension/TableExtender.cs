@@ -2,10 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
-using Reseed.Extending.IdentityGeneration;
+using Reseed.Extension.IdentityGeneration;
 using Reseed.Generation.Schema;
 
-namespace Reseed.Extending
+namespace Reseed.Extension
 {
 	internal static class TableExtender
 	{

@@ -3,7 +3,7 @@ using System.Linq;
 using JetBrains.Annotations;
 using Reseed.Generation.Schema;
 
-namespace Reseed.Extending.IdentityGeneration
+namespace Reseed.Extension.IdentityGeneration
 {
 	internal sealed class IdentityGeneratorTableExtension: ITableExtension
 	{
