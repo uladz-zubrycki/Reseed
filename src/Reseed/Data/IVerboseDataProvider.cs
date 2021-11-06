@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using JetBrains.Annotations;
-using Reseed.Data.FileSystem;
+using Reseed.Data.Providers.FileSystem;
 
 namespace Reseed.Data
 {

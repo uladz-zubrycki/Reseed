@@ -5,10 +5,10 @@ using System.Linq;
 using Reseed.Utils;
 using static Reseed.Ordering.OrderedItem;
 
-namespace Reseed.Schema
+namespace Reseed.Schema.Providers
 {
 	// todo: Replace anons by dtos and extract methods
-	internal static class SchemaReader
+	internal static class MsSqlSchemaReader
 	{
 		internal static IReadOnlyCollection<TableData> LoadTables(SqlConnection connection)
 		{
@@ -74,7 +74,7 @@ namespace Reseed.Schema
 					catch (Exception ex)
 					{
 						throw new Exception(
-							$"{nameof(SchemaReader)} failed, unsupported schema for table {gr.Key}", ex);
+							$"{nameof(MsSqlSchemaReader)} failed, unsupported schema for table {gr.Key}", ex);
 					}
 				})
 				.ToArray();

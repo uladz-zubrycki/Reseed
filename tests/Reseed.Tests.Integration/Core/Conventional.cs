@@ -25,7 +25,7 @@ namespace Reseed.Tests.Integration.Core
 		}
 
 		public static IDataProvider CreateConventionalDataProvider(TestFixtureBase fixture) =>
-			DataProvider.Xml(GetDataFolder(fixture), GetTestDataFileFilter("xml"));
+			DataProviders.Xml(GetDataFolder(fixture), GetTestDataFileFilter("xml"));
 
 		public static async Task AssertSeedSucceeds(
 			TestFixtureBase fixture,

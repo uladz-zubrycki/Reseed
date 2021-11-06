@@ -6,7 +6,7 @@ using System.Xml.Linq;
 using JetBrains.Annotations;
 using Reseed.Utils;
 
-namespace Reseed.Data.FileSystem
+namespace Reseed.Data.Providers.FileSystem
 {
 	internal sealed class XmlDataProvider: IVerboseDataProvider
 	{

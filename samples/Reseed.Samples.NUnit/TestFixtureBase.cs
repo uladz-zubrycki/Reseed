@@ -87,6 +87,6 @@ namespace Reseed.Samples.NUnit
 				SeedMode.Simple(
 					SimpleInsertDefinition.Script(),
 					CleanupDefinition.Script(CleanupConfiguration.IncludeAll(CleanupMode.PreferTruncate()))),
-				DataProvider.Xml(dataFolder));
+				DataProviders.Xml(dataFolder));
 	}
 }

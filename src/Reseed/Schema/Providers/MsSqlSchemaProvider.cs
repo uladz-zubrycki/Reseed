@@ -5,7 +5,7 @@ using JetBrains.Annotations;
 using Reseed.Graphs;
 using Testing.Common.Api.Schema;
 
-namespace Reseed.Schema
+namespace Reseed.Schema.Providers
 {
 	internal static class MsSqlSchemaProvider
 	{
@@ -15,14 +15,14 @@ namespace Reseed.Schema
 
 			using var connection = new SqlConnection(connectionString);
 			connection.Open();
-			var tables = SchemaReader.LoadTables(connection);
+			var tables = MsSqlSchemaReader.LoadTables(connection);
 			if (tables.Count == 0)
 			{
 				return Array.Empty<TableSchema>();
 			}
 			else
 			{
-				var foreignKeys = SchemaReader.LoadForeignKeys(connection, tables);
+				var foreignKeys = MsSqlSchemaReader.LoadForeignKeys(connection, tables);
 				return NodeBuilder<TableSchema>.CollectNodes(
 					tables,
 					foreignKeys,
