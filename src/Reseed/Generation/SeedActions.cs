@@ -10,19 +10,16 @@ namespace Reseed.Generation
 	public sealed class SeedActions
 	{
 		public readonly IReadOnlyCollection<OrderedItem<ISeedAction>> PrepareDatabase;
-		public readonly IReadOnlyCollection<OrderedItem<ISeedAction>> InsertData;
-		public readonly IReadOnlyCollection<OrderedItem<ISeedAction>> DeleteData;
+		public readonly IReadOnlyCollection<OrderedItem<ISeedAction>> RestoreData;
 		public readonly IReadOnlyCollection<OrderedItem<ISeedAction>> CleanupDatabase;
 
 		internal SeedActions(
 			[NotNull] IReadOnlyCollection<OrderedItem<ISeedAction>> prepareDatabase,
-			[NotNull] IReadOnlyCollection<OrderedItem<ISeedAction>> insertData,
-			[NotNull] IReadOnlyCollection<OrderedItem<ISeedAction>> deleteData,
+			[NotNull] IReadOnlyCollection<OrderedItem<ISeedAction>> restoreData,
 			[NotNull] IReadOnlyCollection<OrderedItem<ISeedAction>> cleanupDatabase)
 		{
 			this.PrepareDatabase = prepareDatabase ?? throw new ArgumentNullException(nameof(prepareDatabase));
-			this.InsertData = insertData ?? throw new ArgumentNullException(nameof(insertData));
-			this.DeleteData = deleteData ?? throw new ArgumentNullException(nameof(deleteData));
+			this.RestoreData = restoreData ?? throw new ArgumentNullException(nameof(restoreData));
 			this.CleanupDatabase = cleanupDatabase ?? throw new ArgumentNullException(nameof(cleanupDatabase));
 		}
 	}
@@ -73,8 +70,7 @@ namespace Reseed.Generation
 
 			return new SeedActions(
 				Get(SeedStage.PrepareDb),
-				Get(SeedStage.Insert),
-				Get(SeedStage.Delete),
+				Get(SeedStage.Delete).Concat(Get(SeedStage.Insert)),
 				Get(SeedStage.CleanupDb));
 
 			OrderedItem<ISeedAction>[] Get(SeedStage stage) =>

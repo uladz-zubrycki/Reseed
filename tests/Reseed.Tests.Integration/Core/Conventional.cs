@@ -30,8 +30,8 @@ namespace Reseed.Tests.Integration.Core
 		public static async Task AssertSeedSucceeds(
 			TestFixtureBase fixture,
 			SeedMode seedMode,
-			Func<SqlEngine, Task> assertDataInserted,
-			Func<SqlEngine, Task> assertDataDeleted)
+			Func<SqlEngine, Task> modifyData,
+			Func<SqlEngine, Task> assertDataRestored)
 		{
 			await using var database = await CreateConventionalDatabase(fixture);
 			var reseeder = new Reseeder(database.ConnectionString);
@@ -42,11 +42,12 @@ namespace Reseed.Tests.Integration.Core
 
 			reseeder.Execute(actions.PrepareDatabase);
 			
-			reseeder.Execute(actions.InsertData);
-			await assertDataInserted(sqlEngine);
+			reseeder.Execute(actions.RestoreData);
+			await assertDataRestored(sqlEngine);
 
-			reseeder.Execute(actions.DeleteData);
-			await assertDataDeleted(sqlEngine);
+			await modifyData(sqlEngine);
+			reseeder.Execute(actions.RestoreData);
+			await assertDataRestored(sqlEngine);
 
 			reseeder.Execute(actions.CleanupDatabase);
 		}

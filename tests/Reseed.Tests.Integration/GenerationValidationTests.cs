@@ -6,7 +6,7 @@ using Reseed.Tests.Integration.Core;
 
 namespace Reseed.Tests.Integration
 {
-	[Parallelizable(ParallelScope.All)]
+	[Parallelizable(ParallelScope.Fixtures)]
 	public sealed class GenerationValidationTests: TestFixtureBase
 	{
 		[Test]

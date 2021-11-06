@@ -26,10 +26,7 @@ namespace Reseed.Samples.NUnit
 		public Task FixturesSetupAsync() => Database.InitializeAsync();
 
 		[SetUp]
-		public void Setup() => Database.InsertDataAsync();
-
-		[TearDown]
-		public void Teardown() => Database.DeleteDataAsync();
+		public void Setup() => Database.RestoreDataAsync();
 
 		[OneTimeTearDown]
 		public Task FixturesTeardownAsync() => Database.CleanupAsync();
@@ -68,15 +65,9 @@ namespace Reseed.Samples.NUnit
 			reseeder.Execute(seedActions.PrepareDatabase);
 		}
 
-		public Task InsertDataAsync()
+		public Task RestoreDataAsync()
 		{
-			reseeder.Execute(seedActions.InsertData);
-			return Task.CompletedTask;
-		}
-
-		public Task DeleteDataAsync()
-		{
-			reseeder.Execute(seedActions.DeleteData);
+			reseeder.Execute(seedActions.RestoreData);
 			return Task.CompletedTask;
 		}
 
