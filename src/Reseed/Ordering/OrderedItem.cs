@@ -80,5 +80,19 @@ namespace Reseed.Ordering
 			if (source == null) throw new ArgumentNullException(nameof(source));
 			return source.Select((item, i) => Ordered(i, item));
 		}
+
+		public static IReadOnlyCollection<OrderedItem<T>> Concat<T>(
+			[NotNull] this IReadOnlyCollection<OrderedItem<T>> first,
+			[NotNull] IReadOnlyCollection<OrderedItem<T>> second)
+		{
+			if (first == null) throw new ArgumentNullException(nameof(first));
+			if (second == null) throw new ArgumentNullException(nameof(second));
+
+			return first
+				.Order()
+				.Concat(second.Order())
+				.WithNaturalOrder()
+				.ToArray();
+		}
 	}
 }

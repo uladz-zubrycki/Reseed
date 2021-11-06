@@ -1,13 +1,11 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using NUnit.Framework;
 using Reseed.Configuration;
 using Reseed.Tests.Integration.Core;
 
 namespace Reseed.Tests.Integration
 {
-	[Parallelizable(ParallelScope.All)]
+	[Parallelizable(ParallelScope.Fixtures)]
 	[TestFixtureSource(typeof(SeedModes), nameof(SeedModes.Every))]
 	public sealed class SingleTableTests: TestFixtureBase
 	{
@@ -43,9 +41,9 @@ namespace Reseed.Tests.Integration
 			await Conventional.AssertSeedSucceeds(
 				this,
 				this.mode,
-				async sql => Assert.AreEqual(userCount, await GetUsersCount(sql)),
-				async sql => Assert.AreEqual(0, await GetUsersCount(sql)));
-
+				sql => sql.ExecuteNonQueryAsync("DELETE FROM [dbo].[User]"), 
+				async sql => Assert.AreEqual(userCount, await GetUsersCount(sql)));
+			
 			static Task<int> GetUsersCount(SqlEngine sqlEngine) =>
 				sqlEngine.ExecuteScalarAsync<int>("SELECT COUNT(1) FROM [dbo].[User]");
 		}
