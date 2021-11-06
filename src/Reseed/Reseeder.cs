@@ -26,7 +26,6 @@ namespace Reseed
 			this.connectionString = connectionString ?? throw new ArgumentNullException(nameof(connectionString));
 		}
 
-		// todo: refactor api to support independent Insert/Delete actions rendering
 		public SeedActions Generate(
 			[NotNull] SeedMode mode,
 			[NotNull] IDataProvider dataProvider)
