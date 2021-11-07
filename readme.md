@@ -21,9 +21,9 @@ As simple as that.
 
 # Problem
 
-Integration tests operating on a real database do modify the data, so some sort of isolation is required to avoid inter-test dependencies, which are usually the reason of random failures and flaky tests. 
+Integration tests operating on a real database do modify the data, so some sort of isolation is required to avoid inter-test dependencies, which are usually a reason of random failures and flaky tests. 
 
-There are a few ways to achieve that, each of which has its pros and cons. E.g:
+There are a few ways to address that issue, each of which has its pros and cons. E.g:
 * Make tests responsible for restoring the data they change;
 * Prepare data needed in the tests themselves and assert in some smart way on this data only;
 * Create and initialize fresh database from scratch for every test;
@@ -36,9 +36,9 @@ Reseed implements some of the concepts above and takes care of the database stat
 
 # Design
 
-Main idea is not to insert data directly, as for example NDbUnit does, but to generate actions (read "actions" as "scripts"), upon execution of which data will be inserted or restored to the previous state. This gives more control to the consumer and makes some optimization tricks possible. Actions tend to be descriptive and well-formed  in order to be readable by human and could even be extended manually.
+Main idea is not to insert data directly, as for example NDbUnit does, but to generate scripts, upon execution of which data will be inserted or restored to the previous state. This gives more control to the consumer and makes some optimization tricks possible. Scripts tend to be descriptive and well-formed in order to be readable by human and could even be extended manually.
 
-The only entry point to all the functionality is the static `Reseeder` type, by using which you firstly generate actions needed for the database initialization and cleanup and then execute those. 
+The only entry point to all the functionality is the `Reseeder` class, by using which you firstly [generate scripts](#seed-actions-generation) needed for the database initialization and cleanup and then [execute](#seed-actions-execution) those.
 
 Here is how the library usage might look in its simplest form:
 
@@ -56,117 +56,194 @@ reseeder.Execute(seedActions.RestoreData);
 reseeder.Execute(seedActions.CleanupDatabase);
 ```
 
+See the [Examples](https://github.com/v-zubritsky/Reseed#examples) section below to get acquainted with the API and library behavior or check the [Samples](#samples) section to see how it could be integrated into your application testing framework.
+
 # Features
 
-* Reseed is able to order tables graph (tables are nodes, foreign keys are edges), so that foreign key constraints are respected;
-* Alternatively Reseed could disable foreign key constraints to deal with data dependecies;
-* It detects cyclic foreign key dependencies on both tables and rows levels, so that such loops don't break anything. More on this in [Ordering TBD](TBD);
-* You could specify [Custom delete scripts](https://github.com/v-zubritsky/Reseed/blob/main/readme.md#custom-cleanup-scripts) for specific tables to ignore some rows;
-* Data schema is read from the database itself, so you don't need to provide any metadata like XSD files with tables and columns descriptions;
-* There is a data validation step, so that you will be notified if there are any issues with the data you provide;
-* It's possible to omit Identity columns, Reseed will generate them for you;
+* Reseed is able to order tables graph (tables are nodes, foreign keys are edges), so that foreign key constraints are respected in the insertion and deletion scripts;
+* Alternatively Reseed could simply disable foreign key constraints to deal with such data dependecies;
+* It detects cyclic foreign key dependencies on both tables' and rows' levels, so that loops don't break anything. More on this in [Constraints resolution](#constraints-resolution);
+* You could specify [Custom cleanup scripts](#custom-cleanup-scripts) for specific tables to ignore rows during data cleanup;
+* Data schema is read from the database itself and there is no need to describe database schema manually (e.g NDbUnit requires XSD files);
+* There is a data validation step, which allow to detect data inconsistencies (like invalid foreign key values);
+* It's possible to omit identity columns, Reseed will generate them for you;
 
 # Limitations
-* Data could be described in xml files only. Support for other formats will be added in future. Alternatively you could provide your own implementation of `IDataProvider` type. See [Data Providers TBD](TBD) for details and examples;
+* Data could be described in xml files only, support for other formats might be added in future. Alternatively you could provide your own implementation of `IDataProvider` type. See [Data Providers](#data-providers) for details and examples;
 * MS SQL Server is the only database supported for now. 
+
+# Seed actions generation
+
+Scripts that Reseed generates are named "seed actions" and are represented by the `SeedActions` type. It contains all the actions grouped in a few stages with a property per stage. Every stage is basically an ordered collection of seed actions, while each action in its turn is an instance of `SeedAction` type. 
+
+```csharp
+class SeedActions 
+{
+    IReadOnlyCollection<OrderedItem<ISeedAction>> PrepareDatabase;
+    IReadOnlyCollection<OrderedItem<ISeedAction>> RestoreData;
+    IReadOnlyCollection<OrderedItem<ISeedAction>> CleanupDatabase;
+}
+```
+
+The stages are:
+- **PrepareDatabase**
+
+    At this stage Reseed executes some infrastructure related actions like creation of temporary database objects. Should be executed the first and once per test fixtures.
+
+- **RestoreData**
+
+    Actions on these stage do actually restore the data to its initial state. You might think of it as a combination of data cleanup followed by data insertion. Should be executed before every test run.
+
+- **CleanupDatabase**
+
+    At this stage objects created on the `PrepareDatabase` stage are deleted if there were any. Should be executed the last and once per test fixtures.
+
+# Seed actions execution
+
+To execute the actions you simply pass a collection representing a specific stage to the `Execute` method.
+
+```csharp
+reseeder.Execute(seedActions.PrepareDatabase);
+reseeder.Execute(seedActions.RestoreData);
+reseeder.Execute(seedActions.CleanupDatabase);
+```
 
 # Operation modes
 
-Reseed is able to operate in a few modes, so that actions it outputs could differ depending on the configuration. Use `SeedMode` type to choose one.
+Reseed is able to operate in a few modes, so that actions it outputs could differ depending on the configuration. See the [Performance](#performance) section for some starting data and do some tests for your case to choose the mode, which suits your case the best.  
 
-1. **Simple**
+Static `SeedMode` is an entry point to the Reseed behaviour configuration.
 
-    This is the most basic and the most robust mode of operation. In this mode Reseed generates single insert script for all the entities as well as the only delete script to cleanup database. While data restore is a combination of delete and insert scripts executed one after another. 
+### Simple mode
+
+```csharp
+SeedMode.Simple(SimpleInsertDefinition, CleanupDefinition);
+```
     
-    It's also possible to save these scripts as stored procedures to save some IO load. It could be beneficial for big amounts of data resulting in large scripts.
+This is the most basic and the most robust mode of operation. In this mode Reseed generates single insert script for all the entities as well as the only delete script to cleanup database. Data restore is a combination of delete and insert scripts executed one after another. 
+    
+You might have insertion logic generated either as a script or stored procedure. The latter could be beneficial for large insert scripts.
+
+```csharp
+SimpleInsertDefinition.Script();
+SimpleInsertDefinition.Procedure(ObjectName);
+```
    
-2. **Temporary tables**
+### Temporary tables mode
 
-    This mode is more advanced, thus less reliable, but at the same time it is able to provide a great speed boost.
+```csharp
+SeedMode.TemporaryTables(string, TemporaryTablesInsertDefinition, CleanupDefinition);
+```
+
+This mode is more tricky, thus less reliable, but at the same time it is able to provide a great speed boost.
+
+Reseed firstly creates copy of the target tables in some temporary schema, then fills those with data with use of insert script and copies data to the target tables in the end. Therefore insertion, which is slower than the internal database data transfer, is executed just once.
     
-    Reseed firstly creates copy of the target tables in some temporary schema, then fills those with data using the insert script from the first step and copies data to the target tables in the end. Therefore insertion which is slower than internal database data transfer is executed just once.
-    
-    There are a few ways to transfer the data, use `TemporaryTablesInsertDefinition` to choose the fastest for your case:
-    1. **Script**:
-    Data is copied with use of insert statements like `INSERT columns INTO TABLE (SELECT columns FROM temp.TABLE)`;
-    2. **Procedure**:
-    Same as `Script` mode it uses insert statements, but the insert logic is saved as stored procedure.
-    3. **Sql bulk copy**:
+There are a few ways to transfer the data, which are exposed at `TemporaryTablesInsertDefinition` type:
+1. **Script**:
+    ```csharp
+    TemporaryTablesInsertDefinition.Script();
+    ```
+
+    Data is copied with use of insert statements like `INSERT columns INTO TABLE (SELECT columns FROM temp.TABLE)`.
+
+2. **Procedure**:
+    ```csharp
+    TemporaryTablesInsertDefinition.Procedure(ObjectName);
+    ```
+
+    Similarly to the `Script` mode it uses insert statements, but the insert logic is saved as stored procedure.
+
+3. **Sql bulk copy**:
+    ```csharp
+    TemporaryTablesInsertDefinition.SqlBulkCopy(Func<SqlBulkCopyOptions, SqlBulkCopyOptions>)
+    ```
+
     [SqlBulkCopy](https://docs.microsoft.com/en-us/dotnet/api/system.data.sqlclient.sqlbulkcopy?view=dotnet-plat-ext-5.0) type is used to transfer data to the target tables.
-    3. **BCP** (Work in progress):
+
+4. **BCP** (Work in progress):
     Uses [BCP utility](https://docs.microsoft.com/en-us/sql/tools/bcp-utility?view=sql-server-ver15) to copy the data.
+
+# Data cleanup 
+
+It's possible to configure the way Reseed generates data cleanup scripts, needed for some of the operation modes. Configuration is done with use of `CleanupDefinition` type.
+
+Data cleanup logic could be represented either as script or stored procedure:
+
+```csharp
+CleanupDefinition.Script(CleanupConfiguration);
+CleanupDefinition.Procedure(ObjectName, CleanupConfiguration);
+```
+
+### Data cleanup configuration 
+
+You need to choose, which database objects should be cleaned and how. Use `CleanupConfiguration` type for that aim.
+
+There are two ways to choose cleanup targets:
+
+- Either include every schema/table and specify the ones to ignore
+
+    ```charp
+    CleanupConfiguration.IncludeAll(
+        CleanupMode, 
+        Func<ExcludingCleanupFilter, ExcludingCleanupFilter>,
+        IReadOnlyCollection<(ObjectName table, string script)>);
+    ```
+- Or on contrary start with an empty tables set and explicitly include the ones to clean
+
+    ```charp
+    CleanupConfiguration.ExcludeAll(
+        CleanupMode, 
+        Func<IncludingCleanupFilter, IncludingCleanupFilter>,
+        IReadOnlyCollection<(ObjectName table, string script)>);
+    ```
     
-See the [Performance benchmarks TBD](TBD) and do some tests for your case to choose the mode, which suits the best.  
-
-# Cleanup configuration
-
-In some of the operation modes Reseed generates delete script to clean the data, it's possible to configure the library behavior by specifying the tables/schemas to clean as well as choosing how those should be cleaned.
-
-Configuration is done with use of `CleanupDefinition` type, which serves as a facade and provides a few factory methods.
-
-It's possible to either generate script, which will be executed as is or to save it as stored procedure by using `CleanupDefinition.Script` and `CleanupDefinition.Procedure` methods accordingly. 
-
-Then you need to choose database objects to clean, you should use `CleanupConfiguration` for that aim. It's possible to either include every schema/table and exclude some using `CleanupConfiguration.IncludeAll` or on contrary start with an empty set and explicitly include the ones you need with help of `CleanupConfiguration.ExcludeAll`. You could either include/exclude the whole schema or a single table.
-
-And the last thing to care about is a `CleanupMode`, as there are a few providing different performance:
-
+It's possible to include/exclude the whole schema or a single table.
+   
+### Data cleanup modes
+   
+Also you should specify how each table will be cleaned. There are a few cleanup modes available:   
+ 
 1. **Delete**
 
-    In this cleanup mode library generates `DELETE FROM` statements to clean the tables. It's able to either order tables considering all their relations or to just disable foreign key constraints, this is controlled by `ConstraintResolutionBehavior` enum (ordering is used by default).
-    
-    ```csharp
-    CleanupMode.Delete(), 
+     ```csharp
+    CleanupMode.Delete(ConstraintResolutionBehavior);
     ```
+
+    In this cleanup mode library generates `DELETE FROM` statement to clean the table. Foreign key constraints are respected and either tables are ordered to prevent deletion failures or constraints are disabled, the former is used by default.
 
 2. **Prefer truncate**
 
-    Pretty much as the previous one, but if Reseed finds that table has no relations `TRUNCATE TABLE` statement is used, which should be a lot faster. `DELETE FROM` is used otherwise.  
-    
     ```csharp
-    CleanupMode.PreferTruncate(), 
-    ```
-    
-    You could explicitly specify tables to use `DELETE FROM` for as well as choose whether tables should be ordered by their relations or foreign key constraints should be disabled (see `ConstraintResolutionBehavior`).
-    
-    ```csharp
-    CleanupMode.PreferTruncate(
-        new [] { new ObjectName("TableToDelete") }, 
-        ConstraintResolutionBehavior.DisableConstraints)
-    ```
-    
-2. **Truncate**
+    CleanupMode.PreferTruncate(ObjectName[], ConstraintResolutionBehavior); 
+    ``` 
 
-    Uses `TRUNCATE TABLE` in spite of the table relations presence. It has to disable foreign key constraints if there are any, so it could actually be slower than the previous one;   
+    Pretty much as the previous one, but if Reseed finds that table has no relations, then `TRUNCATE TABLE` statement is used, which should be a lot faster; `DELETE FROM` is used otherwise. It's possible to explicitly specify tables to use `DELETE FROM` for and to choose constraints resolution behavior. 
     
-     ```csharp
-    CleanupDefinition.Script(CleanupConfiguration.IncludeNone(
-        CleanupMode.Truncate(), 
-        c => c.IncludeSchemas("dbo"))))
+3. **Truncate**
+
+    ```csharp
+     CleanupMode.Truncate(ObjectName[], ConstraintResolutionBehavior);
     ```
+
+    Reseed uses `TRUNCATE TABLE` for every table in spite of the foreign keys presence. It drops foreign keys and recreates them as it's not possible to use `TRUNCATE TABLE` statement otherwise. Similarly you might use `DELETE FROM` for some of the tables and choose constraints resolution behavior. 
     
-    Similarly to the mode above you could use `DELETE FROM` for some tables and either order tables to resolve dependencies or to disable foreign key constraints (see `ConstraintResolutionBehavior`).
-    
-     ```csharp
-    CleanupMode.Truncate(
-        new [] { new ObjectName("TableToDelete") }, 
-        ConstraintResolutionBehavior.DisableConstraints)
-    ```
-    
-3. **Switch tables** (Work in progress)
+4. **Switch tables** (Work in progress)
 
     TBD 
     
 Here is how full `CleanupDefinition` setup might look like:
 
 ```csharp
-CleanupDefinition.Script(CleanupConfiguration.IncludeNone(
-    CleanupMode.PreferTruncate(), 
-    c => c.IncludeSchemas("dbo"))))
+CleanupDefinition.Script(
+    CleanupConfiguration.IncludeNone(
+        CleanupMode.PreferTruncate(), 
+        c => c.IncludeSchemas("dbo"))))
 ```
 
-## Custom cleanup scripts
+### Custom cleanup scripts
 
-Sometimes you don't need to clean all the rows from the table, so it's possible to specify some custom deletion script for that case.
+Sometimes you don't need to clean all the rows from the table, so each `CleanupMode` allows you to provide custom deletion scripts for specific tables.
 
 E.g you have a superadmin user with `Id=1`, which you want to be always present in the database. Here is how the setup could look like for that case:
 
@@ -180,13 +257,96 @@ CleanupDefinition.Script(CleanupConfiguration.IncludeNone(
     })))
 ```
 
-Tables with custom scrips are used as if `DELETE FROM` behavior was specified for them. It's your responsibility to make sure that custom scripts don't break anything.
+# Constraints resolution
+TBD
+
+# Data providers
+TBD
 
 # API
 
 TBD
 
-# Examples
-- [Example of usage with NUnit](https://github.com/v-zubritsky/Reseed/tree/main/samples/Reseed.Samples.NUnit);
+# Performance
 
 TBD
+
+# Examples
+
+Let's take a look on a simple seeding example. E.g there is the only table with user data and we'd like to test our application behavior upon a database with a few user entities.
+
+Script to create our database might look like this.
+```sql
+CREATE TABLE [dbo].[User] (
+    Id int NOT NULL IDENTITY(1, 1) PRIMARY KEY,
+    FirstName nvarchar(100) NOT NULL,
+    LastName nvarchar(100) NOT NULL,
+    ManagerId int NULL,
+    Age int NULL
+    
+    CONSTRAINT [FK_User_ManagerId] FOREIGN KEY (ManagerId) REFERENCES [dbo].[User](Id)
+)
+```
+
+And we have the only data file to represent the database state, which is `Users.xml` (name could actually be any). 
+```xml
+<Users>
+    <User>
+        <FirstName>John</FirstName>
+        <LastName>Doe</LastName>
+        <Age>23</Age>
+        <ManagerId>2</ManagerId>
+    </User>
+    <User>
+        <Id>2</Id>
+        <FirstName>Alice</FirstName>
+        <LastName>Bart</LastName>
+    </User>
+</Users>
+```
+
+We're going to use such `SeedMode` setup. This configuration is the simplest and is often the most reasonable.
+```csharp
+SeedMode.Simple(
+    SimpleInsertDefinition.Script(),
+    CleanupDefinition.Script(CleanupConfiguration.IncludeNone(
+        CleanupMode.PreferTruncate(), 
+        f => f.IncludeSchemas("dbo"))))
+```
+
+This is what we get generated. `PrepareDatabase` and `CleanupDatabase` are empty collections as no internal database objects are needed in this mode of operation, while `RestoreData` stage contains two scripts: one to clean the data and another one to insert.
+
+Delete script looks this way:
+```sql
+ALTER TABLE [dbo].[User] NOCHECK CONSTRAINT [FK_User_ManagerId]
+DELETE FROM [dbo].[User];
+ALTER TABLE [dbo].[User] CHECK CONSTRAINT [FK_User_ManagerId]
+```
+
+A few things to note here: 
+- `User` table has foreign key constraint to itself and to address that dependency cycle Reseed disables the constraint;
+- Even though we used `PreferTruncate` mode, `DELETE FROM` statement is used, that's also due to the foreign key constraint presence.
+
+And here is the insert script:
+```sql
+SET IDENTITY_INSERT [dbo].[User] ON
+INSERT INTO [dbo].[User] WITH (TABLOCKX) (
+	[Id], [FirstName], [LastName]
+)
+VALUES 
+	(2, 'Alice', 'Bart')
+INSERT INTO [dbo].[User] WITH (TABLOCKX) (
+	[Id], [FirstName], [LastName], [ManagerId], [Age]
+)
+VALUES 
+	(1, 'John', 'Doe', 2, 23)
+SET IDENTITY_INSERT [dbo].[User] OFF
+```
+
+A few notes in regard to the insert script:
+- We specified `Id` column value equal `2` for the only record, but as it's an identity column, Reseed has taken care of that and provided value `1` for another row automatically;
+- Order of entities in the script doesn't match the order in the data file, this is due to the foreign key constraint, which needs rows ordering to respect it. Row with `Id=2` should be inserted the first as the other row has `ManagerId=2` or it will fail otherwise;
+- Optional `Age` column was present for one row and omitted for another.
+
+# Samples
+- [Example of usage with NUnit](https://github.com/v-zubritsky/Reseed/tree/main/samples/Reseed.Samples.NUnit);
