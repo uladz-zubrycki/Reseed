@@ -226,7 +226,7 @@ Also you should specify how each table will be cleaned. There are a few cleanup 
      CleanupMode.Truncate(ObjectName[], ConstraintResolutionBehavior);
     ```
 
-    Reseed uses `TRUNCATE TABLE` for every table in spite of the foreign keys presence. It drops foreign keys and recreates them as it's not possible to use `TRUNCATE TABLE` statement otherwise. Similarly you might use `DELETE FROM` for some of the tables and choose constraints resolution behavior. 
+    Reseed uses `TRUNCATE TABLE` for every table in spite of the foreign keys presence. It drops foreign keys and recreates them as it's not possible to use `TRUNCATE TABLE` statement otherwise. Similarly to the `PreferTruncate` mode you might force usage `DELETE FROM` for some of the tables and choose constraints resolution behavior for those. 
     
 4. **Switch tables** (Work in progress)
 
