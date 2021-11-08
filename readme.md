@@ -36,11 +36,9 @@ Reseed implements some of the concepts above and takes care of the database stat
 
 # Design
 
-Main idea is not to insert data directly, as for example NDbUnit does, but to generate scripts, upon execution of which data will be inserted or restored to the previous state. This gives more control to the consumer and makes some optimization tricks possible. Scripts tend to be descriptive and well-formed in order to be readable by human and could even be extended manually.
+Main idea is not to insert data directly, as for example NDbUnit does, but to [generate scripts](#seed-actions-generation) for the database initialization and cleanup and then [execute](#seed-actions-execution) those, when needed. This gives more control to the consumer and makes some optimization tricks possible. Scripts tend to be descriptive and well-formed in order to be readable by human and could even be extended manually.
 
-The only entry point to all the functionality is the `Reseeder` class, by using which you firstly [generate scripts](#seed-actions-generation) needed for the database initialization and cleanup and then [execute](#seed-actions-execution) those.
-
-Here is how the library usage might look in its simplest form:
+The only entry point to all the functionality is the `Reseeder` class and this is how the library usage might look in its simplest form:
 
 ```csharp
 
@@ -48,7 +46,7 @@ var reseeder = new Reseeder("Server=myServerName\myInstanceName;Database=myDataB
 var seedActions = reseeder.Generate(
     SeedMode.Basic(
         BasicInsertDefinition.Script(),
-        CleanupDefinition.Script(CleanupMode.PreferTruncate(), CleanupConfiguration.Excluding()))),
+        CleanupDefinition.Script(CleanupMode.PreferTruncate(), CleanupTarget.Excluding()))),
     DataProviders.Xml(".\Data"));
 
 reseeder.Execute(seedActions.PrepareDatabase);
@@ -112,7 +110,7 @@ reseeder.Execute(seedActions.CleanupDatabase);
 
 Reseed is able to operate in a few modes, so that actions it outputs could differ depending on the configuration. See the [Performance](#performance) section for some starting data and do some tests for your case to choose the mode, which suits your case the best.  
 
-Static `SeedMode` is an entry point to the Reseed behaviour configuration.
+Static `SeedMode` type is an entry point to the Reseed behaviour configuration.
 
 ### Basic mode
 
@@ -171,27 +169,27 @@ It's possible to configure the way Reseed generates data cleanup scripts, needed
 Data cleanup logic could be represented either as script or stored procedure:
 
 ```csharp
-CleanupDefinition.Script(CleanupConfiguration);
-CleanupDefinition.Procedure(ObjectName, CleanupConfiguration);
+CleanupDefinition.Script(CleanupMode, CleanupTarget);
+CleanupDefinition.Procedure(ObjectName, CleanupMode, CleanupTarget);
 ```
 
 ### Data cleanup configuration 
 
-You need to choose, which database objects should be cleaned and how. Use `CleanupConfiguration` type for that aim.
+You need to choose, which database objects should be cleaned and how. Use `CleanupTarget` type for that aim.
 
 There are two ways to choose cleanup targets:
 
 - Either include every schema/table and specify the ones to ignore
 
     ```charp
-    CleanupConfiguration.Excluding(
+    CleanupTarget.Excluding(
         Func<ExcludingCleanupFilter, ExcludingCleanupFilter>,
         IReadOnlyCollection<(ObjectName table, string script)>);
     ```
 - Or on contrary start with an empty tables set and explicitly include the ones to clean
 
     ```charp
-    CleanupConfiguration.Including(
+    CleanupTarget.Including(
         Func<IncludingCleanupFilter, IncludingCleanupFilter>,
         IReadOnlyCollection<(ObjectName table, string script)>);
     ```
@@ -235,7 +233,7 @@ Here is how full `CleanupDefinition` setup might look like:
 ```csharp
 CleanupDefinition.Script(
     CleanupMode.PreferTruncate(),
-    CleanupConfiguration.Including(c => c.IncludeSchemas("dbo"))))
+    CleanupTarget.Including(c => c.IncludeSchemas("dbo"))))
 ```
 
 ### Custom cleanup scripts
@@ -247,12 +245,12 @@ E.g you have a superadmin user with `Id=1`, which you want to be never deleted. 
 ```csharp
 CleanupDefinition.Script(
     CleanupMode.PreferTruncate(),
-    CleanupConfiguration.Including(
-    c => c.IncludeSchemas("dbo"),
-    new[]
-    {
-        (new ObjectName("User"), "DELETE FROM [dbo].[User] WHERE Id <> 1")
-    })))
+    CleanupTarget.Including(
+        c => c.IncludeSchemas("dbo"),
+        new[]
+        {
+            (new ObjectName("User"), "DELETE FROM [dbo].[User] WHERE Id <> 1")
+        })))
 ```
 
 # Constraints resolution
@@ -309,7 +307,7 @@ SeedMode.Basic(
     BasicInsertDefinition.Script(),
     CleanupDefinition.Script(
         CleanupMode.PreferTruncate(), 
-        CleanupConfiguration.Including(f => f.IncludeSchemas("dbo"))))
+        CleanupTarget.Including(f => f.IncludeSchemas("dbo"))))
 ```
 
 This is what we get generated. `PrepareDatabase` and `CleanupDatabase` are empty collections as no internal database objects are needed in this mode of operation, while `RestoreData` stage contains two scripts: one to clean the data and another one to insert.
