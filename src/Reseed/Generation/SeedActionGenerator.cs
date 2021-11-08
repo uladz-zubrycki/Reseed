@@ -2,10 +2,10 @@
 using System.Collections.Generic;
 using JetBrains.Annotations;
 using Reseed.Configuration;
-using Reseed.Configuration.Simple;
+using Reseed.Configuration.Basic;
 using Reseed.Configuration.TemporaryTables;
+using Reseed.Generation.Basic;
 using Reseed.Generation.Schema;
-using Reseed.Generation.Simple;
 using Reseed.Generation.TemporaryTables;
 using Reseed.Graphs;
 using Reseed.Ordering;
@@ -28,12 +28,12 @@ namespace Reseed.Generation
 
 			return mode switch
 			{
-				SimpleMode simpleMode => SimpleActionGenerator.Generate(
+				BasicSeedMode basicMode => BasicActionGenerator.Generate(
 					tables, 
 					containers, 
-					simpleMode),
+					basicMode),
 
-				TemporaryTablesMode temporaryTablesMode => TemporaryTablesActionGenerator.Generate(
+				TemporaryTablesSeedMode temporaryTablesMode => TemporaryTablesActionGenerator.Generate(
 					tables, 
 					containers,
 					temporaryTablesMode),

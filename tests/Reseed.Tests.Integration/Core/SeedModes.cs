@@ -3,8 +3,8 @@ using System.Linq;
 using System.Reflection;
 using NUnit.Framework.Internal;
 using Reseed.Configuration;
+using Reseed.Configuration.Basic;
 using Reseed.Configuration.Cleanup;
-using Reseed.Configuration.Simple;
 using Reseed.Configuration.TemporaryTables;
 using Reseed.Schema;
 
@@ -24,40 +24,40 @@ namespace Reseed.Tests.Integration.Core
 		private static readonly CleanupConfiguration TruncateCleanupMode = 
 			CleanupConfiguration.IncludeNone(CleanupMode.Truncate(), ConfigureCleanup);
 
-		private static SimpleInsertDefinition SimpleProcedureDefinition => 
-			SimpleInsertDefinition.Procedure(new ObjectName("spDeleteData"));
+		private static BasicInsertDefinition BasicProcedureDefinition => 
+			BasicInsertDefinition.Procedure(new ObjectName("spDeleteData"));
 
 		private static TemporaryTablesInsertDefinition TempTablesProcedureDefinition => 
 			TemporaryTablesInsertDefinition.Procedure(new ObjectName("spDeleteData"));
 
-		public static readonly SeedMode SimpleScriptDelete =
-			SeedMode.Simple(
-				SimpleInsertDefinition.Script(),
+		public static readonly SeedMode BasicScriptDelete =
+			SeedMode.Basic(
+				BasicInsertDefinition.Script(),
 				CleanupDefinition.Script(DeleteCleanupMode));
 
-		public static readonly SeedMode SimpleScriptPreferTruncate =
-			SeedMode.Simple(
-				SimpleInsertDefinition.Script(),
+		public static readonly SeedMode BasicScriptPreferTruncate =
+			SeedMode.Basic(
+				BasicInsertDefinition.Script(),
 				CleanupDefinition.Script(PreferTruncateCleanupMode));
 
-		public static readonly SeedMode SimpleScriptTruncate =
-			SeedMode.Simple(
-				SimpleInsertDefinition.Script(),
+		public static readonly SeedMode BasicScriptTruncate =
+			SeedMode.Basic(
+				BasicInsertDefinition.Script(),
 				CleanupDefinition.Script(TruncateCleanupMode));
 
-		public static readonly SeedMode SimpleSpDelete =
-			SeedMode.Simple(
-				SimpleProcedureDefinition,
+		public static readonly SeedMode BasicSpDelete =
+			SeedMode.Basic(
+				BasicProcedureDefinition,
 				CleanupDefinition.Script(DeleteCleanupMode));
 
-		public static readonly SeedMode SimpleSpPreferTruncate =
-			SeedMode.Simple(
-				SimpleProcedureDefinition,
+		public static readonly SeedMode BasicSpPreferTruncate =
+			SeedMode.Basic(
+				BasicProcedureDefinition,
 				CleanupDefinition.Script(PreferTruncateCleanupMode));
 
-		public static readonly SeedMode SimpleSpTruncate =
-			SeedMode.Simple(
-				SimpleProcedureDefinition,
+		public static readonly SeedMode BasicSpTruncate =
+			SeedMode.Basic(
+				BasicProcedureDefinition,
 				CleanupDefinition.Script(TruncateCleanupMode));
 
 		public static readonly SeedMode TempTablesScriptDelete =

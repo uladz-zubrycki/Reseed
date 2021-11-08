@@ -18,7 +18,7 @@ namespace Reseed.Generation.TemporaryTables
 		public static SeedActions Generate(
 			[NotNull] OrderedGraph<TableSchema> tables,
 			[NotNull] IReadOnlyCollection<OrderedItem<ITableContainer>> containers,
-			[NotNull] TemporaryTablesMode mode)
+			[NotNull] TemporaryTablesSeedMode mode)
 		{
 			if (tables == null) throw new ArgumentNullException(nameof(tables));
 			if (containers == null) throw new ArgumentNullException(nameof(containers));

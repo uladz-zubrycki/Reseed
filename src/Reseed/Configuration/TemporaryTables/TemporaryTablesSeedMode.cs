@@ -4,13 +4,13 @@ using Reseed.Configuration.Cleanup;
 
 namespace Reseed.Configuration.TemporaryTables
 {
-	internal sealed class TemporaryTablesMode : SeedMode
+	internal sealed class TemporaryTablesSeedMode : SeedMode
 	{
 		public readonly string SchemaName;
 		public readonly TemporaryTablesInsertDefinition InsertDefinition;
 		public readonly CleanupDefinition CleanupDefinition;
 
-		public TemporaryTablesMode(
+		public TemporaryTablesSeedMode(
 			[NotNull] string schemaName,
 			[NotNull] TemporaryTablesInsertDefinition insertDefinition,
 			[NotNull] CleanupDefinition cleanupDefinition)

@@ -1,20 +1,20 @@
 ﻿using System;
 using System.Collections.Generic;
 using JetBrains.Annotations;
-using Reseed.Configuration.Simple;
+using Reseed.Configuration.Basic;
 using Reseed.Generation.Insertion;
 using Reseed.Generation.Schema;
 using Reseed.Ordering;
 using Reseed.Schema;
 using static Reseed.Generation.ScriptRenderer;
 
-namespace Reseed.Generation.Simple
+namespace Reseed.Generation.Basic
 {
-	internal static class SimpleInsertActionsBuilder
+	internal static class BasicInsertActionsBuilder
 	{
-		public static SeedActionsBuilder AddSimpleInsertActions(
+		public static SeedActionsBuilder AddBasicInsertActions(
 			[NotNull] this SeedActionsBuilder builder,
-			[NotNull] SimpleInsertDefinition definition,
+			[NotNull] BasicInsertDefinition definition,
 			[NotNull] IReadOnlyCollection<OrderedItem<ITableContainer>> containers)
 		{
 			if (builder == null) throw new ArgumentNullException(nameof(builder));
@@ -23,11 +23,11 @@ namespace Reseed.Generation.Simple
 
 			return definition switch
 			{
-				SimpleInsertScriptDefinition => builder.Add(
+				BasicInsertScriptDefinition => builder.Add(
 					SeedStage.Insert, 
 					InsertScriptRenderer.Render(containers)),
 				
-				SimpleInsertProcedureDefinition procedureDefinition => builder
+				BasicInsertProcedureDefinition procedureDefinition => builder
 					.Add(SeedStage.PrepareDb, 
 						RenderCreateProcedureScripts(procedureDefinition.ProcedureName, containers))
 					.Add(SeedStage.Insert,
@@ -35,7 +35,7 @@ namespace Reseed.Generation.Simple
 					.Add(SeedStage.CleanupDb,
 						RenderDropProcedureScript(ScriptNames.DropInsertSp, procedureDefinition.ProcedureName)),
 				
-				_ => throw new NotSupportedException($"Unknown {nameof(SimpleInsertDefinition)} '{definition.GetType().Name}'")
+				_ => throw new NotSupportedException($"Unknown {nameof(BasicInsertDefinition)} '{definition.GetType().Name}'")
 			};
 		}
 

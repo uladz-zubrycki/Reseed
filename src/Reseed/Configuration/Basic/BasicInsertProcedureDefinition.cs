@@ -2,13 +2,13 @@
 using JetBrains.Annotations;
 using Reseed.Schema;
 
-namespace Reseed.Configuration.Simple
+namespace Reseed.Configuration.Basic
 {
-	internal sealed class SimpleInsertProcedureDefinition : SimpleInsertDefinition
+	internal sealed class BasicInsertProcedureDefinition : BasicInsertDefinition
 	{
 		public readonly ObjectName ProcedureName;
 
-		public SimpleInsertProcedureDefinition([NotNull] ObjectName procedureName)
+		public BasicInsertProcedureDefinition([NotNull] ObjectName procedureName)
 		{
 			this.ProcedureName = procedureName ?? throw new ArgumentNullException(nameof(procedureName));
 		}

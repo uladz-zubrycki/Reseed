@@ -2,15 +2,15 @@
 using JetBrains.Annotations;
 using Reseed.Configuration.Cleanup;
 
-namespace Reseed.Configuration.Simple
+namespace Reseed.Configuration.Basic
 {
-	internal sealed class SimpleMode : SeedMode
+	internal sealed class BasicSeedMode : SeedMode
 	{
-		public readonly SimpleInsertDefinition InsertDefinition;
+		public readonly BasicInsertDefinition InsertDefinition;
 		public readonly CleanupDefinition CleanupDefinition;
 
-		public SimpleMode(
-			[NotNull] SimpleInsertDefinition insertDefinition,
+		public BasicSeedMode(
+			[NotNull] BasicInsertDefinition insertDefinition,
 			[NotNull] CleanupDefinition cleanupDefinition)
 		{
 			this.InsertDefinition = insertDefinition ?? throw new ArgumentNullException(nameof(insertDefinition));

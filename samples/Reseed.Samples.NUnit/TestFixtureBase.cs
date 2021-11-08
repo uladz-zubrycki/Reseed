@@ -3,8 +3,8 @@ using System.IO;
 using System.Threading.Tasks;
 using NUnit.Framework;
 using Reseed.Configuration;
+using Reseed.Configuration.Basic;
 using Reseed.Configuration.Cleanup;
-using Reseed.Configuration.Simple;
 using Reseed.Data;
 using Reseed.Generation;
 
@@ -84,8 +84,8 @@ namespace Reseed.Samples.NUnit
 		// which leads to generation of plain sql scripts for Insert and Delete actions.
 		private static SeedActions GenerateSeedActions(Reseeder seeder, string dataFolder) =>
 			seeder.Generate(
-				SeedMode.Simple(
-					SimpleInsertDefinition.Script(),
+				SeedMode.Basic(
+					BasicInsertDefinition.Script(),
 					CleanupDefinition.Script(CleanupConfiguration.IncludeAll(CleanupMode.PreferTruncate()))),
 				DataProviders.Xml(dataFolder));
 	}
