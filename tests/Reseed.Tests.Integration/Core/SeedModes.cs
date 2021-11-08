@@ -12,17 +12,8 @@ namespace Reseed.Tests.Integration.Core
 {
 	public static class SeedModes
 	{
-		private static readonly Func<IncludingCleanupFilter, IncludingCleanupFilter> 
-			ConfigureCleanup = f => f.IncludeSchemas("dbo");
-
-		private static readonly CleanupConfiguration DeleteCleanupMode = 
-			CleanupConfiguration.IncludeNone(CleanupMode.Delete(), ConfigureCleanup);
-
-		private static readonly CleanupConfiguration PreferTruncateCleanupMode = 
-			CleanupConfiguration.IncludeNone(CleanupMode.PreferTruncate(), ConfigureCleanup);
-
-		private static readonly CleanupConfiguration TruncateCleanupMode = 
-			CleanupConfiguration.IncludeNone(CleanupMode.Truncate(), ConfigureCleanup);
+		private static readonly CleanupTarget CleanupTarget = 
+			CleanupTarget.Including(f => f.IncludeSchemas("dbo"));
 
 		private static BasicInsertDefinition BasicProcedureDefinition => 
 			BasicInsertDefinition.Procedure(new ObjectName("spDeleteData"));
@@ -33,68 +24,68 @@ namespace Reseed.Tests.Integration.Core
 		public static readonly SeedMode BasicScriptDelete =
 			SeedMode.Basic(
 				BasicInsertDefinition.Script(),
-				CleanupDefinition.Script(DeleteCleanupMode));
+				CleanupDefinition.Script(CleanupMode.Delete(), CleanupTarget));
 
 		public static readonly SeedMode BasicScriptPreferTruncate =
 			SeedMode.Basic(
 				BasicInsertDefinition.Script(),
-				CleanupDefinition.Script(PreferTruncateCleanupMode));
+				CleanupDefinition.Script(CleanupMode.PreferTruncate(), CleanupTarget));
 
 		public static readonly SeedMode BasicScriptTruncate =
 			SeedMode.Basic(
 				BasicInsertDefinition.Script(),
-				CleanupDefinition.Script(TruncateCleanupMode));
+				CleanupDefinition.Script(CleanupMode.Truncate(), CleanupTarget));
 
 		public static readonly SeedMode BasicSpDelete =
 			SeedMode.Basic(
 				BasicProcedureDefinition,
-				CleanupDefinition.Script(DeleteCleanupMode));
+				CleanupDefinition.Script(CleanupMode.Delete(), CleanupTarget));
 
 		public static readonly SeedMode BasicSpPreferTruncate =
 			SeedMode.Basic(
 				BasicProcedureDefinition,
-				CleanupDefinition.Script(PreferTruncateCleanupMode));
+				CleanupDefinition.Script(CleanupMode.PreferTruncate(), CleanupTarget));
 
 		public static readonly SeedMode BasicSpTruncate =
 			SeedMode.Basic(
 				BasicProcedureDefinition,
-				CleanupDefinition.Script(TruncateCleanupMode));
+				CleanupDefinition.Script(CleanupMode.Truncate(), CleanupTarget));
 
 		public static readonly SeedMode TempTablesScriptDelete =
 			SeedMode.TemporaryTables(
 				"temp",
 				TemporaryTablesInsertDefinition.Script(), 
-				CleanupDefinition.Script(DeleteCleanupMode));
+				CleanupDefinition.Script(CleanupMode.Delete(), CleanupTarget));
 
 		public static readonly SeedMode TempTablesScriptPreferTruncate =
 			SeedMode.TemporaryTables(
 				"temp",
 				TemporaryTablesInsertDefinition.Script(), 
-				CleanupDefinition.Script(PreferTruncateCleanupMode));
+				CleanupDefinition.Script(CleanupMode.PreferTruncate(), CleanupTarget));
 
 		public static readonly SeedMode TempTablesScriptTruncate =
 			SeedMode.TemporaryTables(
 				"temp",
 				TemporaryTablesInsertDefinition.Script(), 
-				CleanupDefinition.Script(TruncateCleanupMode));
+				CleanupDefinition.Script(CleanupMode.Truncate(), CleanupTarget));
 
 		public static readonly SeedMode TempTablesSpDelete =
 			SeedMode.TemporaryTables(
 				"temp",
 				TempTablesProcedureDefinition,
-				CleanupDefinition.Script(DeleteCleanupMode));
+				CleanupDefinition.Script(CleanupMode.Delete(), CleanupTarget));
 
 		public static readonly SeedMode TempTablesSpPreferTruncate =
 			SeedMode.TemporaryTables(
 				"temp",
 				TempTablesProcedureDefinition,
-				CleanupDefinition.Script(PreferTruncateCleanupMode));
+				CleanupDefinition.Script(CleanupMode.PreferTruncate(), CleanupTarget));
 
 		public static readonly SeedMode TempTablesSpTruncate =
 			SeedMode.TemporaryTables(
 				"temp",
 				TempTablesProcedureDefinition,
-				CleanupDefinition.Script(TruncateCleanupMode));
+				CleanupDefinition.Script(CleanupMode.Delete(), CleanupTarget));
 
 		public static TestFixtureParameters[] Every()
 		{

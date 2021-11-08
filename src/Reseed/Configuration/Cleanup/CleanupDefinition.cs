@@ -9,18 +9,23 @@ namespace Reseed.Configuration.Cleanup
 	{
 		internal readonly CleanupConfiguration Configuration;
 
-		protected CleanupDefinition([NotNull] CleanupConfiguration configuration)
+		internal CleanupDefinition([NotNull] CleanupConfiguration configuration)
 		{
 			this.Configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
 		}
 
-		public static CleanupDefinition Script([NotNull] CleanupConfiguration configuration) =>
-			new CleanupScriptDefinition(configuration);
+		public static CleanupDefinition Script(
+			[NotNull] CleanupMode mode,
+			[NotNull] CleanupTarget target) =>
+			new CleanupScriptDefinition(new CleanupConfiguration(mode, target));
 
 		public static CleanupDefinition Procedure(
 			[NotNull] ObjectName procedureName,
-			[NotNull] CleanupConfiguration configuration) =>
-			new CleanupProcedureDefinition(procedureName, configuration);
+			[NotNull] CleanupMode mode,
+			[NotNull] CleanupTarget target) =>
+			new CleanupProcedureDefinition(
+				procedureName, 
+				new CleanupConfiguration(mode, target));
 	}
 
 	internal sealed class CleanupScriptDefinition : CleanupDefinition

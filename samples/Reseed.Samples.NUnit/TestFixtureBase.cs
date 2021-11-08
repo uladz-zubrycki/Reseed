@@ -86,7 +86,9 @@ namespace Reseed.Samples.NUnit
 			seeder.Generate(
 				SeedMode.Basic(
 					BasicInsertDefinition.Script(),
-					CleanupDefinition.Script(CleanupConfiguration.IncludeAll(CleanupMode.PreferTruncate()))),
+					CleanupDefinition.Script(
+						CleanupMode.PreferTruncate(),
+						CleanupTarget.Excluding())),
 				DataProviders.Xml(dataFolder));
 	}
 }
