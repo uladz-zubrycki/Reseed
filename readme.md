@@ -48,7 +48,7 @@ var reseeder = new Reseeder("Server=myServerName\myInstanceName;Database=myDataB
 var seedActions = reseeder.Generate(
     SeedMode.Basic(
         BasicInsertDefinition.Script(),
-        CleanupDefinition.Script(CleanupConfiguration.IncludeAll(CleanupMode.PreferTruncate()))),
+        CleanupDefinition.Script(CleanupMode.PreferTruncate(), CleanupConfiguration.Excluding()))),
     DataProviders.Xml(".\Data"));
 
 reseeder.Execute(seedActions.PrepareDatabase);
@@ -184,16 +184,14 @@ There are two ways to choose cleanup targets:
 - Either include every schema/table and specify the ones to ignore
 
     ```charp
-    CleanupConfiguration.IncludeAll(
-        CleanupMode, 
+    CleanupConfiguration.Excluding(
         Func<ExcludingCleanupFilter, ExcludingCleanupFilter>,
         IReadOnlyCollection<(ObjectName table, string script)>);
     ```
 - Or on contrary start with an empty tables set and explicitly include the ones to clean
 
     ```charp
-    CleanupConfiguration.ExcludeAll(
-        CleanupMode, 
+    CleanupConfiguration.Including(
         Func<IncludingCleanupFilter, IncludingCleanupFilter>,
         IReadOnlyCollection<(ObjectName table, string script)>);
     ```
@@ -236,20 +234,20 @@ Here is how full `CleanupDefinition` setup might look like:
 
 ```csharp
 CleanupDefinition.Script(
-    CleanupConfiguration.IncludeNone(
-        CleanupMode.PreferTruncate(), 
-        c => c.IncludeSchemas("dbo"))))
+    CleanupMode.PreferTruncate(),
+    CleanupConfiguration.Including(c => c.IncludeSchemas("dbo"))))
 ```
 
 ### Custom cleanup scripts
 
-Sometimes you don't need to clean all the rows from the table, so each `CleanupMode` allows you to provide custom deletion scripts for specific tables.
+Sometimes you don't need to clean all the rows from the table, so you might want to provide custom deletion scripts for specific tables.
 
-E.g you have a superadmin user with `Id=1`, which you want to be always present in the database. Here is how the setup could look like for that case:
+E.g you have a superadmin user with `Id=1`, which you want to be never deleted. Here is how the setup could look like for that case:
 
 ```csharp
-CleanupDefinition.Script(CleanupConfiguration.IncludeNone(
+CleanupDefinition.Script(
     CleanupMode.PreferTruncate(),
+    CleanupConfiguration.Including(
     c => c.IncludeSchemas("dbo"),
     new[]
     {
@@ -309,9 +307,9 @@ We're going to use `Basic` `SeedMode` in this example. This configuration is the
 ```csharp
 SeedMode.Basic(
     BasicInsertDefinition.Script(),
-    CleanupDefinition.Script(CleanupConfiguration.IncludeNone(
+    CleanupDefinition.Script(
         CleanupMode.PreferTruncate(), 
-        f => f.IncludeSchemas("dbo"))))
+        CleanupConfiguration.Including(f => f.IncludeSchemas("dbo"))))
 ```
 
 This is what we get generated. `PrepareDatabase` and `CleanupDatabase` are empty collections as no internal database objects are needed in this mode of operation, while `RestoreData` stage contains two scripts: one to clean the data and another one to insert.
