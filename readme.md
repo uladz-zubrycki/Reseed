@@ -46,8 +46,8 @@ Here is how the library usage might look in its simplest form:
 
 var reseeder = new Reseeder("Server=myServerName\myInstanceName;Database=myDataBase;User Id=myUsername;Password=myPassword;");
 var seedActions = reseeder.Generate(
-    SeedMode.Simple(
-        SimpleInsertDefinition.Script(),
+    SeedMode.Basic(
+        BasicInsertDefinition.Script(),
         CleanupDefinition.Script(CleanupConfiguration.IncludeAll(CleanupMode.PreferTruncate()))),
     DataProviders.Xml(".\Data"));
 
@@ -114,10 +114,10 @@ Reseed is able to operate in a few modes, so that actions it outputs could diffe
 
 Static `SeedMode` is an entry point to the Reseed behaviour configuration.
 
-### Simple mode
+### Basic mode
 
 ```csharp
-SeedMode.Simple(SimpleInsertDefinition, CleanupDefinition);
+SeedMode.Basic(BasicInsertDefinition, CleanupDefinition);
 ```
     
 This is the most basic and the most robust mode of operation. In this mode Reseed generates single insert script for all the entities as well as the only delete script to cleanup database. Data restore is a combination of delete and insert scripts executed one after another. 
@@ -125,8 +125,8 @@ This is the most basic and the most robust mode of operation. In this mode Resee
 You might have insertion logic generated either as a script or stored procedure. The latter could be beneficial for large insert scripts.
 
 ```csharp
-SimpleInsertDefinition.Script();
-SimpleInsertDefinition.Procedure(ObjectName);
+BasicInsertDefinition.Script();
+BasicInsertDefinition.Procedure(ObjectName);
 ```
    
 ### Temporary tables mode
@@ -305,10 +305,10 @@ And we have the only data file to represent the database state, which is `Users.
 </Users>
 ```
 
-We're going to use such `SeedMode` setup. This configuration is the simplest and is often the most reasonable.
+We're going to use `Basic` `SeedMode` in this example. This configuration is the simplest and is often the most reasonable.
 ```csharp
-SeedMode.Simple(
-    SimpleInsertDefinition.Script(),
+SeedMode.Basic(
+    BasicInsertDefinition.Script(),
     CleanupDefinition.Script(CleanupConfiguration.IncludeNone(
         CleanupMode.PreferTruncate(), 
         f => f.IncludeSchemas("dbo"))))
