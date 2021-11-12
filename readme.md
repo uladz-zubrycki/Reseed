@@ -14,7 +14,7 @@ Library is written in C# and targets `netstandard2.0`, therefore could be used b
 This is how it's supposed to be used:
 - you describe the state of database needed for your tests;
 - you initialize database prior to running any tests, so that Reseed is able to do its magic;
-- you restore database to the previous state in between of the test runs, so that you're sure that each test has the same data to operate on;
+- you restore data to the previous state in between of the test runs, so that you're sure that each test has the same data to operate on;
 - you clean database after running the tests.
 
 As simple as that.
@@ -36,7 +36,7 @@ Reseed implements some of the concepts above and takes care of the database stat
 
 # Design
 
-Main idea is not to insert data directly, as for example NDbUnit does, but to [generate scripts](#seed-actions-generation) for the database initialization and cleanup and then [execute](#seed-actions-execution) those, when needed. This gives more control to the consumer and makes some optimization tricks possible. Scripts tend to be descriptive and well-formed in order to be readable by human and could even be extended manually.
+Main idea is not to insert data directly, as for example NDbUnit does, but to [generate scripts](#seed-actions-generation) for the database initialization and cleanup and then [execute](#seed-actions-execution) those, when needed. This gives more control to the consumer and makes some optimization tricks possible. Scripts tend to be descriptive and well-formed in order to be readable by human and could, if needed, be adjusted manually before the execution.
 
 The only entry point to all the functionality is the `Reseeder` class and this is how the library usage might look in its simplest form:
 
@@ -72,7 +72,7 @@ See the [Examples](https://github.com/v-zubritsky/Reseed#examples) section below
 
 # Seed actions generation
 
-Scripts that Reseed generates are named "seed actions" and are represented by the `SeedActions` type. It contains all the actions grouped in a few stages with a property per stage. Every stage is basically an ordered collection of seed actions, while each action in its turn is an instance of `SeedAction` type. 
+Scripts that Reseed generates are named "seed actions" and are represented by the `SeedActions` type. It contains all the actions grouped in a few stages with a property per stage. Every stage is basically an ordered collection of seed actions, while each action in its turn is an instance of `ISeedAction` type. 
 
 ```csharp
 class SeedActions 
