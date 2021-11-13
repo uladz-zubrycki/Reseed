@@ -38,15 +38,16 @@ Reseed implements some of the concepts above and takes care of the database stat
 
 Main idea is not to insert data directly, as for example NDbUnit does, but to [generate scripts](#seed-actions-generation) for the database initialization and cleanup and then [execute](#seed-actions-execution) those, when needed. This gives more control to the consumer and makes some optimization tricks possible. Scripts tend to be descriptive and well-formed in order to be readable by human and could, if needed, be adjusted manually before the execution.
 
+It's possible to generate data seeding or cleanup scripts only or both, depends on your needs.
+
 The only entry point to all the functionality is the `Reseeder` class and this is how the library usage might look in its simplest form:
 
 ```csharp
 
 var reseeder = new Reseeder("Server=myServerName\myInstanceName;Database=myDataBase;User Id=myUsername;Password=myPassword;");
-var seedActions = reseeder.Generate(
-    SeedMode.Basic(
-        BasicInsertDefinition.Script(),
-        CleanupDefinition.Script(CleanupMode.PreferTruncate(), CleanupTarget.Excluding()))),
+var seedActions = reseeder.Generate(SeedMode.Basic(
+    BasicInsertDefinition.Script(),
+    CleanupDefinition.Script(CleanupMode.PreferTruncate(), CleanupTarget.Excluding())),
     DataProviders.Xml(".\Data"));
 
 reseeder.Execute(seedActions.PrepareDatabase);
@@ -58,16 +59,17 @@ See the [Examples](https://github.com/v-zubritsky/Reseed#examples) section below
 
 # Features
 
+* It's possible to generate data seeding or data cleanup scripts only or both;
 * Reseed is able to order tables graph (tables are nodes, foreign keys are edges), so that foreign key constraints are respected in the insertion and deletion scripts;
 * Alternatively Reseed could simply disable foreign key constraints to deal with such data dependecies;
-* It detects cyclic foreign key dependencies on both tables' and rows' levels, so that loops don't break anything. More on this in [Constraints resolution](#constraints-resolution);
+* It detects cyclic foreign key dependencies on both tables and rows levels, so that loops don't break anything. More on this in [Constraints resolution](#constraints-resolution);
 * You could specify [Custom cleanup scripts](#custom-cleanup-scripts) for specific tables to ignore rows during data cleanup;
-* Data schema is read from the database itself and there is no need to describe database schema manually (e.g NDbUnit requires XSD files);
-* There is a data validation step, which allow to detect data inconsistencies (like invalid foreign key values);
+* Data schema is read from the database and there is no need to describe it manually (e.g NDbUnit requires XSD files);
+* There is an optional data validation step, which allows to detect data inconsistencies (like invalid foreign key values);
 * It's possible to omit identity columns, Reseed will generate them for you;
 
 # Limitations
-* Data could be described in xml files only, support for other formats might be added in future. Alternatively you could provide your own implementation of `IDataProvider` type. See [Data Providers](#data-providers) for details and examples;
+* Data could be described in xml files only, support for other formats is to be added. Alternatively you could provide your own implementation of `IDataProvider` type. See [Data Providers](#data-providers) for details and examples;
 * MS SQL Server is the only database supported for now. 
 
 # Seed actions generation
@@ -96,6 +98,12 @@ The stages are:
 
     At this stage objects created on the `PrepareDatabase` stage are deleted if there were any. Should be executed the last and once per test fixtures.
 
+To generate actions you use `Reseeder.Generate` instance method by configuring generation behavior the way you like, see [Operation modes](#operation-modes) documentation section for additional details. 
+
+```csharp
+Reseeder.Generate(AnySeedMode);
+```
+
 # Seed actions execution
 
 To execute the actions you simply pass a collection representing a specific stage to the `Execute` method.
@@ -115,7 +123,7 @@ Static `SeedMode` type is an entry point to the Reseed behaviour configuration.
 ### Basic mode
 
 ```csharp
-SeedMode.Basic(BasicInsertDefinition, CleanupDefinition);
+SeedMode.Basic(BasicInsertDefinition, AnyCleanupDefinition, IDataProvider);
 ```
     
 This is the most basic and the most robust mode of operation. In this mode Reseed generates single insert script for all the entities as well as the only delete script to cleanup database. Data restore is a combination of delete and insert scripts executed one after another. 
@@ -130,7 +138,7 @@ BasicInsertDefinition.Procedure(ObjectName);
 ### Temporary tables mode
 
 ```csharp
-SeedMode.TemporaryTables(string, TemporaryTablesInsertDefinition, CleanupDefinition);
+SeedMode.TemporaryTables(string, TemporaryTablesInsertDefinition, AnyCleanupDefinition, IDataProvider);
 ```
 
 This mode is more tricky, thus less reliable, but at the same time it is able to provide a great speed boost.
@@ -162,20 +170,32 @@ There are a few ways to transfer the data, which are exposed at `TemporaryTables
 4. **BCP** (Work in progress):
     Uses [BCP utility](https://docs.microsoft.com/en-us/sql/tools/bcp-utility?view=sql-server-ver15) to copy the data.
 
-# Data cleanup 
+### CleanupOnly mode
 
-It's possible to configure the way Reseed generates data cleanup scripts, needed for some of the operation modes. Configuration is done with use of `CleanupDefinition` type.
-
-Data cleanup logic could be represented either as script or stored procedure:
+Sometimes you want to manage data insertion on your own and need just a database cleanup, this is the mode to be used then. Note that you don't need to specify `IDataProvider` for that case, which is a reasonable behavior as you don't need any data to be inserted.
 
 ```csharp
+SeedMode.CleanupOnly(CleanupDefinition);
+```
+As a result you'll get `SeedActions` instance, which does nothing but database cleanup during its `RestoreData` phase. See [Data cleanup](data-cleanup) section for cleanup configuration options.
+
+# Data cleanup 
+
+There is a posibility to configure the way Reseed generates data cleanup scripts, which are needed for some of the seed modes. Configuration is done with use of `CleanupDefinition` type.
+
+If you don't want Reseed to execute cleanup for you at all, then you could simply use `NoCleanup` cleanup definition. Just make sure to take care of cleaning the database on your own or it will most likely fail on attempt to insert duplicated rows once.
+
+Otherwise data cleanup logic could be represented either as a script or a stored procedure:
+
+```csharp
+CleanupDefinition.NoCleanup();
 CleanupDefinition.Script(CleanupMode, CleanupTarget);
 CleanupDefinition.Procedure(ObjectName, CleanupMode, CleanupTarget);
 ```
 
 ### Data cleanup configuration 
 
-You need to choose, which database objects should be cleaned and how. Use `CleanupTarget` type for that aim.
+If you want cleanup to be executed, then you need to choose, which database objects should be cleaned and how. Use `CleanupTarget` type for that aim.
 
 There are two ways to choose cleanup targets:
 
