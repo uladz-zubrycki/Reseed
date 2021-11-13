@@ -3,7 +3,7 @@ SET "src=%~dp0src"
 SET "props=%~dp0publish.props"
 SET "key=%NUGET_RESEED_KEY%"
 SET "outpath=%src%\Reseed\bin\publish"
-SET version=0.1.6
+SET version=0.1.7
 
 if exist %outpath%\ (
     rmdir /s /q %outpath%
