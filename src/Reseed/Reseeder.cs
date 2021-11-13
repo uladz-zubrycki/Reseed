@@ -43,10 +43,12 @@ namespace Reseed
 			return SeedActionGenerator.Generate(orderedSchemas, containers, mode);
 		}
 
-		public void Execute([NotNull] IReadOnlyCollection<OrderedItem<ISeedAction>> actions)
+		public void Execute(
+			[NotNull] IReadOnlyCollection<OrderedItem<ISeedAction>> actions,
+			TimeSpan? actionTimeout = null)
 		{
 			if (actions == null) throw new ArgumentNullException(nameof(actions));
-			SeedActionExecutor.Execute(this.connectionString, actions);
+			SeedActionExecutor.Execute(this.connectionString, actions, actionTimeout);
 		}
 	}
 }
