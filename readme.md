@@ -14,7 +14,7 @@ Library is written in C# and targets `netstandard2.0`, therefore could be used b
 This is how it's supposed to be used:
 - you describe the state of database needed for your tests;
 - you initialize database prior to running any tests, so that Reseed is able to do its magic;
-- you restore data to the previous state in between of the test runs, so that you're sure that each test has the same data to operate on;
+- you insert, delete or restore data to the previous state in between of the test runs, so that you're sure that each test has the same data to operate on;
 - you clean database after running the tests.
 
 As simple as that.
@@ -59,7 +59,7 @@ See the [Examples](https://github.com/v-zubritsky/Reseed#examples) section below
 
 # Features
 
-* It's possible to generate scripts for data seeding or cleanup only or both;
+* It's possible to generate scripts for either data seeding or cleanup only or both;
 * Reseed is able to order tables graph (tables are nodes, foreign keys are edges), so that foreign key constraints are respected in the insertion and deletion scripts;
 * Alternatively Reseed could simply disable foreign key constraints to deal with such data dependecies;
 * It detects cyclic foreign key dependencies on both tables and rows levels, so that loops don't break anything. More on this in [Constraints resolution](#constraints-resolution);
