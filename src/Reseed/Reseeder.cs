@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using JetBrains.Annotations;
 using Reseed.Configuration;
 using Reseed.Data;
@@ -25,28 +24,39 @@ namespace Reseed
 			this.connectionString = connectionString ?? throw new ArgumentNullException(nameof(connectionString));
 		}
 
-		public SeedActions Generate(
-			[NotNull] SeedMode mode,
-			[NotNull] IDataProvider dataProvider)
+		public SeedActions Generate([NotNull] AnySeedMode mode)
 		{
 			if (mode == null) throw new ArgumentNullException(nameof(mode));
-			if (dataProvider == null) throw new ArgumentNullException(nameof(dataProvider));
-
-			var entities = DataProvider.Load(dataProvider);
+			
 			var schemas = SchemaProvider.Load(connectionString);
-			var tables = TableBuilder.Build(schemas, entities);
-			var extendedTables = TableExtender.Extend(tables);
-			DataValidator.Validate(extendedTables);
-
 			var orderedSchemas = NodeOrderer<TableSchema>.Order(schemas);
-			var containers = TableOrderer.Order(extendedTables, orderedSchemas);
-			return SeedActionGenerator.Generate(orderedSchemas, containers, mode);
+
+			return mode switch
+			{
+				CleanupOnlySeedMode cleanupOnly => SeedActionGenerator.Generate(cleanupOnly, orderedSchemas),
+				SeedMode seedMode => Generate(seedMode, schemas, orderedSchemas),
+				_ => throw new NotSupportedException($"Unknown seed mode '{mode.GetType().Name}'")
+			};
 		}
 
 		public void Execute([NotNull] IReadOnlyCollection<OrderedItem<ISeedAction>> actions)
 		{
 			if (actions == null) throw new ArgumentNullException(nameof(actions));
 			SeedActionExecutor.Execute(this.connectionString, actions);
+		}
+
+		private static SeedActions Generate(
+			SeedMode mode, 
+			IReadOnlyCollection<TableSchema> schemas, 
+			OrderedGraph<TableSchema> orderedSchemas)
+		{
+			var entities = DataProvider.Load(mode.DataProvider);
+			var tables = TableBuilder.Build(schemas, entities);
+			var extendedTables = TableExtender.Extend(tables);
+			DataValidator.Validate(extendedTables);
+
+			var containers = TableOrderer.Order(extendedTables, orderedSchemas);
+			return SeedActionGenerator.Generate(mode, orderedSchemas, containers);
 		}
 	}
 }

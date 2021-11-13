@@ -1,6 +1,8 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using NUnit.Framework;
 using Reseed.Configuration;
+using Reseed.Data;
 using Reseed.Tests.Integration.Core;
 
 namespace Reseed.Tests.Integration
@@ -9,11 +11,11 @@ namespace Reseed.Tests.Integration
 	[TestFixtureSource(typeof(SeedModes), nameof(SeedModes.Every))]
 	public sealed class SingleTableTests: TestFixtureBase
 	{
-		private readonly SeedMode mode;
+		private readonly Func<IDataProvider, SeedMode> createMode;
 
-		public SingleTableTests(SeedMode mode)
+		public SingleTableTests(Func<IDataProvider, SeedMode> createMode)
 		{
-			this.mode = mode;
+			this.createMode = createMode;
 		}
 
 		[Test]
@@ -40,7 +42,7 @@ namespace Reseed.Tests.Integration
 		{
 			await Conventional.AssertSeedSucceeds(
 				this,
-				this.mode,
+				this.createMode,
 				sql => sql.ExecuteNonQueryAsync("DELETE FROM [dbo].[User]"), 
 				async sql => Assert.AreEqual(userCount, await GetUsersCount(sql)));
 			

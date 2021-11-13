@@ -1,6 +1,7 @@
 ﻿using System;
 using JetBrains.Annotations;
 using Reseed.Configuration.Cleanup;
+using Reseed.Data;
 
 namespace Reseed.Configuration.Basic
 {
@@ -11,7 +12,9 @@ namespace Reseed.Configuration.Basic
 
 		public BasicSeedMode(
 			[NotNull] BasicInsertDefinition insertDefinition,
-			[NotNull] CleanupDefinition cleanupDefinition)
+			[NotNull] CleanupDefinition cleanupDefinition,
+			[NotNull] IDataProvider dataProvider)
+			: base(dataProvider)
 		{
 			this.InsertDefinition = insertDefinition ?? throw new ArgumentNullException(nameof(insertDefinition));
 			this.CleanupDefinition = cleanupDefinition ?? throw new ArgumentNullException(nameof(cleanupDefinition));

@@ -19,7 +19,7 @@ namespace Reseed.Samples.NUnit
 		private static readonly TestDatabase Database = new(
 			GetRelativePath("Migrations"),
 			GetRelativePath("Data"));
-		
+
 		protected static string ConnectionString => Database.ConnectionString;
 
 		[OneTimeSetUp]
@@ -83,12 +83,11 @@ namespace Reseed.Samples.NUnit
 		// Configure Reseeder behavior. The simplest mode of behavior is used,
 		// which leads to generation of plain sql scripts for Insert and Delete actions.
 		private static SeedActions GenerateSeedActions(Reseeder seeder, string dataFolder) =>
-			seeder.Generate(
-				SeedMode.Basic(
-					BasicInsertDefinition.Script(),
-					CleanupDefinition.Script(
-						CleanupMode.PreferTruncate(),
-						CleanupTarget.Excluding())),
-				DataProviders.Xml(dataFolder));
+			seeder.Generate(SeedMode.Basic(
+				BasicInsertDefinition.Script(),
+				CleanupDefinition.Script(
+					CleanupMode.PreferTruncate(),
+					CleanupTarget.Excluding()),
+				DataProviders.Xml(dataFolder)));
 	}
 }
