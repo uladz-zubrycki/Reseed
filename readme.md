@@ -38,7 +38,7 @@ Reseed implements some of the concepts above and takes care of the database stat
 
 Main idea is not to insert data directly, as for example NDbUnit does, but to [generate scripts](#seed-actions-generation) for the database initialization and cleanup and then [execute](#seed-actions-execution) those, when needed. This gives more control to the consumer and makes some optimization tricks possible. Scripts tend to be descriptive and well-formed in order to be readable by human and could, if needed, be adjusted manually before the execution.
 
-It's possible to generate data seeding or cleanup scripts only or both, depends on your needs.
+It's possible to generate scripts for data seeding or cleanup only or both, depends on your needs.
 
 The only entry point to all the functionality is the `Reseeder` class and this is how the library usage might look in its simplest form:
 
@@ -59,7 +59,7 @@ See the [Examples](https://github.com/v-zubritsky/Reseed#examples) section below
 
 # Features
 
-* It's possible to generate data seeding or data cleanup scripts only or both;
+* It's possible to generate scripts for data seeding or cleanup only or both;
 * Reseed is able to order tables graph (tables are nodes, foreign keys are edges), so that foreign key constraints are respected in the insertion and deletion scripts;
 * Alternatively Reseed could simply disable foreign key constraints to deal with such data dependecies;
 * It detects cyclic foreign key dependencies on both tables and rows levels, so that loops don't break anything. More on this in [Constraints resolution](#constraints-resolution);
