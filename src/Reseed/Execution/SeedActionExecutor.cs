@@ -12,7 +12,8 @@ namespace Reseed.Execution
 	{
 		public static void Execute(
 			[NotNull] string connectionString,
-			[NotNull] IReadOnlyCollection<OrderedItem<ISeedAction>> actions)
+			[NotNull] IReadOnlyCollection<OrderedItem<ISeedAction>> actions,
+			TimeSpan? actionTimeout)
 		{
 			if (connectionString == null) throw new ArgumentNullException(nameof(connectionString));
 			if (actions == null) throw new ArgumentNullException(nameof(actions));
@@ -31,10 +32,10 @@ namespace Reseed.Execution
 					switch (action)
 					{
 						case SqlScriptAction script:
-							ExecuteScript(connection, script);
+							ExecuteScript(connection, script, actionTimeout);
 							break;
 						case SqlBulkCopyAction bulkCopy:
-							ExecuteSqlBulkCopy(connection, bulkCopy);
+							ExecuteSqlBulkCopy(connection, bulkCopy, actionTimeout);
 							break;
 						default:
 							throw new NotSupportedException(
@@ -48,33 +49,55 @@ namespace Reseed.Execution
 			}
 		}
 
-		private static void ExecuteScript(SqlConnection connection, SqlScriptAction scriptAction)
+		private static void ExecuteScript(
+			SqlConnection connection,
+			SqlScriptAction scriptAction,
+			TimeSpan? timeout)
 		{
-			using var command = connection.CreateCommand();
-			command.CommandText = scriptAction.Text;
+			using var command = CreateCommand(connection, scriptAction.Text, timeout);
 			command.ExecuteNonQuery();
 		}
 
 		private static void ExecuteSqlBulkCopy(
 			SqlConnection connection,
-			SqlBulkCopyAction action)
+			SqlBulkCopyAction action,
+			TimeSpan? timeout)
 		{
 			using var bulkCopy = new SqlBulkCopy(
 				connection.ConnectionString,
 				action.Options)
 			{
-				DestinationTableName = action.DestinationTable.GetSqlName()
+				DestinationTableName = action.DestinationTable.GetSqlName(),
 			};
+
+			if (timeout != null)
+			{
+				bulkCopy.BulkCopyTimeout = (int)timeout.Value.TotalSeconds;
+			}
 
 			foreach (var mapping in action.Columns)
 			{
 				bulkCopy.ColumnMappings.Add(mapping);
 			}
 
-			using DbCommand command = connection.CreateCommand();
-			command.CommandText = action.SourceScript;
-			using var reader = command.ExecuteReader();
-			bulkCopy.WriteToServer(reader);
+			using var sourceCommand = CreateCommand(connection, action.SourceScript, timeout);
+			using var sourceReader = sourceCommand.ExecuteReader();
+			bulkCopy.WriteToServer(sourceReader);
+		}
+
+		private static DbCommand CreateCommand(
+			SqlConnection connection, 
+			string commandText, 
+			TimeSpan? timeout)
+		{
+			DbCommand command = connection.CreateCommand();
+			command.CommandText = commandText;
+			if (timeout != null)
+			{
+				command.CommandTimeout = (int)timeout.Value.TotalSeconds;
+			}
+
+			return command;
 		}
 	}
 }
