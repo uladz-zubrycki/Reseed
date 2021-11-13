@@ -98,12 +98,24 @@ The stages are:
 
 # Seed actions execution
 
-To execute the actions you simply pass a collection representing a specific stage to the `Execute` method.
+To execute the actions you simply pass a collection representing a specific stage to the `Reseeder.Execute` instance method.
+
+```csharp
+Reseeder.Execute(IReadOnlyCollection<OrderedItem<ISeedAction>>, TimeSpan?);
+```
+
+If you have `Reseeder reseeder` and `SeedActions seedActions` variables, then it's:  
 
 ```csharp
 reseeder.Execute(seedActions.PrepareDatabase);
 reseeder.Execute(seedActions.RestoreData);
 reseeder.Execute(seedActions.CleanupDatabase);
+```
+
+Optionally you could provide a `TimeSpan` to specify an action execution timeout; otherwise defaults of the underlying system are used (e.g 30 seconds for `SqlCommand`).
+
+```csharp
+reseeder.Execute(seedActions.RestoreData, TimeSpan.FromSeconds(5));
 ```
 
 # Operation modes
