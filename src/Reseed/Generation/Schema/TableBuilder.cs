@@ -13,16 +13,14 @@ namespace Reseed.Generation.Schema
 	internal static class TableBuilder
 	{
 		public static IReadOnlyCollection<Table> Build(
-			[NotNull] IReadOnlyCollection<TableSchema> tables,
+			[NotNull] IReadOnlyCollection<TableSchema> schemas,
 			[NotNull] IReadOnlyCollection<Entity> entities)
 		{
-			if (tables == null) throw new ArgumentNullException(nameof(tables));
+			if (schemas == null) throw new ArgumentNullException(nameof(schemas));
 			if (entities == null) throw new ArgumentNullException(nameof(entities));
 
-			var schemasMap = tables.ToDictionary(t => t.Name);
-
-			var buildUnknownTableError =
-				CreateUnknownTableErrorBuilder(tables);
+			var schemasMap = schemas.ToDictionary(t => t.Name);
+			var buildUnknownTableError = CreateUnknownTableErrorBuilder(schemas);
 
 			return entities
 				.GroupBy(e => e.Name, StringComparer.OrdinalIgnoreCase)

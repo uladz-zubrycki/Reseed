@@ -15,6 +15,8 @@ namespace Reseed.Graphs
 		public readonly IReadOnlyCollection<OrderedItem<T>> Nodes;
 		public readonly IReadOnlyCollection<MutualReference<T>> MutualReferences;
 
+		public int Count => Nodes.Count;
+
 		public OrderedGraph(
 			[NotNull] IReadOnlyCollection<OrderedItem<T>> nodes,
 			[NotNull] IReadOnlyCollection<MutualReference<T>> mutualReferences)

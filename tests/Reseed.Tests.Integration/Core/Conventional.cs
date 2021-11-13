@@ -29,16 +29,14 @@ namespace Reseed.Tests.Integration.Core
 
 		public static async Task AssertSeedSucceeds(
 			TestFixtureBase fixture,
-			SeedMode seedMode,
+			Func<IDataProvider, SeedMode> createSeedMode,
 			Func<SqlEngine, Task> modifyData,
 			Func<SqlEngine, Task> assertDataRestored)
 		{
 			await using var database = await CreateConventionalDatabase(fixture);
 			var reseeder = new Reseeder(database.ConnectionString);
 			var sqlEngine = new SqlEngine(database.ConnectionString);
-			var actions = reseeder.Generate(
-				seedMode,
-				CreateConventionalDataProvider(fixture));
+			var actions = reseeder.Generate(createSeedMode(CreateConventionalDataProvider(fixture)));
 
 			reseeder.Execute(actions.PrepareDatabase);
 			
@@ -54,7 +52,7 @@ namespace Reseed.Tests.Integration.Core
 
 		public static async Task AssertGenerationFails(
 			TestFixtureBase fixture,
-			SeedMode seedMode,
+			Func<IDataProvider, SeedMode> createSeedMode,
 			Expression<Func<Exception, bool>> assertError)
 		{
 			await using var database = await CreateConventionalDatabase(fixture);
@@ -64,8 +62,7 @@ namespace Reseed.Tests.Integration.Core
 			try
 			{
 				_ = reseeder.Generate(
-					seedMode,
-					CreateConventionalDataProvider(fixture));
+					createSeedMode(CreateConventionalDataProvider(fixture)));
 			}
 			catch (Exception ex) when (assertErrorFun(ex))
 			{

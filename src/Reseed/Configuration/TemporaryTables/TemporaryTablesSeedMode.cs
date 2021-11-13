@@ -1,6 +1,7 @@
 ﻿using System;
 using JetBrains.Annotations;
 using Reseed.Configuration.Cleanup;
+using Reseed.Data;
 
 namespace Reseed.Configuration.TemporaryTables
 {
@@ -13,12 +14,14 @@ namespace Reseed.Configuration.TemporaryTables
 		public TemporaryTablesSeedMode(
 			[NotNull] string schemaName,
 			[NotNull] TemporaryTablesInsertDefinition insertDefinition,
-			[NotNull] CleanupDefinition cleanupDefinition)
+			[NotNull] CleanupDefinition cleanupDefinition,
+			[NotNull] IDataProvider dataProvider)
+			: base(dataProvider)
 		{
 			if (string.IsNullOrEmpty(schemaName))
 				throw new ArgumentException("Value cannot be null or empty.", nameof(schemaName));
+
 			this.SchemaName = schemaName;
-			
 			this.InsertDefinition = insertDefinition ?? throw new ArgumentNullException(nameof(insertDefinition));
 			this.CleanupDefinition = cleanupDefinition ?? throw new ArgumentNullException(nameof(cleanupDefinition));
 		}

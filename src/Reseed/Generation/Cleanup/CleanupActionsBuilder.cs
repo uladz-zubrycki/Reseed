@@ -13,7 +13,7 @@ namespace Reseed.Generation.Cleanup
 	{
 		public static SeedActionsBuilder AddCleanupActions(
 			[NotNull] this SeedActionsBuilder builder,
-			[NotNull] CleanupDefinition definition,
+			[NotNull] AnyCleanupDefinition definition,
 			[NotNull] OrderedGraph<TableSchema> tables)
 		{
 			if (builder == null) throw new ArgumentNullException(nameof(builder));
@@ -22,6 +22,8 @@ namespace Reseed.Generation.Cleanup
 
 			return definition switch
 			{
+				EmptyCleanupDefinition => builder,
+
 				CleanupScriptDefinition scriptDefinition => builder
 					.Add(SeedStage.Delete, DeleteScriptRenderer.Render(tables, scriptDefinition.Configuration)),
 
