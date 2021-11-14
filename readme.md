@@ -285,11 +285,42 @@ CleanupDefinition.Script(
         })))
 ```
 
+# Data providers
+TBD
+
 # Constraints resolution
 TBD
 
-# Data providers
-TBD
+# Data Extension
+
+Reseed is able to extend the provided data for any `IDataProvider` instance before generating the insertion scripts. 
+
+The only extension available for now is identity columns value generation. If Reseed finds an identity column without a value specified, it will generate a value for it automatically. If such behavior isn't desired, use `ReseedOptions.DataExtensionOptions` to disable it.
+
+```csharp
+class DataExtensionOptions 
+{
+    bool GenerateIdentityValues;
+}
+```
+
+# Data validation
+
+There is an optional data validation step executed the last in the insertion scripts generation flow. It's enabled by default and could be controlled with use of `ReseedOptions` type. 
+
+```csharp
+class ReseedOptions 
+{
+    bool ValidateData;
+}
+```
+
+There is the only validation scenario available for now:
+- Validate primary keys uniqueness.
+
+If any data issues are detected during the validation, the error will be thrown from the `Reseed.Generate` method.
+
+Additionally Reseed will fail if there are missing values for required columns or unknown column names, but you can't disable the validation of such cases currently, as those are essential for valid scripts generation.
 
 # API
 
