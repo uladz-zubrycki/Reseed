@@ -1,5 +1,7 @@
-[![NuGet version (Reseed)](https://img.shields.io/nuget/v/Reseed?color=blue&style=flat-square)](https://www.nuget.org/packages/Reseed/)
+[![NuGet version (Reseed)](https://img.shields.io/nuget/v/Reseed?color=blue&style=flat-square)](https://www.nuget.org/packages/Reseed/) [![NuGet stats (Reseed)](https://img.shields.io/nuget/dt/Reseed?logoColor=blue&style=flat-square)](https://www.nuget.org/packages/Reseed/)
 > **Disclaimer**: Versions of the library up to 1.0.0 don't follow semantic versioning and public api is a subject of possibly breaking changes. 
+
+:mega: Check out [Discussions](https://github.com/v-zubritsky/Reseed/discussions) if you've got questions or any ideas to suggest.
 
 # About
 
@@ -7,7 +9,8 @@ Reseed library allows you to initialize and clean integration tests database in 
 
 It covers cases similar to what a few other libraries intend to do:
 * [NDbUnit](https://github.com/NDbUnit/NDbUnit) and [NDbUnit2](https://github.com/NAnt2/NDbUnit2) inspired by [DbUnit](http://dbunit.sourceforge.net/dbunit/index.html);
-* [Respawn](https://github.com/jbogard/Respawn).
+* [Respawn](https://github.com/jbogard/Respawn);
+* [ABP Framework](https://docs.abp.io/en/abp/latest/Testing#integration-tests).
 
 Library is written in C# and targets `netstandard2.0`, therefore could be used by both `.NET Framework` and `.NET`/`.NET Core` applications.
 
@@ -286,7 +289,47 @@ CleanupDefinition.Script(
 ```
 
 # Data providers
-TBD
+
+If you want Reseed to insert data for you, you need to specify how and from where this data should be read. This is encapsulated in the `IDataProvider` abstraction. All the built-in providers are exposed through the `DataProviders` static type and there is the only for now, which is xml.
+
+### Xml data provider
+
+As the name assumes data should be represented in xml format. Data might be described in the only data file or split into a few, the way that suits you more. 
+
+It's possible to control from what location data should be read and what files to read:
+- you need to specify a root folder, which is to be scanned recursively;
+- you could specify file name pattern (see [Directory.EnumerateFiles](https://docs.microsoft.com/en-us/dotnet/api/system.io.directory.enumeratefiles?view=net-5.0#System_IO_Directory_EnumerateFiles_System_String_System_String_) for supported pattern features);
+- you could provide additional predicate to check the file name, which is simply a `Func<string, bool>`.
+
+Rules to describe the data are simple:
+- Each row should be represented as xml element with nested elements for each column. 
+- Element name should match the target table name and additionally it's possible to specify a database schema name explicitly by using notation `[schema].[table]` for your row elements (`dbo` is used by default);
+- Nested element names should match column names;
+- Nullable columns could be skipped;
+- Columns with default value could be skipped;
+- Identity columns could be skipped (more on this in [Data extension](#data-extension)).
+
+E.g we have a table `User (Id identity not null, FirstName not null, LastName not null)`, it could be represented this way:
+
+```xml
+<Users>
+    <User>
+        <Id>1</Id>
+        <FirstName>John</FirstName>
+        <LastName>Doe</LastName>
+    </User>
+    <dbo.User>
+        <FirstName>Alice</FirstName>
+        <LastName>Kane</LastName>
+    </dbo.User>
+</Users>
+```
+
+A few things to note here:
+- We used `Users` as root element, but its name could be any;
+- We'll get two rows inserted into the `dbo.User` table;
+- We omitted schema name for the first row and explicitly specified it for the other. `dbo` schema is assumed by default, so there is no difference;
+- We omitted `Id` value for the second row, but it's an identity column, so value will be generated automatically.
 
 # Constraints resolution
 TBD
