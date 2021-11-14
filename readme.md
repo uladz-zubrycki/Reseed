@@ -65,7 +65,7 @@ See the [Examples](https://github.com/v-zubritsky/Reseed#examples) section below
 * It detects cyclic foreign key dependencies on both tables and rows levels, so that loops don't break anything. More on this in [Constraints resolution](#constraints-resolution);
 * You could specify [Custom cleanup scripts](#custom-cleanup-scripts) for specific tables to ignore rows during data cleanup;
 * Data schema is read from the database and there is no need to describe it manually (e.g NDbUnit requires XSD files);
-* There is an optional data validation step, which allows to detect data inconsistencies (like invalid foreign key values);
+* There is an optional data validation step, which allows to detect data inconsistencies (like duplicated primary key values);
 * It's possible to omit identity columns, Reseed will generate them for you;
 
 # Limitations
