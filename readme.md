@@ -330,6 +330,12 @@ And we have the only data file to represent the database state, which is `Users.
         <FirstName>Alice</FirstName>
         <LastName>Bart</LastName>
     </User>
+    <User>
+        <FirstName>Bart</FirstName>
+        <LastName>Henessy</LastName>
+        <Age>56</Age>
+        <ManagerId>2</ManagerId>
+    </User>
 </Users>
 ```
 
@@ -367,13 +373,14 @@ INSERT INTO [dbo].[User] WITH (TABLOCKX) (
 	[Id], [FirstName], [LastName], [ManagerId], [Age]
 )
 VALUES 
-	(1, 'John', 'Doe', 2, 23)
+	(1, 'John', 'Doe', 2, 23), (3, 'Bart', 'Henessy', 2, 56)
 SET IDENTITY_INSERT [dbo].[User] OFF
 ```
 
 A few notes in regard to the insert script:
-- We specified `Id` column value equal `2` for the only record, but as it's an identity column, Reseed has taken care of that and provided value `1` for another row automatically;
-- Order of entities in the script doesn't match the order in the data file, this is due to the foreign key constraint, which needs rows ordering to respect it. Row with `Id=2` should be inserted the first as the other row has `ManagerId=2` or it will fail otherwise;
+- We specified `Id` column value equal `2` for the only record, but as it's an identity column, Reseed has taken care of that and provided value `1` and `3` for anothers row automatically;
+- Order of entities in the script doesn't match the order in the data file, this is due to the foreign key constraint, which needs rows ordering to respect it. Row with `Id=2` should be inserted the first as the other rows has `ManagerId=2`; insertion of rows in another order will either fail or required FK disabling, which is slower that ordering;
+- We have two rows with same columns (`Id=1` and `Id=3`), those were combined to the only `INSERT INTO` clause;
 - Optional `Age` column was present for one row and omitted for another.
 
 # Samples
