@@ -18,23 +18,30 @@ namespace Reseed
 	public sealed class Reseeder
 	{
 		private readonly string connectionString;
+		private readonly ReseederOptions options;
 
 		public Reseeder([NotNull] string connectionString)
+			: this(connectionString, ReseederOptions.Default)
+		{
+		}
+
+		public Reseeder([NotNull] string connectionString, [NotNull] ReseederOptions options)
 		{
 			this.connectionString = connectionString ?? throw new ArgumentNullException(nameof(connectionString));
+			this.options = options;
 		}
 
 		public SeedActions Generate([NotNull] AnySeedMode mode)
 		{
 			if (mode == null) throw new ArgumentNullException(nameof(mode));
-			
+
 			var schemas = SchemaProvider.Load(connectionString);
 			var orderedSchemas = NodeOrderer<TableSchema>.Order(schemas);
 
 			return mode switch
 			{
 				CleanupOnlySeedMode cleanupOnly => SeedActionGenerator.Generate(cleanupOnly, orderedSchemas),
-				SeedMode seedMode => Generate(seedMode, schemas, orderedSchemas),
+				SeedMode seedMode => Generate(seedMode, schemas, orderedSchemas, this.options),
 				_ => throw new NotSupportedException($"Unknown seed mode '{mode.GetType().Name}'")
 			};
 		}
@@ -48,14 +55,19 @@ namespace Reseed
 		}
 
 		private static SeedActions Generate(
-			SeedMode mode, 
-			IReadOnlyCollection<TableSchema> schemas, 
-			OrderedGraph<TableSchema> orderedSchemas)
+			SeedMode mode,
+			IReadOnlyCollection<TableSchema> schemas,
+			OrderedGraph<TableSchema> orderedSchemas,
+			ReseederOptions options)
 		{
 			var entities = DataProvider.Load(mode.DataProvider);
 			var tables = TableBuilder.Build(schemas, entities);
-			var extendedTables = TableExtender.Extend(tables);
-			DataValidator.Validate(extendedTables);
+			var extendedTables = TableExtender.Extend(tables, options.ExtensionOptions);
+
+			if (options.ValidateData)
+			{
+				DataValidator.Validate(extendedTables);
+			}
 
 			var containers = TableOrderer.Order(extendedTables, orderedSchemas);
 			return SeedActionGenerator.Generate(mode, orderedSchemas, containers);

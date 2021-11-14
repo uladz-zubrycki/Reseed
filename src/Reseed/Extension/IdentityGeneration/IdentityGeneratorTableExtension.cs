@@ -7,6 +7,9 @@ namespace Reseed.Extension.IdentityGeneration
 {
 	internal sealed class IdentityGeneratorTableExtension: ITableExtension
 	{
+		public static readonly IdentityGeneratorTableExtension Instance =
+			new();
+
 		public Table Extend([NotNull] Table table)
 		{
 			if (table == null) throw new ArgumentNullException(nameof(table));
