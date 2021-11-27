@@ -12,9 +12,11 @@ namespace Reseed.Generation.Schema
 		public readonly bool HasQuotedLiteral;
 		public readonly bool IsRequired;
 		public readonly string DefaultValue;
-		public readonly bool IsIdentity;
+		public readonly IdentityOptions IdentityOptions;
 		public readonly bool IsPrimaryKey;
 		public readonly bool IsComputed;
+
+		public bool IsIdentity => IdentityOptions != null;
 
 		public Column(
 			int order,
@@ -22,7 +24,7 @@ namespace Reseed.Generation.Schema
 			[NotNull] DataType dataType,
 			bool hasQuotedLiteral,
 			bool isRequired,
-			bool isIdentity,
+			[CanBeNull] IdentityOptions identityOptions,
 			bool isPrimaryKey,
 			bool isComputed,
 			[CanBeNull] string defaultValue)
@@ -33,12 +35,24 @@ namespace Reseed.Generation.Schema
 			this.DataType = dataType ?? throw new ArgumentNullException(nameof(dataType));
 			this.HasQuotedLiteral = hasQuotedLiteral;
 			this.IsRequired = isRequired;
-			this.IsIdentity = isIdentity;
+			this.IdentityOptions = identityOptions;
 			this.IsPrimaryKey = isPrimaryKey;
 			this.IsComputed = isComputed;
 			this.DefaultValue = defaultValue;
 		}
 
 		public override string ToString() => this.Name;
+	}
+
+	public sealed class IdentityOptions
+	{
+		public readonly decimal Seed;
+		public readonly decimal Increment;
+
+		public IdentityOptions(decimal seed, decimal increment)
+		{
+			Seed = seed;
+			Increment = increment;
+		}
 	}
 }

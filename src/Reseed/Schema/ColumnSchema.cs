@@ -11,6 +11,8 @@ namespace Reseed.Schema
 		public readonly DataType DataType;
 		public readonly bool IsPrimaryKey;
 		public readonly bool IsIdentity;
+		public readonly decimal? IdentitySeed;
+		public readonly decimal? IdentityIncrement;
 		public readonly bool IsComputed;
 		public readonly bool IsNullable;
 		public readonly string DefaultValueExpression;
@@ -22,6 +24,8 @@ namespace Reseed.Schema
 			[NotNull] DataType dataType,
 			bool isPrimaryKey,
 			bool isIdentity,
+			decimal? identitySeed,
+			decimal? identityIncrement,
 			bool isComputed,
 			bool isNullable,
 			string defaultValueExpression)
@@ -32,6 +36,8 @@ namespace Reseed.Schema
 			this.DataType = dataType ?? throw new ArgumentNullException(nameof(dataType));
 			this.IsPrimaryKey = isPrimaryKey;
 			this.IsIdentity = isIdentity;
+			this.IdentitySeed = identitySeed;
+			this.IdentityIncrement = identityIncrement;
 			this.IsComputed = isComputed;
 			this.IsNullable = isNullable;
 			this.HasDefaultValue = defaultValueExpression != null;
@@ -44,7 +50,9 @@ namespace Reseed.Schema
 				new[]
 					{
 						this.IsPrimaryKey ? "PK" : string.Empty,
-						this.IsIdentity ? "Identity" : string.Empty,
+						this.IsIdentity
+							? $"Identity({this.IdentitySeed}, {this.IdentityIncrement})"
+							: string.Empty,
 						this.HasDefaultValue ? this.DefaultValueExpression : string.Empty
 					}
 					.Where(s => !string.IsNullOrEmpty(s));
