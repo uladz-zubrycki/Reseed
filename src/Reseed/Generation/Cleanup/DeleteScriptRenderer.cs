@@ -22,7 +22,7 @@ namespace Reseed.Generation.Cleanup
 			if (configuration == null) throw new ArgumentNullException(nameof(configuration));
 
 			var reversedTables = tables.Reverse();
-			return configuration.Mode switch
+			var cleanupScripts = configuration.Mode switch
 			{
 				DeleteCleanupMode deleteMode =>
 					RenderDeleteScripts(reversedTables, configuration.Target, deleteMode),
@@ -33,6 +33,10 @@ namespace Reseed.Generation.Cleanup
 				_ => throw new NotSupportedException(
 					$"Unknown {nameof(CleanupMode)} value '{configuration.Mode}'")
 			};
+
+			return configuration.ReseedIdentityColumns
+				? AppendReseedScript(cleanupScripts, reversedTables)
+				: cleanupScripts;
 		}
 
 		private static IReadOnlyCollection<OrderedItem<SqlScriptAction>> RenderDeleteScripts(
@@ -266,8 +270,7 @@ namespace Reseed.Generation.Cleanup
 				tables
 					.SelectMany(ot => ot.Value.GetRelations())
 					.GroupBy(t => t.Target)
-					.ToDictionary(gr => gr.Key,
-						gr => gr.ToArray());
+					.ToDictionary(gr => gr.Key, gr => gr.ToArray());
 
 			return t =>
 				incomingRelationMap.TryGetValue(t, out var rs)
@@ -279,5 +282,26 @@ namespace Reseed.Generation.Cleanup
 			t => target.GetCustomScript(t, out var s)
 				? s
 				: throw new InvalidOperationException($"There is no custom script for table {t}");
+
+		private static IReadOnlyCollection<OrderedItem<SqlScriptAction>> AppendReseedScript(
+			IReadOnlyCollection<OrderedItem<SqlScriptAction>> scripts, 
+			OrderedGraph<TableSchema> orderedTables)
+		{
+			var identityTables = orderedTables.Nodes
+				.Unordered()
+				.Where(t => t.Columns.Any(c => c.IsIdentity))
+				.ToArray();
+
+			if (identityTables.Length == 0)
+			{
+				return scripts;
+			}
+			else
+			{
+				return scripts
+					.Append(IdentityReseedScriptRenderer.Render(identityTables))
+					.ToArray();
+			}
+		}
 	}
 }

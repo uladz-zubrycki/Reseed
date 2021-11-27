@@ -19,85 +19,85 @@ namespace Reseed.Tests.Integration.Core
 		private static BasicInsertDefinition BasicProcedureDefinition =>
 			BasicInsertDefinition.Procedure(new ObjectName("spDeleteData"));
 
-		private static TemporaryTablesInsertDefinition TempTablesProcedureDefinition =>
+		private static TemporaryTablesInsertDefinition TemporaryTablesProcedureDefinition =>
 			TemporaryTablesInsertDefinition.Procedure(new ObjectName("spDeleteData"));
 
 		public static readonly Func<IDataProvider, SeedMode> BasicScriptDelete =
 			dp => SeedMode.Basic(
 				BasicInsertDefinition.Script(),
-				CleanupDefinition.Script(CleanupMode.Delete(), CleanupTarget),
+				CleanupDefinition.Script(CleanupMode.Delete(), CleanupTarget, true),
 				dp);
 
 		public static readonly Func<IDataProvider, SeedMode> BasicScriptPreferTruncate =
 			dp => SeedMode.Basic(
 				BasicInsertDefinition.Script(),
-				CleanupDefinition.Script(CleanupMode.PreferTruncate(), CleanupTarget),
+				CleanupDefinition.Script(CleanupMode.PreferTruncate(), CleanupTarget, true),
 				dp);
 
 		public static readonly Func<IDataProvider, SeedMode> BasicScriptTruncate =
 			dp => SeedMode.Basic(
 				BasicInsertDefinition.Script(),
-				CleanupDefinition.Script(CleanupMode.Truncate(), CleanupTarget),
+				CleanupDefinition.Script(CleanupMode.Truncate(), CleanupTarget, true),
 				dp);
 
 		public static readonly Func<IDataProvider, SeedMode> BasicSpDelete =
 			dp => SeedMode.Basic(
 				BasicProcedureDefinition,
-				CleanupDefinition.Script(CleanupMode.Delete(), CleanupTarget),
+				CleanupDefinition.Script(CleanupMode.Delete(), CleanupTarget, true),
 				dp);
 
 		public static readonly Func<IDataProvider, SeedMode> BasicSpPreferTruncate =
 			dp => SeedMode.Basic(
 				BasicProcedureDefinition,
-				CleanupDefinition.Script(CleanupMode.PreferTruncate(), CleanupTarget),
+				CleanupDefinition.Script(CleanupMode.PreferTruncate(), CleanupTarget, true),
 				dp);
 
 		public static readonly Func<IDataProvider, SeedMode> BasicSpTruncate =
 			dp => SeedMode.Basic(
 				BasicProcedureDefinition,
-				CleanupDefinition.Script(CleanupMode.Truncate(), CleanupTarget),
+				CleanupDefinition.Script(CleanupMode.Truncate(), CleanupTarget, true),
 				dp);
 
 		public static readonly Func<IDataProvider, SeedMode> TempTablesScriptDelete =
 			dp => SeedMode.TemporaryTables(
 				"temp",
 				TemporaryTablesInsertDefinition.Script(),
-				CleanupDefinition.Script(CleanupMode.Delete(), CleanupTarget),
+				CleanupDefinition.Script(CleanupMode.Delete(), CleanupTarget, true),
 				dp);
 
 		public static readonly Func<IDataProvider, SeedMode> TempTablesScriptPreferTruncate =
 			dp => SeedMode.TemporaryTables(
 				"temp",
 				TemporaryTablesInsertDefinition.Script(),
-				CleanupDefinition.Script(CleanupMode.PreferTruncate(), CleanupTarget),
+				CleanupDefinition.Script(CleanupMode.PreferTruncate(), CleanupTarget, true),
 				dp);
 
 		public static readonly Func<IDataProvider, SeedMode> TempTablesScriptTruncate =
 			dp => SeedMode.TemporaryTables(
 				"temp",
 				TemporaryTablesInsertDefinition.Script(),
-				CleanupDefinition.Script(CleanupMode.Truncate(), CleanupTarget),
+				CleanupDefinition.Script(CleanupMode.Truncate(), CleanupTarget, true),
 				dp);
 
 		public static readonly Func<IDataProvider, SeedMode> TempTablesSpDelete =
 			dp => SeedMode.TemporaryTables(
 				"temp",
-				TempTablesProcedureDefinition,
-				CleanupDefinition.Script(CleanupMode.Delete(), CleanupTarget),
+				TemporaryTablesProcedureDefinition,
+				CleanupDefinition.Script(CleanupMode.Delete(), CleanupTarget, true),
 				dp);
 
 		public static readonly Func<IDataProvider, SeedMode> TempTablesSpPreferTruncate =
 			dp => SeedMode.TemporaryTables(
 				"temp",
-				TempTablesProcedureDefinition,
-				CleanupDefinition.Script(CleanupMode.PreferTruncate(), CleanupTarget),
+				TemporaryTablesProcedureDefinition,
+				CleanupDefinition.Script(CleanupMode.PreferTruncate(), CleanupTarget, true),
 				dp);
 
 		public static readonly Func<IDataProvider, SeedMode> TempTablesSpTruncate =
 			dp => SeedMode.TemporaryTables(
 				"temp",
-				TempTablesProcedureDefinition,
-				CleanupDefinition.Script(CleanupMode.Delete(), CleanupTarget),
+				TemporaryTablesProcedureDefinition,
+				CleanupDefinition.Script(CleanupMode.Delete(), CleanupTarget, true),
 				dp);
 
 		public static TestFixtureParameters[] Every()
