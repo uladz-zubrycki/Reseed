@@ -40,14 +40,15 @@ namespace Reseed.Extension.IdentityGeneration
 					c =>
 					{
 						var existingValues = table.Rows
-							.Select(r => int.TryParse(r.Value.GetValue(c.Name), out var n)
-								? (int?)n
+							.Select(r => decimal.TryParse(r.Value.GetValue(c.Name), out var n)
+								? (decimal?)n
 								: null)
 							.Where(n => n != null)
-							.Cast<int>()
+							.Cast<decimal>()
 							.ToArray();
 
-						return (c, new IdentityGenerator(existingValues));
+						return (c, 
+							new IdentityGenerator(c.IdentityOptions, existingValues));
 					})
 				.ToArray();
 	}
