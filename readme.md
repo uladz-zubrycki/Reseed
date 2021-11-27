@@ -47,15 +47,16 @@ The only entry point to all the functionality is the `Reseeder` class and this i
 
 ```csharp
 
-var reseeder = new Reseeder("Server=myServerName\myInstanceName;Database=myDataBase;User Id=myUsername;Password=myPassword;");
-var seedActions = reseeder.Generate(SeedMode.Basic(
+const string connectionString = "Server=myServerName\myInstanceName;Database=myDataBase;User Id=myUsername;Password=myPassword;";
+var reseeder = new Reseeder();
+var seedActions = reseeder.Generate(connectionString, SeedMode.Basic(
     BasicInsertDefinition.Script(),
     CleanupDefinition.Script(CleanupMode.PreferTruncate(), CleanupTarget.Excluding())),
     DataProviders.Xml(".\Data"));
 
-reseeder.Execute(seedActions.PrepareDatabase);
-reseeder.Execute(seedActions.RestoreData);
-reseeder.Execute(seedActions.CleanupDatabase);
+reseeder.Execute(connectionString, seedActions.PrepareDatabase);
+reseeder.Execute(connectionString, seedActions.RestoreData);
+reseeder.Execute(connectionString, seedActions.CleanupDatabase);
 ```
 
 See the [Examples](https://github.com/v-zubritsky/Reseed#examples) section below to get acquainted with the API and library behavior or check the [Samples](#samples) section to see how it could be integrated into your application testing framework.
@@ -112,21 +113,21 @@ Reseeder.Generate(AnySeedMode);
 To execute the actions you simply pass a collection representing a specific stage to the `Reseeder.Execute` instance method.
 
 ```csharp
-Reseeder.Execute(IReadOnlyCollection<OrderedItem<ISeedAction>>, TimeSpan?);
+Reseeder.Execute(string, IReadOnlyCollection<OrderedItem<ISeedAction>>, TimeSpan?);
 ```
 
-If you have `Reseeder reseeder` and `SeedActions seedActions` variables, then it's:  
+If you have `Reseeder reseeder`, `string connectionString` and `SeedActions seedActions` variables, then it's:  
 
 ```csharp
-reseeder.Execute(seedActions.PrepareDatabase);
-reseeder.Execute(seedActions.RestoreData);
-reseeder.Execute(seedActions.CleanupDatabase);
+reseeder.Execute(connectionString, seedActions.PrepareDatabase);
+reseeder.Execute(connectionString, seedActions.RestoreData);
+reseeder.Execute(connectionString, seedActions.CleanupDatabase);
 ```
 
 Optionally you could provide a `TimeSpan` to specify an action execution timeout; otherwise defaults of the underlying system are used (e.g 30 seconds for `SqlCommand`).
 
 ```csharp
-reseeder.Execute(seedActions.RestoreData, TimeSpan.FromSeconds(5));
+reseeder.Execute(connectionString, seedActions.RestoreData, TimeSpan.FromSeconds(5));
 ```
 
 # Operation modes
