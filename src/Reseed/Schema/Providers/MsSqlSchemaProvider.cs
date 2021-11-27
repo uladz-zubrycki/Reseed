@@ -9,12 +9,10 @@ namespace Reseed.Schema.Providers
 {
 	internal static class MsSqlSchemaProvider
 	{
-		public static IReadOnlyCollection<TableSchema> LoadSchema([NotNull] string connectionString)
+		public static IReadOnlyCollection<TableSchema> LoadSchema([NotNull] SqlConnection connection)
 		{
-			if (connectionString == null) throw new ArgumentNullException(nameof(connectionString));
+			if (connection == null) throw new ArgumentNullException(nameof(connection));
 
-			using var connection = new SqlConnection(connectionString);
-			connection.Open();
 			var tables = MsSqlSchemaReader.LoadTables(connection);
 			if (tables.Count == 0)
 			{
