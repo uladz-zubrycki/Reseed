@@ -28,6 +28,8 @@ namespace Reseed.Schema.Providers
 						IsNullableColumn = r.GetInt32(cs["IsNullableColumn"]) == 1,
 						ColumnDefaultValue = r.TryGet(cs["ColumnDefaultValue"], r.GetString),
 						IsIdentityColumn = r.GetInt32(cs["IsIdentityColumn"]) == 1,
+						IdentitySeed = r.GetSqlDecimal(cs["IdentitySeed"]),
+						IdentityIncrement = r.GetSqlDecimal(cs["IdentityIncrement"]),
 						IsComputedColumn = r.GetInt32(cs["IsComputedColumn"]) == 1,
 						PrimaryKeyColumnOrder = primaryKeyOrder == -1 ? (int?) null : primaryKeyOrder,
 						Type = new
@@ -66,6 +68,8 @@ namespace Reseed.Schema.Providers
 										c.Type.NumericScale),
 									c.PrimaryKeyColumnOrder != null,
 									c.IsIdentityColumn,
+									c.IsIdentityColumn ? c.IdentitySeed.Value : null,
+									c.IsIdentityColumn ? c.IdentityIncrement.Value : null,
 									c.IsComputedColumn,
 									c.IsNullableColumn,
 									c.ColumnDefaultValue))
@@ -159,6 +163,8 @@ namespace Reseed.Schema.Providers
 			|	CASE WHEN c.[is_nullable] = 'yes' THEN 1 ELSE 0 END as IsNullableColumn,
 			|	c.[column_default] as ColumnDefaultValue,
 			|	columnproperty(t.[object_id], c.[column_name], 'IsIdentity') as IsIdentityColumn,
+			|	IDENT_SEED (c.[table_schema] + '.' + c.[table_name]) as IdentitySeed,  
+			|	IDENT_INCR (c.[table_schema] + '.' + c.[table_name]) as IdentityIncrement,  
 			|	columnproperty(t.[object_id], c.[column_name],'IsComputed') as IsComputedColumn,
 			|	COALESCE((
 			|		SELECT ic.[key_ordinal]

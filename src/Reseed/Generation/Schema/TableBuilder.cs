@@ -61,7 +61,11 @@ namespace Reseed.Generation.Schema
 				columnSchema.DataType,
 				HasQuotedLiteral(columnSchema.DataType),
 				!(columnSchema.IsNullable || columnSchema.HasDefaultValue),
-				columnSchema.IsIdentity,
+				columnSchema.IsIdentity
+					? new IdentityOptions(
+						columnSchema.IdentitySeed!.Value, 
+						columnSchema.IdentityIncrement!.Value)
+					: null,
 				columnSchema.IsPrimaryKey,
 				columnSchema.IsComputed,
 				null);

@@ -16,16 +16,24 @@ namespace Reseed.Configuration.Cleanup
 
 		public static CleanupDefinition Script(
 			[NotNull] CleanupMode mode,
-			[NotNull] CleanupTarget target) =>
-			new CleanupScriptDefinition(new CleanupConfiguration(mode, target));
+			[NotNull] CleanupTarget target,
+			bool reseedIdentityColumns = false) =>
+			new CleanupScriptDefinition(new CleanupConfiguration(
+				mode,
+				target, 
+				reseedIdentityColumns));
 
 		public static CleanupDefinition Procedure(
 			[NotNull] ObjectName procedureName,
 			[NotNull] CleanupMode mode,
-			[NotNull] CleanupTarget target) =>
+			[NotNull] CleanupTarget target,
+			bool reseedIdentityColumns = false) =>
 			new CleanupProcedureDefinition(
 				procedureName,
-				new CleanupConfiguration(mode, target));
+				new CleanupConfiguration(
+					mode, 
+					target, 
+					reseedIdentityColumns));
 	}
 
 	[PublicAPI]

@@ -62,7 +62,9 @@ namespace Reseed.Generation.TemporaryTables
 			return string.Join("," + Environment.NewLine,
 				columns.Select(c =>
 					$"[{c.Name}] {c.DataType} " +
-					$"{(c.IsIdentity ? "IDENTITY (1, 1) " : "")}" +
+					(c.IsIdentity
+						? $"IDENTITY ({c.IdentitySeed}, {c.IdentityIncrement}) "
+						: "") +
 					$"{(c.HasDefaultValue ? $"{RenderDefaultConstraint(c, table.Name.Name)} " : "")}" +
 					$"{(c.IsNullable || c.IsComputed ? "NULL" : "NOT NULL")}"));
 		}

@@ -205,8 +205,8 @@ Otherwise data cleanup logic could be represented either as a script or a stored
 
 ```csharp
 CleanupDefinition.NoCleanup();
-CleanupDefinition.Script(CleanupMode, CleanupTarget);
-CleanupDefinition.Procedure(ObjectName, CleanupMode, CleanupTarget);
+CleanupDefinition.Script(CleanupMode, CleanupTarget, bool = false);
+CleanupDefinition.Procedure(ObjectName, CleanupMode, CleanupTarget, bool = false);
 ```
 
 ### Data cleanup configuration 
@@ -287,6 +287,30 @@ CleanupDefinition.Script(
         {
             (new ObjectName("User"), "DELETE FROM [dbo].[User] WHERE Id <> 1")
         })))
+```
+
+### Identity columns reset
+
+It's also possible to reset identity columns current seed values to the initial ones. Simply pass `true` value for an optional `bool` `reseedIdentityColumns` parameter, which is available for most of `CleanupDefinition` factory methods.
+
+As a result additional script will be added into the `RestoreData` `SeedActions` collection. 
+
+Here is a setup example:
+
+```csharp
+CleanupDefinition.Script(
+    CleanupMode.PreferTruncate(),
+    CleanupTarget.Including(c => c.IncludeSchemas("dbo")),
+    reseedIdentityColumns: true)
+```
+
+And this is how generated reset script looks like (if we had the only `dbo.User` table):
+
+```sql
+DBCC CHECKIDENT
+(
+	'[dbo].[User]', RESEED, 1
+);
 ```
 
 # Data providers

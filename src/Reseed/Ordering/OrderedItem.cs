@@ -94,5 +94,15 @@ namespace Reseed.Ordering
 				.WithNaturalOrder()
 				.ToArray();
 		}
+
+		public static IReadOnlyCollection<OrderedItem<T>> Append<T>(
+			this IReadOnlyCollection<OrderedItem<T>> items,
+			T item)
+		{
+			var lastIndex = items.Max(i => i.Order);
+			return items
+				.Append(new OrderedItem<T>(lastIndex + 1, item))
+				.ToArray();
+		}
 	}
 }
