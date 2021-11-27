@@ -60,20 +60,20 @@ namespace Reseed.Samples.NUnit
 			server = new SqlServerContainer(dbMigrationsPath);
 			await server.StartAsync();
 
-			reseeder = new Reseeder(server.ConnectionString);
-			seedActions = GenerateSeedActions(reseeder, reseederDataPath);
-			reseeder.Execute(seedActions.PrepareDatabase);
+			reseeder = new Reseeder();
+			seedActions = GenerateSeedActions(reseederDataPath);
+			reseeder.Execute(server.ConnectionString, seedActions.PrepareDatabase);
 		}
 
 		public Task RestoreDataAsync()
 		{
-			reseeder.Execute(seedActions.RestoreData);
+			reseeder.Execute(server.ConnectionString, seedActions.RestoreData);
 			return Task.CompletedTask;
 		}
 
 		public async Task CleanupAsync()
 		{
-			reseeder.Execute(seedActions.CleanupDatabase);
+			reseeder.Execute(server.ConnectionString, seedActions.CleanupDatabase);
 			if (server != null)
 			{
 				await server.DisposeAsync();
@@ -82,12 +82,14 @@ namespace Reseed.Samples.NUnit
 
 		// Configure Reseeder behavior. The simplest mode of behavior is used,
 		// which leads to generation of plain sql scripts for Insert and Delete actions.
-		private static SeedActions GenerateSeedActions(Reseeder seeder, string dataFolder) =>
-			seeder.Generate(SeedMode.Basic(
-				BasicInsertDefinition.Script(),
-				CleanupDefinition.Script(
-					CleanupMode.PreferTruncate(),
-					CleanupTarget.Excluding()),
-				DataProviders.Xml(dataFolder)));
+		private SeedActions GenerateSeedActions(string dataFolder) =>
+			reseeder.Generate(
+				server.ConnectionString,
+				SeedMode.Basic(
+					BasicInsertDefinition.Script(),
+					CleanupDefinition.Script(
+						CleanupMode.PreferTruncate(),
+						CleanupTarget.Excluding()),
+					DataProviders.Xml(dataFolder)));
 	}
 }

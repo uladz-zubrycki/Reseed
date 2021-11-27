@@ -1,14 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.SqlClient;
+using JetBrains.Annotations;
 using Reseed.Schema.Providers;
 
 namespace Reseed.Schema
 {
 	internal static class SchemaProvider
 	{
-		public static IReadOnlyCollection<TableSchema> Load(string connectionString)
+		public static IReadOnlyCollection<TableSchema> Load([NotNull] SqlConnection connection)
 		{
-			var schemas = MsSqlSchemaProvider.LoadSchema(connectionString);
+			if (connection == null) throw new ArgumentNullException(nameof(connection));
+			var schemas = MsSqlSchemaProvider.LoadSchema(connection);
 			if (schemas.Count == 0)
 			{
 				throw BuildNoSchemasException();

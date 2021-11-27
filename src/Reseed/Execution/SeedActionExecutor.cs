@@ -11,19 +11,12 @@ namespace Reseed.Execution
 	internal static class SeedActionExecutor
 	{
 		public static void Execute(
-			[NotNull] string connectionString,
+			[NotNull] SqlConnection connection,
 			[NotNull] IReadOnlyCollection<OrderedItem<ISeedAction>> actions,
 			TimeSpan? actionTimeout)
 		{
-			if (connectionString == null) throw new ArgumentNullException(nameof(connectionString));
+			if (connection == null) throw new ArgumentNullException(nameof(connection));
 			if (actions == null) throw new ArgumentNullException(nameof(actions));
-			if (actions.Count == 0)
-			{
-				return;
-			}
-
-			using var connection = new SqlConnection(connectionString);
-			connection.Open();
 
 			foreach (var action in actions.Order())
 			{

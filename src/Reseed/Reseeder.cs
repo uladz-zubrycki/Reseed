@@ -1,5 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
+using System.Data.SqlClient;
+using System.Linq;
 using JetBrains.Annotations;
 using Reseed.Configuration;
 using Reseed.Data;
@@ -17,25 +20,23 @@ namespace Reseed
 	[PublicAPI]
 	public sealed class Reseeder
 	{
-		private readonly string connectionString;
 		private readonly ReseederOptions options;
 
-		public Reseeder([NotNull] string connectionString)
-			: this(connectionString, ReseederOptions.Default)
+		public Reseeder() : this(ReseederOptions.Default)
 		{
 		}
 
-		public Reseeder([NotNull] string connectionString, [NotNull] ReseederOptions options)
+		public Reseeder([NotNull] ReseederOptions options)
 		{
-			this.connectionString = connectionString ?? throw new ArgumentNullException(nameof(connectionString));
-			this.options = options;
+			this.options = options ?? throw new ArgumentNullException(nameof(options));
 		}
 
-		public SeedActions Generate([NotNull] AnySeedMode mode)
+		public SeedActions Generate([NotNull] SqlConnection connection, [NotNull] AnySeedMode mode)
 		{
+			AssertConnection(connection);
 			if (mode == null) throw new ArgumentNullException(nameof(mode));
 
-			var schemas = SchemaProvider.Load(connectionString);
+			var schemas = SchemaProvider.Load(connection);
 			var orderedSchemas = NodeOrderer<TableSchema>.Order(schemas);
 
 			return mode switch
@@ -47,11 +48,13 @@ namespace Reseed
 		}
 
 		public void Execute(
+			[NotNull] SqlConnection connection,
 			[NotNull] IReadOnlyCollection<OrderedItem<ISeedAction>> actions,
 			TimeSpan? actionTimeout = null)
 		{
+			AssertConnection(connection);
 			if (actions == null) throw new ArgumentNullException(nameof(actions));
-			SeedActionExecutor.Execute(this.connectionString, actions, actionTimeout);
+			SeedActionExecutor.Execute(connection, actions, actionTimeout);
 		}
 
 		private static SeedActions Generate(
@@ -71,6 +74,16 @@ namespace Reseed
 
 			var containers = TableOrderer.Order(extendedTables, orderedSchemas);
 			return SeedActionGenerator.Generate(mode, orderedSchemas, containers);
+		}
+
+		private static void AssertConnection(SqlConnection connection)
+		{
+			if (connection == null) throw new ArgumentNullException(nameof(connection));
+			if (connection.State != ConnectionState.Open)
+			{
+				throw new ArgumentException(
+					$"The provided connection must be already opened, while received connection in a '{connection.State}' state");
+			}
 		}
 	}
 }
