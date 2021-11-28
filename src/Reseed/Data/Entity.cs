@@ -8,7 +8,7 @@ namespace Reseed.Data
 {
 	public sealed class Entity
 	{
-		internal readonly DataFile Origin;
+		internal readonly EntityOrigin Origin;
 		public readonly string Name;
 		public readonly IReadOnlyCollection<Property> Properties;
 
@@ -19,7 +19,7 @@ namespace Reseed.Data
 		}
 
 		internal Entity(
-			[NotNull] DataFile origin,
+			[NotNull] EntityOrigin origin,
 			[NotNull] string name,
 			[NotNull] IReadOnlyCollection<Property> properties)
 			: this(name, properties)

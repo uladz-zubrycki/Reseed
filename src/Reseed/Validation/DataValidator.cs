@@ -60,7 +60,7 @@ namespace Reseed.Validation
 					.Select(x => x.ToString())
 					.JoinStrings(", ");
 
-				return $"{rows.Length} entities with key '{value}' defined in {origins}";
+				return $"{rows.Length} entities with key '{value}' are defined in {origins}";
 			}
 		}
 	}

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using JetBrains.Annotations;
 using Reseed.Configuration.Cleanup;
 using Reseed.Data;
@@ -15,8 +16,8 @@ namespace Reseed.Configuration.TemporaryTables
 			[NotNull] string schemaName,
 			[NotNull] TemporaryTablesInsertDefinition insertDefinition,
 			[NotNull] CleanupDefinition cleanupDefinition,
-			[NotNull] IDataProvider dataProvider)
-			: base(dataProvider)
+			[NotNull] IReadOnlyCollection<IDataProvider> dataProviders)
+			: base(dataProviders)
 		{
 			if (string.IsNullOrEmpty(schemaName))
 				throw new ArgumentException("Value cannot be null or empty.", nameof(schemaName));

@@ -15,7 +15,8 @@ namespace Reseed.Samples.NUnit
 	[Parallelizable(ParallelScope.None)]
 	public sealed class SampleFixture: TestFixtureBase
 	{
-		private const int UsersCount = 3;
+		// We have 3 users defined in xml data file and 3 more are described in csharp code
+		private const int UsersCount = 6; 
 
 		[Test]
 		[Repeat(5)]
@@ -23,7 +24,7 @@ namespace Reseed.Samples.NUnit
 		{
 			// We don't need to do any User table initialization manually.
 			// Reseeder, invoked in the TestFixtureBase type, will take care of that
-			// And insert all the User rows described at 'Data/Users.xml'.
+			// And insert all the User rows described at 'Data/Users.xml' and in Inline csharp provider.
 			Assert.AreEqual(UsersCount, await GetUsersCount());
 
 			// Executing an action with mutation, which won't be noticed in the rest of the tests.

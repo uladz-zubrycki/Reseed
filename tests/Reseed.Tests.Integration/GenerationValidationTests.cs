@@ -22,8 +22,8 @@ namespace Reseed.Tests.Integration
 		// when there are no entities in data files
 		public Task ShouldFailGracefully_NoEntities() =>
 			AssertSeedFails(ex => ex.Message.StartsWith(
-				"The specified IDataProvider wasn't able to find any entities, " +
-				"while at least one is required."));
+				"One of the specified data providers wasn't able to provide any entities, " +
+				"while at least one is expected."));
 
 		[Test]
 		// Should fail with clear error,

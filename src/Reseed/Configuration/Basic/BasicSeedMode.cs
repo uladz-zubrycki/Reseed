@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using JetBrains.Annotations;
 using Reseed.Configuration.Cleanup;
 using Reseed.Data;
@@ -13,8 +14,8 @@ namespace Reseed.Configuration.Basic
 		public BasicSeedMode(
 			[NotNull] BasicInsertDefinition insertDefinition,
 			[NotNull] CleanupDefinition cleanupDefinition,
-			[NotNull] IDataProvider dataProvider)
-			: base(dataProvider)
+			[NotNull] IReadOnlyCollection<IDataProvider> dataProviders)
+			: base(dataProviders)
 		{
 			this.InsertDefinition = insertDefinition ?? throw new ArgumentNullException(nameof(insertDefinition));
 			this.CleanupDefinition = cleanupDefinition ?? throw new ArgumentNullException(nameof(cleanupDefinition));

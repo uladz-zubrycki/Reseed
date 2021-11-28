@@ -73,7 +73,7 @@ See the [Examples](https://github.com/v-zubritsky/Reseed#examples) section below
 * It's possible to omit identity columns, Reseed will generate them for you;
 
 # Limitations
-* Data could be described in xml files only, support for other formats is to be added. Alternatively you could provide your own implementation of `IDataProvider` type. See [Data Providers](#data-providers) for details and examples;
+* Data could be described in xml files or as csharp objects, other formats aren't supported for now. If this isn't sufficient for your case, you could provide own implementation of `IDataProvider` type. See [Data Providers](#data-providers) for details and examples;
 * MS SQL Server is the only database supported for now. 
 
 # Seed actions generation
@@ -139,7 +139,7 @@ Static `SeedMode` type is an entry point to the Reseed behaviour configuration.
 ### Basic mode
 
 ```csharp
-SeedMode.Basic(BasicInsertDefinition, AnyCleanupDefinition, IDataProvider);
+SeedMode.Basic(BasicInsertDefinition, AnyCleanupDefinition, IDataProvider[]);
 ```
     
 This is the most basic and the most robust mode of operation. In this mode Reseed generates single insert script for all the entities as well as the only delete script to cleanup database. Data restore is a combination of delete and insert scripts executed one after another. 
@@ -154,7 +154,7 @@ BasicInsertDefinition.Procedure(ObjectName);
 ### Temporary tables mode
 
 ```csharp
-SeedMode.TemporaryTables(string, TemporaryTablesInsertDefinition, AnyCleanupDefinition, IDataProvider);
+SeedMode.TemporaryTables(string, TemporaryTablesInsertDefinition, AnyCleanupDefinition, IDataProvider[]);
 ```
 
 This mode is more tricky, thus less reliable, but at the same time it is able to provide a great speed boost.
@@ -315,16 +315,23 @@ DBCC CHECKIDENT
 
 # Data providers
 
-If you want Reseed to insert data for you, you need to specify how and from where this data should be read. This is encapsulated in the `IDataProvider` abstraction. All the built-in providers are exposed through the `DataProviders` static type and there is the only for now, which is xml.
+If you want Reseed to insert data for you, you need to specify how and from where this data should be read. This is encapsulated in the `IDataProvider` abstraction. All the built-in providers are exposed through the `DataProviders` static type. Currently you could describe your data as xml or csharp objects.
 
 ### Xml data provider
 
 As the name assumes data should be represented in xml format. Data might be described in the only data file or split into a few, the way that suits you more. 
+Use `DataProviders.Xml` to use this approach.
+
+```csharp
+DataProviders.Xml(string);
+DataProviders.Xml(string, Func<string, bool>);
+DataProviders.Xml(string, string, Func<string, bool>);
+```
 
 It's possible to control from what location data should be read and what files to read:
 - you need to specify a root folder, which is to be scanned recursively;
-- you could specify file name pattern (see [Directory.EnumerateFiles](https://docs.microsoft.com/en-us/dotnet/api/system.io.directory.enumeratefiles?view=net-5.0#System_IO_Directory_EnumerateFiles_System_String_System_String_) for supported pattern features);
-- you could provide additional predicate to check the file name, which is simply a `Func<string, bool>`.
+- you could specify file name pattern to use only files, which match it(see [Directory.EnumerateFiles](https://docs.microsoft.com/en-us/dotnet/api/system.io.directory.enumeratefiles?view=net-5.0#System_IO_Directory_EnumerateFiles_System_String_System_String_) for supported pattern features);
+- you could filter your files additionally by providing a `Func<string, bool>` predicate to check each file's name.
 
 Rules to describe the data are simple:
 - Each row should be represented as xml element with nested elements for each column. 
@@ -355,6 +362,50 @@ A few things to note here:
 - We'll get two rows inserted into the `dbo.User` table;
 - We omitted schema name for the first row and explicitly specified it for the other. `dbo` schema is assumed by default, so there is no difference;
 - We omitted `Id` value for the second row, but it's an identity column, so value will be generated automatically.
+
+### Inline data provider
+
+Another approach to provide your data is to define it inlined, in your csharp code. Use `DataProviders.Inline` for that aim.
+
+```csharp
+DataProviders.Inline(Func<InlineDataProviderBuilder, IDataProvider>);
+```
+
+`InlineDataProviderBuilder` has a few methods to add entities in a fluent code-style and a `Build` method, which should be called the last to create a `IDataProvider` instance.
+
+It suppors a few ways to represent each entity:
+- `Entity` type, which has name and a collection of `Property` for entity properties;
+- Collection of `Property` objects, while entity name is specified separately as an `ObjectName` instance;
+- `IDictionary<string, string>`, which maps property name to its value, while entity name is specified separately as an `ObjectName` instance.
+
+Configuration might look this way, if we had `dbo.User` table with three columns: `Id`, `FirstName` and `LastName`:
+
+```csharp
+DataProviders.Inline(builder =>
+    builder
+        .AddEntities(
+            new Entity("User", new[]
+            {
+                new Property("Id", "2"),
+                new Property("FirstName", "Alice"),
+                new Property("LastName", "Freeman"),
+            }))
+        .AddTable(
+            new ObjectName("User", "dbo"),
+            new[]
+            {
+                new Property("FirstName", "Bob"),
+                new Property("LastName", "Spencer"),
+            })
+        .AddTable(
+            new ObjectName("User"),
+            new Dictionary<string, string>
+            {
+                ["FirstName"] = "Jenny",
+                ["LastName"] = "Lee"
+            })
+        .Build())
+```
 
 # Constraints resolution
 TBD
