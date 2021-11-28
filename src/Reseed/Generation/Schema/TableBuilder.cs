@@ -173,7 +173,7 @@ namespace Reseed.Generation.Schema
 					(duplicates.Length == 1
 						? $"Property '{duplicates[0]}' is"
 						: $"Properties {string.Join(", ", duplicates.Select(d => $"'{d}'"))} are") +
-					" defined multiple times for same entity. ";
+					" defined multiple times for the same entity. ";
 
 				throw new InvalidOperationException(
 					$"Invalid '{entity.Name}' entity test data. " +
@@ -202,9 +202,9 @@ namespace Reseed.Generation.Schema
 						: "";
 
 				return new InvalidOperationException(
-					"Some of the entities found don't have matching database tables. " +
+					"Some of the entities provided don't have matching database tables. " +
 					"Make sure that names are correct and expected. " +
-					$"Can't find corresponding sql table for entity '{tableName.Name}'{schemaNameMisprintMessage}. " +
+					$"Can't find corresponding sql table for entity name '{tableName.Name}'{schemaNameMisprintMessage}. " +
 					$"{BuildOriginErrorMessage(origins)}");
 			};
 		}
@@ -212,7 +212,7 @@ namespace Reseed.Generation.Schema
 		private static InvalidOperationException BuildComputedColumnException(Entity entity,
 			Column column) =>
 			new(
-				$"Invalid '{entity.Name}' entity test data. " +
+				$"Invalid '{entity.Name}' entity data. " +
 				$"Table column '{column.Name}' is computed and shouldn't be specified. " +
 				BuildOriginErrorMessage(entity.Origin));
 
@@ -235,7 +235,7 @@ namespace Reseed.Generation.Schema
 				1 => new ObjectName(parts.Single(), defaultSchemaName),
 				2 => new ObjectName(parts[1], parts[0]),
 				_ => throw new InvalidOperationException(
-					$"Can't parse table name from entity '{entityName}'. " +
+					$"Can't parse table name from entity name '{entityName}'. " +
 					"Expected to have name as either 'TableName' or 'SchemaName.TableName'. " +
 					$"{BuildOriginErrorMessage(origins)}")
 			};
@@ -243,7 +243,7 @@ namespace Reseed.Generation.Schema
 
 		private static string BuildOriginErrorMessage(params EntityOrigin[] origins) =>
 			origins.Length == 1
-				? $"Error in data read from {origins[0]}"
-				: $"Error in data read from: {string.Join(", ", origins.Select(o => o.ToString()))}";
+				? $"Error in data from origin \"{origins[0]}\""
+				: $"Error in data from origins {string.Join(", ", origins.Select(o => '"' + o.ToString() + '"'))}";
 	}
 }

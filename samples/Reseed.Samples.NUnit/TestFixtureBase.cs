@@ -69,13 +69,21 @@ namespace Reseed.Samples.NUnit
 
 		public Task RestoreDataAsync()
 		{
-			reseeder.Execute(server.ConnectionString, seedActions.RestoreData);
+			if (seedActions != null)
+			{
+				reseeder.Execute(server.ConnectionString, seedActions.RestoreData);
+			}
+
 			return Task.CompletedTask;
 		}
 
 		public async Task CleanupAsync()
 		{
-			reseeder.Execute(server.ConnectionString, seedActions.CleanupDatabase);
+			if (seedActions != null)
+			{
+				reseeder.Execute(server.ConnectionString, seedActions.CleanupDatabase);
+			}
+
 			if (server != null)
 			{
 				await server.DisposeAsync();
