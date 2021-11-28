@@ -73,7 +73,7 @@ See the [Examples](https://github.com/v-zubritsky/Reseed#examples) section below
 * It's possible to omit identity columns, Reseed will generate them for you;
 
 # Limitations
-* Data could be described in xml files or as csharp objects, other formats aren't supported for now. If this isn't sufficient for your case, you could provide own implementation of `IDataProvider` type. See [Data Providers](#data-providers) for details and examples;
+* Data could be described in [xml files](#xml-data-provider) or [inline](#inline-data-provider) as csharp objects, other formats aren't supported for now. If this isn't sufficient for your case, you could provide own implementation of `IDataProvider` type. See [Data Providers](#data-providers) for details and examples;
 * MS SQL Server is the only database supported for now. 
 
 # Seed actions generation
@@ -373,10 +373,10 @@ DataProviders.Inline(Func<InlineDataProviderBuilder, IDataProvider>);
 
 `InlineDataProviderBuilder` has a few methods to add entities in a fluent code-style and a `Build` method, which should be called the last to create a `IDataProvider` instance.
 
-It suppors a few ways to represent each entity:
-- `Entity` type, which has name and a collection of `Property` for entity properties;
-- Collection of `Property` objects, while entity name is specified separately as an `ObjectName` instance;
-- `IDictionary<string, string>`, which maps property name to its value, while entity name is specified separately as an `ObjectName` instance.
+It supports a few ways to represent each entity:
+- `Entity` type, which has a name and a collection of `Property` objects for entity properties;
+- Collection of `Property` objects per entity, while entity name is specified separately as an `ObjectName` instance;
+- `IDictionary<string, string>` object per entity, which maps property name to its value, while entity name is specified separately as an `ObjectName` instance.
 
 Configuration might look this way, if we had `dbo.User` table with three columns: `Id`, `FirstName` and `LastName`:
 
@@ -386,23 +386,37 @@ DataProviders.Inline(builder =>
         .AddEntities(
             new Entity("User", new[]
             {
-                new Property("Id", "2"),
+                new Property("Id", "1"),
                 new Property("FirstName", "Alice"),
                 new Property("LastName", "Freeman"),
             }))
-        .AddTable(
+        .AddEntities(
             new ObjectName("User", "dbo"),
             new[]
             {
+	    	new Property("Id", "2"), 
                 new Property("FirstName", "Bob"),
                 new Property("LastName", "Spencer"),
+            },
+	    new[]
+            {
+	    	new Property("Id", "3"), 
+                new Property("FirstName", "Kelly"),
+                new Property("LastName", "Space"),
             })
-        .AddTable(
+        .AddEntities(
             new ObjectName("User"),
             new Dictionary<string, string>
             {
+	    	["Id"] = 4,
                 ["FirstName"] = "Jenny",
                 ["LastName"] = "Lee"
+            },
+	    new Dictionary<string, string>
+            {
+	    	["Id"] = 5,
+                ["FirstName"] = "Anthony",
+                ["LastName"] = "Turton"
             })
         .Build())
 ```
