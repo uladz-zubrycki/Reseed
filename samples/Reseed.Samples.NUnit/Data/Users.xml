@@ -1,5 +1,6 @@
 ﻿<Users>
     <User>
+        <Id>1</Id>
         <FirstName>John</FirstName>
         <LastName>Doe</LastName>
     </User>

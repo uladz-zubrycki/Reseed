@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
-using Reseed.Data.Providers.FileSystem;
+using Reseed.Data;
 using Reseed.Schema;
 using Reseed.Utils;
 
@@ -13,12 +13,12 @@ namespace Reseed.Generation.Schema
 		private readonly Dictionary<string, string> valueMapping;
 		private readonly object identityValue;
 		internal readonly TableDefinition Table;
-		internal readonly DataFile Origin;
+		internal readonly EntityOrigin Origin;
 		public readonly IReadOnlyCollection<string> Columns;
 
 		internal Row(
 			[NotNull] TableDefinition tableDefinition,
-			[NotNull] DataFile origin,
+			[NotNull] EntityOrigin origin,
 			[NotNull] IReadOnlyCollection<(string column, string value)> values)
 		{
 			if (values == null) throw new ArgumentNullException(nameof(values));

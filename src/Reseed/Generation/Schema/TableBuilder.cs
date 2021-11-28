@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
 using Reseed.Data;
-using Reseed.Data.Providers.FileSystem;
 using Reseed.Ordering;
 using Reseed.Schema;
 using static Reseed.Ordering.OrderedItem;
@@ -19,35 +18,54 @@ namespace Reseed.Generation.Schema
 			if (schemas == null) throw new ArgumentNullException(nameof(schemas));
 			if (entities == null) throw new ArgumentNullException(nameof(entities));
 
-			var schemasMap = schemas.ToDictionary(t => t.Name);
+			var schemaByTableNameMap = schemas.ToDictionary(t => t.Name);
 			var buildUnknownTableError = CreateUnknownTableErrorBuilder(schemas);
 
-			return entities
-				.GroupBy(e => e.Name, StringComparer.OrdinalIgnoreCase)
+			return MatchEntityWithTableSchema(entities, schemaByTableNameMap, buildUnknownTableError)
+				.GroupBy(x => x.TableSchema)
 				.Select(gr =>
+				{
+					var tableSchema = gr.Key;
+					return CreateTable(
+						tableSchema, 
+						gr.Select(x => x.Entity).ToArray());
+				})
+				.ToArray();
+		}
+
+		private static IEnumerable<(Entity Entity, TableSchema TableSchema)> MatchEntityWithTableSchema(
+			IReadOnlyCollection<Entity> entities, 
+			Dictionary<ObjectName, TableSchema> schemaByTableNameMap, 
+			Func<ObjectName, EntityOrigin[], Exception> buildUnknownTableError) =>
+			entities
+				.GroupBy(e => e.Name, StringComparer.OrdinalIgnoreCase)
+				.SelectMany(gr =>
 				{
 					var origins = gr.Select(e => e.Origin)
 						.Distinct()
 						.ToArray();
 
 					var tableName = ParseTableName(gr.Key, origins);
-					if (!schemasMap.TryGetValue(tableName, out var table))
+					if (!schemaByTableNameMap.TryGetValue(tableName, out var table))
 					{
 						throw buildUnknownTableError(tableName, origins);
 					}
 
-					var columns = table
-						.Columns
-						.Where(CouldInsertColumn)
-						.Select(CreateColumn)
-						.ToArray();
+					return gr.Select(e => (entity: e, table));
+				});
 
-					var tableDefinition = new TableDefinition(table.Name, table.PrimaryKey, columns);
-					var rows = CreateRows(tableDefinition, gr.ToArray());
-
-					return new Table(tableDefinition, rows);
-				})
+		private static Table CreateTable(TableSchema table, Entity[] entities)
+		{
+			var columns = table
+				.Columns
+				.Where(CouldInsertColumn)
+				.Select(CreateColumn)
 				.ToArray();
+
+			var tableDefinition = new TableDefinition(table.Name, table.PrimaryKey, columns);
+			var rows = CreateRows(tableDefinition, entities);
+
+			return new Table(tableDefinition, rows);
 		}
 
 		private static bool CouldInsertColumn(ColumnSchema columnSchema) =>
@@ -164,7 +182,7 @@ namespace Reseed.Generation.Schema
 			}
 		}
 
-		private static Func<ObjectName, DataFile[], Exception> CreateUnknownTableErrorBuilder(
+		private static Func<ObjectName, EntityOrigin[], Exception> CreateUnknownTableErrorBuilder(
 			IReadOnlyCollection<TableSchema> tables)
 		{
 			var schemaNamesByTableNameMap =
@@ -178,7 +196,7 @@ namespace Reseed.Generation.Schema
 			return (tableName, origins) =>
 			{
 				var schemaNameMisprintMessage =
-					schemaNamesByTableNameMap.TryGetValue(tableName.Name, out var schemaNames)
+					schemaNamesByTableNameMap.TryGetValue(tableName.Name.ToLowerInvariant(), out var schemaNames)
 						? $". Table with name '{tableName.Name}' exists in schemas ['{string.Join(", ", schemaNames)}'], " +
 						  $"make sure that specified schema '{tableName.Schema}' is the intended one"
 						: "";
@@ -205,7 +223,7 @@ namespace Reseed.Generation.Schema
 				"Make sure that all existing migrations are applied to database and it has up to date structure. " +
 				BuildOriginErrorMessage(entity.Origin));
 
-		private static ObjectName ParseTableName(string entityName, DataFile[] origins)
+		private static ObjectName ParseTableName(string entityName, EntityOrigin[] origins)
 		{
 			const string defaultSchemaName = "dbo";
 			var parts = entityName.Split('.')
@@ -223,9 +241,9 @@ namespace Reseed.Generation.Schema
 			};
 		}
 
-		private static string BuildOriginErrorMessage(params DataFile[] origins) =>
+		private static string BuildOriginErrorMessage(params EntityOrigin[] origins) =>
 			origins.Length == 1
-				? $"Error in test data file {origins[0]}"
-				: $"Error in multiple test data files: {string.Join(", ", origins.Select(o => o.ToString()))}";
+				? $"Error in data read from {origins[0]}"
+				: $"Error in data read from: {string.Join(", ", origins.Select(o => o.ToString()))}";
 	}
 }

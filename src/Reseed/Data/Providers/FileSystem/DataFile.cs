@@ -1,30 +1,24 @@
 ﻿using System;
+using System.IO;
 using JetBrains.Annotations;
 
 namespace Reseed.Data.Providers.FileSystem
 {
-	internal sealed class DataFile : IEquatable<DataFile>
+	internal sealed class DataFile : EntityOrigin
 	{
-		public readonly string Path;
-		public readonly string Name;
+		public readonly string FilePath;
+		public readonly string FileName;
 		public readonly string Directory;
+
+		public override string OriginName => $"'{this.FileName}' in '{this.Directory}'";
 
 		public DataFile([NotNull] string path)
 		{
 			if (path == null) throw new ArgumentNullException(nameof(path));
-			var fullPath = System.IO.Path.GetFullPath(path);
-			this.Path = fullPath;
-			this.Name = System.IO.Path.GetFileName(fullPath);
-			this.Directory = System.IO.Path.GetDirectoryName(fullPath);
+			var fullPath = Path.GetFullPath(path);
+			this.FilePath = fullPath;
+			this.FileName = Path.GetFileName(fullPath);
+			this.Directory = Path.GetDirectoryName(fullPath);
 		}
-
-		public override bool Equals(object obj) => Equals(obj as DataFile);
-
-		public bool Equals(DataFile other) =>
-			other is not null &&
-			(ReferenceEquals(other, this) || Equals(this.Path, other.Path));
-
-		public override int GetHashCode() => this.Path.GetHashCode();
-		public override string ToString() => $"'{this.Name}' in '{this.Directory}'";
 	}
 }

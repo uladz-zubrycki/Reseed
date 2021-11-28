@@ -2,16 +2,25 @@
 using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
-using Reseed.Data.Providers.FileSystem;
+using Reseed.Data.Providers;
 
 namespace Reseed.Data
 {
 	internal static class DataProvider
 	{
-		public static IReadOnlyCollection<Entity> Load([NotNull] IDataProvider dataProvider)
+		public static IReadOnlyCollection<Entity> Load([NotNull] IReadOnlyCollection<IDataProvider> dataProviders)
 		{
-			if (dataProvider == null) throw new ArgumentNullException(nameof(dataProvider));
+			if (dataProviders == null) throw new ArgumentNullException(nameof(dataProviders));
+			if (dataProviders.Count == 0)
+				throw new ArgumentException("Value cannot be an empty collection.", nameof(dataProviders));
 
+			return dataProviders
+				.SelectMany(Load)
+				.ToArray();
+		}
+
+		private static IReadOnlyCollection<Entity> Load(IDataProvider dataProvider)
+		{
 			if (dataProvider is IVerboseDataProvider verboseProvider)
 			{
 				var loadResult = verboseProvider.GetEntitiesDetailed();
@@ -39,22 +48,23 @@ namespace Reseed.Data
 
 		private static InvalidOperationException BuildNoEntitiesException(
 			IVerboseDataProvider dataProvider,
-			EntityLoadResult loadResult)
+			VerboseDataProviderResult loadResult)
 		{
 			return new InvalidOperationException(
 				BuildNoEntitiesErrorMessage(dataProvider) +
-				BuildSourcesMessage(". Loaded", loadResult.LoadedSources) +
-				BuildSourcesMessage(". Skipped", loadResult.SkippedSources));
+				BuildOriginsMessage(". Loaded", loadResult.LoadedOrigins) +
+				BuildOriginsMessage(". Skipped", loadResult.SkippedOrigins));
 
-			static string BuildSourcesMessage(string sourcesName, IReadOnlyCollection<DataFile> sources) =>
-				sources.Count > 0
-					? $"{sourcesName} sources are {string.Join(", ", sources.Select(s => s.ToString()))}"
+			static string BuildOriginsMessage(string sourcesName, IReadOnlyCollection<EntityOrigin> origins) =>
+				origins.Count > 0
+					? $"{sourcesName} origins are {string.Join(", ", origins.Distinct().Select(s => s.OriginName))}"
 					: string.Empty;
 		}
 
 		private static string BuildNoEntitiesErrorMessage(IDataProvider dataProvider) =>
-			$"The specified {nameof(IDataProvider)} wasn't able to find any entities, " +
-			"while at least one is required. " +
-			$"Make sure {dataProvider.GetType().Name} configuration is correct";
+			$"One of the specified data providers wasn't able to provide any entities, " +
+			"while at least one is expected. " +
+			$"Make sure {dataProvider.GetType().Name} configuration and usage is correct " +
+			"or simply remove it, if it's not needed.";
 	}
 }

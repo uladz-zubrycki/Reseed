@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 using NUnit.Framework;
@@ -7,6 +8,7 @@ using Reseed.Configuration.Basic;
 using Reseed.Configuration.Cleanup;
 using Reseed.Data;
 using Reseed.Generation;
+using Reseed.Schema;
 
 namespace Reseed.Samples.NUnit
 {
@@ -90,6 +92,33 @@ namespace Reseed.Samples.NUnit
 					CleanupDefinition.Script(
 						CleanupMode.PreferTruncate(),
 						CleanupTarget.Excluding()),
-					DataProviders.Xml(dataFolder)));
+					DataProviders.Xml(dataFolder),
+					DataProviders.Inline(builder =>
+						builder
+							.AddEntities(
+								new Entity("User", new[]
+								{
+									new Property("Id", "2"),
+									new Property("FirstName", "Alice"),
+									new Property("LastName", "Freeman"),
+								}))
+							.AddEntities(
+								new ObjectName("User", "dbo"),
+								new[]
+								{
+									new Property("FirstName", "Bob"),
+									new Property("LastName", "Spencer"),
+								})
+							.AddEntities(
+								new ObjectName("User"),
+								new[]
+								{
+									new Dictionary<string, string>
+									{
+										["FirstName"] = "Jenny",
+										["LastName"] = "Lee"
+									}
+								})
+							.Build())));
 	}
 }

@@ -63,7 +63,7 @@ namespace Reseed
 			OrderedGraph<TableSchema> orderedSchemas,
 			ReseederOptions options)
 		{
-			var entities = DataProvider.Load(mode.DataProvider);
+			var entities = DataProvider.Load(mode.DataProviders);
 			var tables = TableBuilder.Build(schemas, entities);
 			var extendedTables = TableExtender.Extend(tables, options.ExtensionOptions);
 

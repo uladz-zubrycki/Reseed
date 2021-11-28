@@ -1,5 +1,6 @@
 ﻿using System;
 using JetBrains.Annotations;
+using Reseed.Data.Providers;
 using Reseed.Data.Providers.FileSystem;
 
 namespace Reseed.Data
@@ -19,5 +20,12 @@ namespace Reseed.Data
 			[NotNull] string filePattern,
 			[NotNull] Func<string, bool> fileFilter) =>
 			new XmlDataProvider(dataFolder, filePattern, fileFilter);
+
+		public static IDataProvider Inline(
+			[NotNull] Func<InlineDataProviderBuilder, IDataProvider> setup)
+		{
+			if (setup == null) throw new ArgumentNullException(nameof(setup));
+			return setup(new InlineDataProviderBuilder());
+		}
 	}
 }

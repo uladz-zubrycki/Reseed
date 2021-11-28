@@ -24,7 +24,7 @@ namespace Reseed.Data.Providers.FileSystem
 			this.fileFilter = fileFilter ?? throw new ArgumentNullException(nameof(fileFilter));
 		}
 
-		public EntityLoadResult GetEntitiesDetailed()
+		public VerboseDataProviderResult GetEntitiesDetailed()
 		{
 			if (!Directory.Exists(dataFolder))
 			{
@@ -50,7 +50,7 @@ namespace Reseed.Data.Providers.FileSystem
 				.SelectMany(ReadFile)
 				.ToArray();
 
-			return new EntityLoadResult(
+			return new VerboseDataProviderResult(
 				entities,
 				matchingFiles.Select(f => new DataFile(f)).ToArray(),
 				skippedFiles.Select(f => new DataFile(f)).ToArray());
