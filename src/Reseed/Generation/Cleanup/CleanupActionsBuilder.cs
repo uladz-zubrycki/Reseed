@@ -23,9 +23,10 @@ namespace Reseed.Generation.Cleanup
 			return definition switch
 			{
 				EmptyCleanupDefinition => builder,
-
+				
 				CleanupScriptDefinition scriptDefinition => builder
-					.Add(SeedStage.Delete, DeleteScriptRenderer.Render(tables, scriptDefinition.Configuration)),
+					.Add(SeedStage.Delete, DeleteScriptRenderer.Render(tables, scriptDefinition.Configuration))
+					.Add(SeedStage.CleanupDb, DeleteScriptRenderer.Render(tables,scriptDefinition.Configuration)),
 
 				CleanupProcedureDefinition procedureDefinition => builder
 					.Add(SeedStage.PrepareDb, RenderCreateProcedureScripts(
