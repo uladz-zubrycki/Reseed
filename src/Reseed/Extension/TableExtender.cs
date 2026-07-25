@@ -34,12 +34,15 @@ namespace Reseed.Extension
 				extensions.Add(IdentityGeneratorTableExtension.Instance);
 			}
 
+			extensions.AddRange(options.CustomTableExtensions);
 			return extensions.ToArray();
 		}
 	}
 
+	[PublicAPI]
 	public interface ITableExtension
 	{
-		Table Extend(Table table);
+		[NotNull]
+		Table Extend([NotNull] Table table);
 	}
 }

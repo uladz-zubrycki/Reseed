@@ -426,15 +426,24 @@ TBD
 
 # Data Extension
 
-Reseed is able to extend the provided data for any `IDataProvider` instance before generating the insertion scripts. 
+Reseed is able to extend the provided data for any `IDataProvider` instance before generating the insertion scripts.
 
-The only extension available for now is identity columns value generation. If Reseed finds an identity column without a value specified, it will generate a value for it automatically. If such behavior isn't desired, use `ReseedOptions.DataExtensionOptions` to disable it.
+The built-in extension generates missing identity column values automatically. If such behavior isn't desired, use `ReseederOptions.ExtensionOptions` to disable it.
 
 ```csharp
-class DataExtensionOptions 
-{
-    bool GenerateIdentityValues;
-}
+var options = new DataExtensionOptions(generateIdentityValues: false);
+```
+
+Custom `ITableExtension` implementations can also be provided through `DataExtensionOptions`. They run in the order provided, after built-in extensions.
+
+```csharp
+var options = new ReseederOptions(
+    validateData: true,
+    new DataExtensionOptions(
+        generateIdentityValues: true,
+        new ITableExtension[] { new CustomTableExtension() }));
+
+var reseeder = new Reseeder(options);
 ```
 
 # Data validation
