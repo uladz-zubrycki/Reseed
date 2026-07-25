@@ -1,6 +1,6 @@
 is_global = true
 
-# Enable every rule shipped by NUnit.Analyzers 4.14.0.
+# Enable every rule shipped by NUnit.Analyzers 4.14.0 for the integration tests.
 dotnet_diagnostic.NUnit1001.severity = warning
 dotnet_diagnostic.NUnit1002.severity = warning
 dotnet_diagnostic.NUnit1003.severity = warning

@@ -29,7 +29,7 @@ namespace Reseed.Samples.NUnit
 
 			// Executing an action with mutation, which won't be noticed in the rest of the tests.
 			await ExecuteNonQueryAsync("DELETE FROM [dbo].[User]");
-			Assert.That(await GetUsersCount(), Is.Zero);
+			Assert.That(await GetUsersCount(), Is.EqualTo(0));
 		}
 
 		[Test]
