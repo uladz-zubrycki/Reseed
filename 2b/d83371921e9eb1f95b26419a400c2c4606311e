@@ -1,0 +1,21 @@
+samples/Reseed.Samples.NUnit/SampleFixture.cs
+  s_3f2b8d72e28403::t_4ceddaa30b418a 32
+.globalconfig
+  s_3f2b8d72e28403::t_774948f1328735 1-106
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.16",
+  "base_commit_sha": "2bd83371921e9eb1f95b26419a400c2c4606311e",
+  "prompts": {},
+  "sessions": {
+    "s_3f2b8d72e28403": {
+      "agent_id": {
+        "tool": "github-copilot-cli",
+        "id": "6854fe6e-4cee-4d05-bde4-8a8217b9e7f2",
+        "model": "unknown"
+      },
+      "human_author": "Uladz Zubrytski <uladz@zubrycki.me>"
+    }
+  }
+}
