@@ -1,0 +1,25 @@
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.16",
+  "base_commit_sha": "c204f94b638276c115c6e8872d7047bb69a411be",
+  "prompts": {},
+  "sessions": {
+    "s_b201b5a2062926": {
+      "agent_id": {
+        "tool": "github-copilot-cli",
+        "id": "586f4c12-304c-4e77-beab-55d136e2a1c8",
+        "model": "unknown"
+      },
+      "human_author": "Uladz Zubrytski <uladz@zubrycki.me>"
+    },
+    "s_b5b61564be2d25": {
+      "agent_id": {
+        "tool": "github-copilot-cli",
+        "id": "7dea8fc3-8351-4246-b1ec-ae248ab87694",
+        "model": "unknown"
+      },
+      "human_author": "Uladz Zubrytski <uladz@zubrycki.me>"
+    }
+  }
+}
