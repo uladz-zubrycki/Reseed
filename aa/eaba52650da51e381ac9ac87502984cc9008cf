@@ -1,0 +1,37 @@
+samples/Reseed.Samples.NUnit/Reseed.Samples.NUnit.csproj
+  s_cc8fe3bcbc4a80::t_85d3f25fd920ed 10-16
+samples/Reseed.Samples.NUnit/SampleFixture.cs
+  s_cc8fe3bcbc4a80::t_85d3f25fd920ed 28,32,41,45
+tests/Reseed.Tests.Integration/Reseed.Tests.Integration.csproj
+  s_cc8fe3bcbc4a80::t_85d3f25fd920ed 10,12-17
+tests/Reseed.Tests.Integration/SingleTableTests.cs
+  s_cc8fe3bcbc4a80::t_85d3f25fd920ed 47
+tests/Reseed.Tests.Integration/SingleTableWithForeignKeyTests.cs
+  s_cc8fe3bcbc4a80::t_85d3f25fd920ed 56
+samples/Reseed.Samples.NUnit/TestFixtureBase.cs
+  s_c4c9f58621bd6c::t_65a12d65cff76c 19
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.16",
+  "base_commit_sha": "aaeaba52650da51e381ac9ac87502984cc9008cf",
+  "prompts": {},
+  "sessions": {
+    "s_c4c9f58621bd6c": {
+      "agent_id": {
+        "tool": "github-copilot-cli",
+        "id": "fd80272c-e847-42ba-87b7-8a8ec39a9e13",
+        "model": "unknown"
+      },
+      "human_author": "Uladz Zubrytski <uladz@zubrycki.me>"
+    },
+    "s_cc8fe3bcbc4a80": {
+      "agent_id": {
+        "tool": "github-copilot-cli",
+        "id": "85f5f631-44d2-4234-96b9-4addc176cb45",
+        "model": "unknown"
+      },
+      "human_author": "Uladz Zubrytski <uladz@zubrycki.me>"
+    }
+  }
+}
