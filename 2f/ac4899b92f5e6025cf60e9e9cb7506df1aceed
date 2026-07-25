@@ -1,0 +1,25 @@
+samples/Reseed.Samples.NUnit/packages.lock.json
+  s_f4fef419a2324a::t_ba890852bdab83 4,68,75,83,94,181,326,339,428,434
+tests/Reseed.Tests.Integration/packages.lock.json
+  s_f4fef419a2324a::t_ba890852bdab83 4,59,66,74,85,172,317,330,427,433
+samples/Reseed.Samples.NUnit/Reseed.Samples.NUnit.csproj
+  s_f4fef419a2324a::t_59a0082f4caf2b 4
+tests/Reseed.Tests.Integration/Reseed.Tests.Integration.csproj
+  s_f4fef419a2324a::t_97f4b02a20f1e3 4
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.16",
+  "base_commit_sha": "2fac4899b92f5e6025cf60e9e9cb7506df1aceed",
+  "prompts": {},
+  "sessions": {
+    "s_f4fef419a2324a": {
+      "agent_id": {
+        "tool": "github-copilot-cli",
+        "id": "95d32ef1-048b-4a8d-ba10-2740f125df33",
+        "model": "unknown"
+      },
+      "human_author": "Uladz Zubrytski <uladz@zubrycki.me>"
+    }
+  }
+}
