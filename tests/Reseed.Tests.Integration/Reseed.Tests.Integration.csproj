@@ -22,6 +22,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <GlobalAnalyzerConfigFiles Include="..\..\build\Reseed.Tests.globalconfig" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Update="Data\SingleTableTests\03_ShouldInsert_IdentityMixed.sql">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
