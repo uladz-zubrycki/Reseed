@@ -1,0 +1,21 @@
+samples/Reseed.Samples.NUnit/Reseed.Samples.NUnit.csproj
+  s_b201b5a2062926::t_1779ac57293807 8
+tests/Reseed.Tests.Integration/Reseed.Tests.Integration.csproj
+  s_b201b5a2062926::t_0f0a4d193a4237 8
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.16",
+  "base_commit_sha": "4d386f2080ef354787c1a105e48c063a58869697",
+  "prompts": {},
+  "sessions": {
+    "s_b201b5a2062926": {
+      "agent_id": {
+        "tool": "github-copilot-cli",
+        "id": "586f4c12-304c-4e77-beab-55d136e2a1c8",
+        "model": "unknown"
+      },
+      "human_author": "Uladz Zubrytski <uladz@zubrycki.me>"
+    }
+  }
+}
