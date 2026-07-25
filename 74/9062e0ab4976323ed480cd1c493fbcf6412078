@@ -1,0 +1,32 @@
+src/Reseed/ReseederOptions.cs
+  s_2f57422cec1137::t_e402287e938bb0 2-3,5,32,35,37-49,51
+tests/Reseed.Tests.Integration/CustomTableExtensionTests.cs
+  s_2f57422cec1137::t_78d73e71d0cb3d 37
+  s_2f57422cec1137::t_e402287e938bb0 1-36,38-48
+src/Reseed/Extension/TableExtender.cs
+  s_2f57422cec1137::t_e402287e938bb0 37,42,45-46
+tests/Reseed.Tests.Integration/Reseed.Tests.Integration.csproj
+  s_2f57422cec1137::t_e402287e938bb0 82-87
+tests/Reseed.Tests.Integration/Data/CustomTableExtensionTests/ShouldApplyCustomTableExtension.xml
+  s_2f57422cec1137::t_e402287e938bb0 1-7
+readme.md
+  s_2f57422cec1137::t_e402287e938bb0 429,431,434-446
+tests/Reseed.Tests.Integration/Data/CustomTableExtensionTests/ShouldApplyCustomTableExtension.sql
+  s_2f57422cec1137::t_e402287e938bb0 1-6
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.16",
+  "base_commit_sha": "749062e0ab4976323ed480cd1c493fbcf6412078",
+  "prompts": {},
+  "sessions": {
+    "s_2f57422cec1137": {
+      "agent_id": {
+        "tool": "github-copilot-cli",
+        "id": "fd866809-23d5-4116-ab9d-6427e0aa9a05",
+        "model": "unknown"
+      },
+      "human_author": "Uladz Zubrytski <uladz@zubrycki.me>"
+    }
+  }
+}
