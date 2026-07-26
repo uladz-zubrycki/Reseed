@@ -1,0 +1,31 @@
+tests/Reseed.Tests.Integration/SingleTableTests.cs
+  s_6afaeb18c32084::t_b35dce628dc9a7 52-53
+tests/Reseed.Tests.Integration/SingleTableWithForeignKeyTests.cs
+  s_6afaeb18c32084::t_b35dce628dc9a7 56-57
+tests/Reseed.Tests.Integration/Core/SeedModes.cs
+  s_6afaeb18c32084::t_b35dce628dc9a7 25-31,68-73,116-122
+readme.md
+  s_6afaeb18c32084::t_b35dce628dc9a7 103
+src/Reseed/Generation/Cleanup/CleanupActionsBuilder.cs
+  s_6afaeb18c32084::t_07ff58acd4b6ce 23,25-51
+samples/Reseed.Samples.NUnit/TestFixtureBase.cs
+  s_6afaeb18c32084::t_b35dce628dc9a7 17
+tests/Reseed.Tests.Integration/Core/Conventional.cs
+  s_6afaeb18c32084::t_b35dce628dc9a7 32-33,52
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.16",
+  "base_commit_sha": "2dd8373390f23943a4bd7e482cb13075ada16600",
+  "prompts": {},
+  "sessions": {
+    "s_6afaeb18c32084": {
+      "agent_id": {
+        "tool": "github-copilot-cli",
+        "id": "09660876-e55d-4b7f-a7a0-0adde92e0274",
+        "model": "unknown"
+      },
+      "human_author": "Uladz Zubrytski <uladz@zubrycki.me>"
+    }
+  }
+}
