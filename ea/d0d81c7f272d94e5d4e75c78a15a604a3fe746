@@ -1,0 +1,29 @@
+src/Reseed/Configuration/Basic/BasicSeedMode.cs
+  s_34fdaae239bad8::t_d204e87f3d6db2 12,16
+src/Reseed/Configuration/CleanupOnlySeedMode.cs
+  s_34fdaae239bad8::t_d204e87f3d6db2 10,12
+src/Reseed/Configuration/TemporaryTables/TemporaryTablesSeedMode.cs
+  s_34fdaae239bad8::t_d204e87f3d6db2 13,18
+readme.md
+  s_34fdaae239bad8::t_d204e87f3d6db2 194,200
+src/Reseed/Configuration/SeedMode.cs
+  s_34fdaae239bad8::t_d204e87f3d6db2 34,39,46
+tests/Reseed.Tests.Integration/SeedModeConfigurationTests.cs
+  s_34fdaae239bad8::t_d204e87f3d6db2 1-44
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.16",
+  "base_commit_sha": "ead0d81c7f272d94e5d4e75c78a15a604a3fe746",
+  "prompts": {},
+  "sessions": {
+    "s_34fdaae239bad8": {
+      "agent_id": {
+        "tool": "github-copilot-cli",
+        "id": "6290ef5d-563c-4a76-9393-14762f6d29e8",
+        "model": "unknown"
+      },
+      "human_author": "Uladz Zubrytski <uladz@zubrycki.me>"
+    }
+  }
+}
