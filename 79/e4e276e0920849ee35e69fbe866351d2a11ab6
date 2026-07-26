@@ -1,0 +1,19 @@
+publish.cmd
+  s_0ce12b2b9dc6e9::t_a0b75e3a7b58f0 6
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.16",
+  "base_commit_sha": "79e4e276e0920849ee35e69fbe866351d2a11ab6",
+  "prompts": {},
+  "sessions": {
+    "s_0ce12b2b9dc6e9": {
+      "agent_id": {
+        "tool": "github-copilot-cli",
+        "id": "bc5a6bdd-1a3d-4123-9baa-eccb7fcb6ffd",
+        "model": "unknown"
+      },
+      "human_author": "Uladz Zubrytski <uladz@zubrycki.me>"
+    }
+  }
+}
