@@ -58,35 +58,20 @@ namespace Reseed.Schema.Providers
 							new ObjectName(gr.Key.TableName, gr.Key.SchemaName),
 							gr.Key.TableId,
 							primaryKeyColumns.Any() ? new Key(primaryKeyColumns) : null,
-							gr.Select(c =>
-								{
-									try
-									{
-										return new ColumnSchema(
-											c.ColumnOrder,
-											c.ColumnName,
-											new DataType(
-												c.Type.Name,
-												c.Type.MaxLength,
-												c.Type.NumericPrecision ?? c.Type.DateTimePrecision,
-												c.Type.NumericScale),
-											c.PrimaryKeyColumnOrder != null,
-											c.IsIdentityColumn,
-											c.IsIdentityColumn ? c.IdentitySeed.Value : null,
-											c.IsIdentityColumn ? c.IdentityIncrement.Value : null,
-											c.IsComputedColumn,
-											c.IsNullableColumn,
-											c.ColumnDefaultValue);
-									}
-									catch (Exception ex)
-									{
-										var maxLength = c.Type.MaxLength?.ToString() ?? "null";
-										throw new Exception(
-											$"Unsupported schema for column '{c.ColumnName}': " +
-											$"data type '{c.Type.Name}', max length {maxLength}",
-											ex);
-									}
-								})
+							gr.Select(c => CreateColumnSchema(
+									c.ColumnOrder,
+									c.ColumnName,
+									c.Type.Name,
+									c.Type.MaxLength,
+									c.Type.NumericPrecision ?? c.Type.DateTimePrecision,
+									c.Type.NumericScale,
+									c.PrimaryKeyColumnOrder != null,
+									c.IsIdentityColumn,
+									c.IsIdentityColumn ? c.IdentitySeed.Value : null,
+									c.IsIdentityColumn ? c.IdentityIncrement.Value : null,
+									c.IsComputedColumn,
+									c.IsNullableColumn,
+									c.ColumnDefaultValue))
 								.ToArray());
 					}
 					catch (Exception ex)
@@ -96,6 +81,45 @@ namespace Reseed.Schema.Providers
 					}
 				})
 				.ToArray();
+		}
+
+		private static ColumnSchema CreateColumnSchema(
+			int columnOrder,
+			string columnName,
+			string typeName,
+			int? maxLength,
+			int? precision,
+			int? scale,
+			bool isPrimaryKey,
+			bool isIdentity,
+			decimal? identitySeed,
+			decimal? identityIncrement,
+			bool isComputed,
+			bool isNullable,
+			string defaultValue)
+		{
+			try
+			{
+				return new ColumnSchema(
+					columnOrder,
+					columnName,
+					new DataType(typeName, maxLength, precision, scale),
+					isPrimaryKey,
+					isIdentity,
+					identitySeed,
+					identityIncrement,
+					isComputed,
+					isNullable,
+					defaultValue);
+			}
+			catch (Exception ex)
+			{
+				var maxLengthText = maxLength?.ToString() ?? "null";
+				throw new Exception(
+					$"Unsupported schema for column '{columnName}': " +
+					$"data type '{typeName}', max length {maxLengthText}",
+					ex);
+			}
 		}
 
 		internal static IReadOnlyCollection<Relation<TableData>> LoadForeignKeys(
