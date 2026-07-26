@@ -1,0 +1,35 @@
+src/Reseed/Data/DataProviders.cs
+  s_b9f68ca8cafc47::t_64230d8eead852 26-29,31,45-46
+  s_b9f68ca8cafc47::t_0ecb2bafcb2591 2-3,32-44
+  s_b9f68ca8cafc47::t_d6e7b320ccb5eb 30
+src/Reseed/Data/Providers/FileSystem/XmlDataProvider.cs
+  s_b9f68ca8cafc47::t_1d0026ded4b843 150-151
+  s_b9f68ca8cafc47::t_d6e7b320ccb5eb 33,39-45,51,56-57,152-155,160,165
+  s_b9f68ca8cafc47::t_0ecb2bafcb2591 156-159,161-164,166-170
+  s_b9f68ca8cafc47::t_fe2553e1dbe4fd 148-149
+  s_b9f68ca8cafc47::t_64230d8eead852 21,25,46-50,95,123,127,139-140,143,147,171-172
+  s_b9f68ca8cafc47::t_430abba0f243c1 18-20
+  s_b9f68ca8cafc47::t_3ce68ebe180885 22-24
+  s_b9f68ca8cafc47::t_3bf34eb0d3e57e 26-27
+  s_b9f68ca8cafc47::t_f0bc793927d67f 11-17
+readme.md
+  s_b9f68ca8cafc47::t_64230d8eead852 339-342,352-353
+  s_b9f68ca8cafc47::t_d6e7b320ccb5eb 329-330,338,343-345,347-350
+  s_b9f68ca8cafc47::t_0ecb2bafcb2591 346,351
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.16",
+  "base_commit_sha": "28efec115356a87d2ec8784f16615935022d7c10",
+  "prompts": {},
+  "sessions": {
+    "s_b9f68ca8cafc47": {
+      "agent_id": {
+        "tool": "github-copilot-cli",
+        "id": "14c4a7a3-c39b-4246-b9be-62fb43f7483d",
+        "model": "unknown"
+      },
+      "human_author": "Uladz Zubrytski <uladz@zubrycki.me>"
+    }
+  }
+}
