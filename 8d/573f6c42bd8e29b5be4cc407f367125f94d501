@@ -1,0 +1,23 @@
+readme.md
+  s_b9f68ca8cafc47::t_58d37debca8a0a 329-330,338-353
+src/Reseed/Data/DataProviders.cs
+  s_b9f68ca8cafc47::t_e60bb3ad7c0bfb 2-3,26-46
+src/Reseed/Data/Providers/FileSystem/XmlDataProvider.cs
+  s_b9f68ca8cafc47::t_a02bafd46cefbb 11-27,33,39-51,56-57,95,123,127,139-140,143,147-172
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.16",
+  "base_commit_sha": "8d573f6c42bd8e29b5be4cc407f367125f94d501",
+  "prompts": {},
+  "sessions": {
+    "s_b9f68ca8cafc47": {
+      "agent_id": {
+        "tool": "github-copilot-cli",
+        "id": "14c4a7a3-c39b-4246-b9be-62fb43f7483d",
+        "model": "unknown"
+      },
+      "human_author": "Uladz Zubrytski <uladz@zubrycki.me>"
+    }
+  }
+}
