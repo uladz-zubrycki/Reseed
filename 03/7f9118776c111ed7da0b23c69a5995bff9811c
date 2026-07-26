@@ -1,0 +1,19 @@
+src/Reseed/Schema/Providers/MsSqlSchemaReader.cs
+  s_6b79148fef70dd::t_89e0dcdb38f916 61-89
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.16",
+  "base_commit_sha": "037f9118776c111ed7da0b23c69a5995bff9811c",
+  "prompts": {},
+  "sessions": {
+    "s_6b79148fef70dd": {
+      "agent_id": {
+        "tool": "github-copilot-cli",
+        "id": "85d823b2-edc4-412c-9b45-f6b36d52eeef",
+        "model": "unknown"
+      },
+      "human_author": "Uladz Zubrytski <uladz@zubrycki.me>"
+    }
+  }
+}
