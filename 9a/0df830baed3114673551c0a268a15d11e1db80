@@ -1,0 +1,41 @@
+tests/Reseed.Tests.Integration/Reseed.Tests.Integration.csproj
+  s_0a43d87c43a79c::t_2d948741f37726 25-30
+  s_0a43d87c43a79c::t_1e9dfcb833d3c8 88-93
+tests/Reseed.Tests.Integration/Data/GenerationValidationTests/04_ShouldFailGracefully_RowVersionProvided.xml
+  s_0a43d87c43a79c::t_1e9dfcb833d3c8 1-6
+src/Reseed/Generation/TemporaryTables/TemporaryTableInsertScriptRenderer.cs
+  s_0a43d87c43a79c::t_2d948741f37726 50
+tests/Reseed.Tests.Integration/Data/SingleTableTests/04_ShouldInsert_RowVersionMissing.xml
+  s_0a43d87c43a79c::t_2d948741f37726 1-38
+tests/Reseed.Tests.Integration/GenerationValidationTests.cs
+  s_0a43d87c43a79c::t_1e9dfcb833d3c8 36-40
+tests/Reseed.Tests.Integration/SingleTableTests.cs
+  s_0a43d87c43a79c::t_2d948741f37726 41-45
+tests/Reseed.Tests.Integration/Data/GenerationValidationTests/04_ShouldFailGracefully_RowVersionProvided.sql
+  s_0a43d87c43a79c::t_1e9dfcb833d3c8 1-4
+src/Reseed/Schema/DataType.cs
+  s_0a43d87c43a79c::t_2d948741f37726 80-82
+src/Reseed/Generation/Schema/TableBuilder.cs
+  s_0a43d87c43a79c::t_2d948741f37726 228-229
+  s_0a43d87c43a79c::t_1e9dfcb833d3c8 81,130-133,223-227
+tests/Reseed.Tests.Integration/Data/SingleTableTests/04_ShouldInsert_RowVersionMissing.sql
+  s_0a43d87c43a79c::t_2d948741f37726 1-7
+src/Reseed/Generation/TemporaryTables/TemporaryTablesSqlBulkCopyGenerator.cs
+  s_0a43d87c43a79c::t_2d948741f37726 33
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.16",
+  "base_commit_sha": "9a0df830baed3114673551c0a268a15d11e1db80",
+  "prompts": {},
+  "sessions": {
+    "s_0a43d87c43a79c": {
+      "agent_id": {
+        "tool": "github-copilot-cli",
+        "id": "1bc3f078-5eda-4525-a93f-a167ccdd4076",
+        "model": "unknown"
+      },
+      "human_author": "Uladz Zubrytski <uladz@zubrycki.me>"
+    }
+  }
+}
