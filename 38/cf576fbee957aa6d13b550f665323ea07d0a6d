@@ -1,0 +1,23 @@
+tests/Reseed.Tests.Integration/XmlDataProviderTests.cs
+  s_0ce12b2b9dc6e9::t_c18074377e35a2 1-41
+readme.md
+  s_0ce12b2b9dc6e9::t_c18074377e35a2 361
+src/Reseed/Data/Providers/FileSystem/XmlDataProvider.cs
+  s_0ce12b2b9dc6e9::t_c18074377e35a2 3,6,150,153,160,178-197
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.16",
+  "base_commit_sha": "38cf576fbee957aa6d13b550f665323ea07d0a6d",
+  "prompts": {},
+  "sessions": {
+    "s_0ce12b2b9dc6e9": {
+      "agent_id": {
+        "tool": "github-copilot-cli",
+        "id": "bc5a6bdd-1a3d-4123-9baa-eccb7fcb6ffd",
+        "model": "unknown"
+      },
+      "human_author": "Uladz Zubrytski <uladz@zubrycki.me>"
+    }
+  }
+}
