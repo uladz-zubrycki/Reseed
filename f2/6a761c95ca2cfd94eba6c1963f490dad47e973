@@ -1,0 +1,34 @@
+src/Reseed/Data/Providers/FileSystem/XmlDataProvider.cs
+  s_0ce12b2b9dc6e9::t_84242797ed56e1 1
+readme.md
+  s_0ce12b2b9dc6e9::t_70aeb7a645dd00 338-339
+tests/Reseed.Tests.Integration/XmlValueTransformersTests.cs
+  s_0ce12b2b9dc6e9::t_70d2e99a8c9683 6
+  s_0ad45c6bd29cc4::t_f4ef364343a014 1-5,7-20
+src/Reseed/Data/Providers/FileSystem/XmlValueTransformers.cs
+  s_0ce12b2b9dc6e9::t_84242797ed56e1 1-30
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.16",
+  "base_commit_sha": "f26a761c95ca2cfd94eba6c1963f490dad47e973",
+  "prompts": {},
+  "sessions": {
+    "s_0ad45c6bd29cc4": {
+      "agent_id": {
+        "tool": "github-copilot-cli",
+        "id": "bab19107-ca6b-4c97-b1f2-cb780b265fde",
+        "model": "unknown"
+      },
+      "human_author": "Uladz Zubrytski <uladz@zubrycki.me>"
+    },
+    "s_0ce12b2b9dc6e9": {
+      "agent_id": {
+        "tool": "github-copilot-cli",
+        "id": "bc5a6bdd-1a3d-4123-9baa-eccb7fcb6ffd",
+        "model": "unknown"
+      },
+      "human_author": "Uladz Zubrytski <uladz@zubrycki.me>"
+    }
+  }
+}
