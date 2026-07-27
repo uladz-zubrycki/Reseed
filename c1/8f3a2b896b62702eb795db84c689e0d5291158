@@ -1,0 +1,25 @@
+tests/Reseed.Tests.Integration/Data/CleanupTests/02_ShouldRejectTruncateForTableReferencedByIndexedView.sql
+  s_b163e96f7292d6::t_2047795378942b 1-22
+tests/Reseed.Tests.Integration/CleanupTests.cs
+  s_b163e96f7292d6::t_2047795378942b 17,23-51,57,61,63-67,72,76-77
+tests/Reseed.Tests.Integration/Data/CleanupTests/03_ShouldUseDeleteForTableReferencedByIndexedView.sql
+  s_b163e96f7292d6::t_2047795378942b 1-22
+tests/Reseed.Tests.Integration/Reseed.Tests.Integration.csproj
+  s_b163e96f7292d6::t_2047795378942b 25-31
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.16",
+  "base_commit_sha": "c18f3a2b896b62702eb795db84c689e0d5291158",
+  "prompts": {},
+  "sessions": {
+    "s_b163e96f7292d6": {
+      "agent_id": {
+        "tool": "github-copilot-cli",
+        "id": "01d363e2-1aef-419b-aa75-1c20ca39ede3",
+        "model": "unknown"
+      },
+      "human_author": "Uladz Zubrytski <uladz@zubrycki.me>"
+    }
+  }
+}
