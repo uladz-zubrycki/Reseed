@@ -1,27 +1,27 @@
 src/Reseed/Generation/Cleanup/DeleteScriptRenderer.cs
-  s_63bac2c44abfee::t_97a4792e668fe9 93
-tests/Reseed.Tests.Integration/CleanupTests.cs
-  s_90449cac291c89::t_3a7dd1f96f0144 1-18,41-44
-  s_63bac2c44abfee::t_61c86adea29bd1 19-40
-src/Reseed/Configuration/Cleanup/CleanupMode.cs
-  s_63bac2c44abfee::t_f24e33a94cf08e 32
-tests/Reseed.Tests.Integration/Reseed.Tests.Integration.csproj
-  s_63bac2c44abfee::t_280d6b105c7560 25-27
-src/Reseed/Generation/TemporaryTables/TemporaryTablesActionGenerator.cs
-  s_63bac2c44abfee::t_23fce6b686982a 150-151
-src/Reseed/Schema/Providers/MsSqlSchemaReader.cs
-  s_63bac2c44abfee::t_12c8422ad73581 34,77-78,171-177
-readme.md
-  s_63bac2c44abfee::t_2bc0e56c94b7c4 253
-src/Reseed/Schema/TableData.cs
-  s_63bac2c44abfee::t_31a8a655d6144b 12,18-19,29
-src/Reseed/Schema/TableSchema.cs
-  s_63bac2c44abfee::t_9710e3c1cbeacf 17,23-24,34,41-43,63-64
+  s_63bac2c44abfee::t_75b15abffd57a6 93
 tests/Reseed.Tests.Integration/Data/CleanupTests/01_ShouldPreferDeleteForTableReferencedByIndexedView.sql
   s_63bac2c44abfee::t_61c86adea29bd1 1-9
-  s_90449cac291c89::t_33f4aff436dc02 10-22
+  s_90449cac291c89::t_b49b5a58e5050e 10-22
+tests/Reseed.Tests.Integration/CleanupTests.cs
+  s_90449cac291c89::t_981962ab51b21c 1-18,41-44
+  s_63bac2c44abfee::t_61c86adea29bd1 19-40
+src/Reseed/Schema/TableSchema.cs
+  s_63bac2c44abfee::t_69eccaccb465dd 17,23-24,34,41-43,63-64
+src/Reseed/Schema/TableData.cs
+  s_63bac2c44abfee::t_324d11c5c05581 12,18-19,29
+tests/Reseed.Tests.Integration/Reseed.Tests.Integration.csproj
+  s_63bac2c44abfee::t_fbcd32732eff8d 25-27
+src/Reseed/Schema/Providers/MsSqlSchemaReader.cs
+  s_63bac2c44abfee::t_03ff8194b5df0d 34,77-78,171-177
 src/Reseed/Schema/Providers/MsSqlSchemaProvider.cs
-  s_63bac2c44abfee::t_a1cf6e992a79e7 38-39
+  s_63bac2c44abfee::t_5f1b3b995f1c1e 38-39
+readme.md
+  s_63bac2c44abfee::t_322c1061e58af8 253
+src/Reseed/Generation/TemporaryTables/TemporaryTablesActionGenerator.cs
+  s_63bac2c44abfee::t_0d3292e483d0de 150-151
+src/Reseed/Configuration/Cleanup/CleanupMode.cs
+  s_63bac2c44abfee::t_88ae8336eecd0b 32
 ---
 {
   "schema_version": "authorship/3.0.0",
