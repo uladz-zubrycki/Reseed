@@ -1,0 +1,21 @@
+tests/Reseed.Tests.Integration/Data/CleanupTests/01_ShouldPreferDeleteForTableReferencedByIndexedView.sql
+  s_63bac2c44abfee::t_61c86adea29bd1 1-5,8-9
+tests/Reseed.Tests.Integration/CleanupTests.cs
+  s_63bac2c44abfee::t_61c86adea29bd1 20,23-24,26-27,43-44,49
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.16",
+  "base_commit_sha": "b0aa23a8dc3a71f53a160fc6d3102c88935e2c0d",
+  "prompts": {},
+  "sessions": {
+    "s_63bac2c44abfee": {
+      "agent_id": {
+        "tool": "github-copilot-cli",
+        "id": "b66ca912-2dbc-4430-9edd-a94f795dafa7",
+        "model": "unknown"
+      },
+      "human_author": "Uladz Zubrytski <uladz@zubrycki.me>"
+    }
+  }
+}
