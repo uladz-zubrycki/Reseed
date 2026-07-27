@@ -1,27 +1,26 @@
-readme.md
-  s_63bac2c44abfee::t_dbfa16c555c3a8 253
-tests/Reseed.Tests.Integration/CleanupTests.cs
-  s_63bac2c44abfee::t_8ee346073fdfb4 1-17,29-45,47-53
-  s_63bac2c44abfee::t_5db414c2817be0 18-28,46
-src/Reseed/Schema/TableSchema.cs
-  s_63bac2c44abfee::t_8ee346073fdfb4 17,23-24,34,41-43,63-64
-src/Reseed/Schema/Providers/MsSqlSchemaProvider.cs
-  s_63bac2c44abfee::t_8ee346073fdfb4 38-39
-src/Reseed/Generation/Cleanup/DeleteScriptRenderer.cs
-  s_63bac2c44abfee::t_8ee346073fdfb4 93
-tests/Reseed.Tests.Integration/Reseed.Tests.Integration.csproj
-  s_63bac2c44abfee::t_8ee346073fdfb4 25-27
 tests/Reseed.Tests.Integration/Data/CleanupTests/01_ShouldPreferDeleteForTableReferencedByIndexedView.sql
-  s_63bac2c44abfee::t_8ee346073fdfb4 1-8
-  s_8a4ae00bc93c7a::t_ff24a5868b46d6 9
-src/Reseed/Schema/TableData.cs
-  s_63bac2c44abfee::t_8ee346073fdfb4 12,18-19,29
-src/Reseed/Schema/Providers/MsSqlSchemaReader.cs
-  s_63bac2c44abfee::t_8ee346073fdfb4 34,77-78,171-177
+  s_63bac2c44abfee::t_61c86adea29bd1 1-9
+tests/Reseed.Tests.Integration/CleanupTests.cs
+  s_63bac2c44abfee::t_61c86adea29bd1 20-49
+  s_90449cac291c89::t_3a7dd1f96f0144 1-19,50-53
+readme.md
+  s_63bac2c44abfee::t_2bc0e56c94b7c4 253
 src/Reseed/Configuration/Cleanup/CleanupMode.cs
-  s_63bac2c44abfee::t_8ee346073fdfb4 32
+  s_63bac2c44abfee::t_f24e33a94cf08e 32
+src/Reseed/Generation/Cleanup/DeleteScriptRenderer.cs
+  s_63bac2c44abfee::t_97a4792e668fe9 93
 src/Reseed/Generation/TemporaryTables/TemporaryTablesActionGenerator.cs
-  s_63bac2c44abfee::t_8ee346073fdfb4 150-151
+  s_63bac2c44abfee::t_23fce6b686982a 150-151
+src/Reseed/Schema/Providers/MsSqlSchemaProvider.cs
+  s_63bac2c44abfee::t_a1cf6e992a79e7 38-39
+src/Reseed/Schema/Providers/MsSqlSchemaReader.cs
+  s_63bac2c44abfee::t_12c8422ad73581 34,77-78,171-177
+src/Reseed/Schema/TableData.cs
+  s_63bac2c44abfee::t_31a8a655d6144b 12,18-19,29
+src/Reseed/Schema/TableSchema.cs
+  s_63bac2c44abfee::t_9710e3c1cbeacf 17,23-24,34,41-43,63-64
+tests/Reseed.Tests.Integration/Reseed.Tests.Integration.csproj
+  s_63bac2c44abfee::t_280d6b105c7560 25-27
 ---
 {
   "schema_version": "authorship/3.0.0",
@@ -37,10 +36,10 @@ src/Reseed/Generation/TemporaryTables/TemporaryTablesActionGenerator.cs
       },
       "human_author": "Uladz Zubrytski <uladz@zubrycki.me>"
     },
-    "s_8a4ae00bc93c7a": {
+    "s_90449cac291c89": {
       "agent_id": {
         "tool": "github-copilot-cli",
-        "id": "call_7VNyvcmTY3xSsxn7qaQ67F0n",
+        "id": "82dfb0cb-75f4-495b-9e07-711b626b803d",
         "model": "unknown"
       },
       "human_author": "Uladz Zubrytski <uladz@zubrycki.me>"
