@@ -1,0 +1,28 @@
+src/Reseed/Configuration/Cleanup/CleanupMode.cs
+  s_63bac2c44abfee::t_c1eb885252c024 23
+src/Reseed/Generation/Cleanup/DeleteScriptRenderer.cs
+  s_63bac2c44abfee::t_c1eb885252c024 141-148,150-152
+  s_63bac2c44abfee::t_fa74a84c896cb8 149
+tests/Reseed.Tests.Integration/CleanupTests.cs
+  s_63bac2c44abfee::t_c1eb885252c024 23-31
+  s_63bac2c44abfee::t_a06bf9de3f8593 8,17,32-40,47,58-65
+  s_63bac2c44abfee::t_707ffc8817bb5a 1-2
+tests/Reseed.Tests.Integration/Reseed.Tests.Integration.csproj
+  s_63bac2c44abfee::t_a06bf9de3f8593 25
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.16",
+  "base_commit_sha": "3a2c6aa992ad3c33a9d075d178c32e187bb00b40",
+  "prompts": {},
+  "sessions": {
+    "s_63bac2c44abfee": {
+      "agent_id": {
+        "tool": "github-copilot-cli",
+        "id": "b66ca912-2dbc-4430-9edd-a94f795dafa7",
+        "model": "unknown"
+      },
+      "human_author": "Uladz Zubrytski <uladz@zubrycki.me>"
+    }
+  }
+}
