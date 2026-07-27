@@ -1,0 +1,52 @@
+tests/Reseed.Tests.Integration/Reseed.Tests.Integration.csproj
+  s_b163e96f7292d6::t_2047795378942b 28-30,32-33
+  s_b163e96f7292d6::t_23444a187b7206 31
+tests/Reseed.Tests.Integration/Data/CleanupTests/02_ShouldRejectTruncateForTableReferencedByIndexedView.sql
+  s_b163e96f7292d6::t_2047795378942b 1-22
+tests/Reseed.Tests.Integration/CleanupTests.cs
+  s_b163e96f7292d6::t_edb7a10471f70a 29
+  s_b163e96f7292d6::t_2047795378942b 40-58,60-73
+  s_63bac2c44abfee::t_707ffc8817bb5a 1-2
+  s_63bac2c44abfee::t_a06bf9de3f8593 8,75-81
+  s_b163e96f7292d6::t_23444a187b7206 59
+  s_b163e96f7292d6::t_0994c0ef08b731 74
+src/Reseed/Generation/Cleanup/DeleteScriptRenderer.cs
+  s_63bac2c44abfee::t_c1eb885252c024 141-148,150-152
+  s_63bac2c44abfee::t_fa74a84c896cb8 149
+src/Reseed/Configuration/Cleanup/CleanupMode.cs
+  s_63bac2c44abfee::t_c1eb885252c024 23
+tests/Reseed.Tests.Integration/Data/CleanupTests/03_ShouldUseDeleteIfExplicitlyRequested.sql
+  s_00508eba433675::t_e335c5cbb7532b 1-22
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.16",
+  "base_commit_sha": "df0afda0f27d8346e1096151adca49c6c0b9dfc2",
+  "prompts": {},
+  "sessions": {
+    "s_00508eba433675": {
+      "agent_id": {
+        "tool": "github-copilot-cli",
+        "id": "cd991a36-6ef0-422f-b0d2-ae687ffb7f3d",
+        "model": "unknown"
+      },
+      "human_author": "Uladz Zubrytski <uladz@zubrycki.me>"
+    },
+    "s_63bac2c44abfee": {
+      "agent_id": {
+        "tool": "github-copilot-cli",
+        "id": "b66ca912-2dbc-4430-9edd-a94f795dafa7",
+        "model": "unknown"
+      },
+      "human_author": "Uladz Zubrytski <uladz@zubrycki.me>"
+    },
+    "s_b163e96f7292d6": {
+      "agent_id": {
+        "tool": "github-copilot-cli",
+        "id": "01d363e2-1aef-419b-aa75-1c20ca39ede3",
+        "model": "unknown"
+      },
+      "human_author": "Uladz Zubrytski <uladz@zubrycki.me>"
+    }
+  }
+}
