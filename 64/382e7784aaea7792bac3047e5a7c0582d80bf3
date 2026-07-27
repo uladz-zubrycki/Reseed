@@ -1,0 +1,19 @@
+tests/Reseed.Tests.Integration/CleanupTests.cs
+  s_b163e96f7292d6::t_edb7a10471f70a 29
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.16",
+  "base_commit_sha": "64382e7784aaea7792bac3047e5a7c0582d80bf3",
+  "prompts": {},
+  "sessions": {
+    "s_b163e96f7292d6": {
+      "agent_id": {
+        "tool": "github-copilot-cli",
+        "id": "01d363e2-1aef-419b-aa75-1c20ca39ede3",
+        "model": "unknown"
+      },
+      "human_author": "Uladz Zubrytski <uladz@zubrycki.me>"
+    }
+  }
+}
