@@ -20,8 +20,7 @@ namespace Reseed.Configuration.Cleanup
 		/// Uses TRUNCATE to clean data from provided tables.
 		/// In order to do so it drops foreign keys referencing tables and recreates them afterwards.
 		/// Note that truncate is not possible if table is referenced by a view with index.
-		/// This case isn't handled automatically, therefore script will just fail if such table exists.
-		/// To fix this either drop required views/indexes manually or choose delete mode for these tables.
+		/// Generation fails for such tables unless they are configured to use delete.
 		/// </summary>
 		public static CleanupMode Truncate(
 			ObjectName[] useDeleteForTables = null,

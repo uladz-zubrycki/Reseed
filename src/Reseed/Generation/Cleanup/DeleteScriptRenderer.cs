@@ -138,6 +138,18 @@ namespace Reseed.Generation.Cleanup
 				defaultClean.PartitionBy(o => cleanupMode.ShouldUseDelete(o.Value.Name));
 
 			var tablesToTruncate = toTruncate.Unordered().ToArray();
+			var tablesReferencedByIndexedViews = tablesToTruncate
+				.Where(t => t.IsReferencedByIndexedView)
+				.Select(t => t.Name)
+				.ToArray();
+			if (tablesReferencedByIndexedViews.Length > 0)
+			{
+				throw new InvalidOperationException(
+					$"Cleanup mode '{nameof(CleanupMode.Truncate)}' can't truncate tables referenced by indexed views: " +
+					$"{string.Join(", ", tablesReferencedByIndexedViews.Select(t => t.ToString()))}. " +
+					"Add these tables to the useDeleteForTables argument or use CleanupMode.PreferTruncate().");
+			}
+
 			var foreignKeys =
 				tablesToTruncate.SelectMany(getAllIncomingRelations).Distinct().ToArray();
 

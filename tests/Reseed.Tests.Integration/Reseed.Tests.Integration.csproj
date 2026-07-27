@@ -22,7 +22,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="Data\CleanupTests\01_ShouldPreferDeleteForTableReferencedByIndexedView.sql">
+    <None Update="Data\CleanupTests\01_ShouldHandleTableReferencedByIndexedView.sql">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Update="Data\SingleTableTests\04_ShouldInsert_RowVersionMissing.sql">
