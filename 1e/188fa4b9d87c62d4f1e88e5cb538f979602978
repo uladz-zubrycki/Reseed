@@ -1,0 +1,49 @@
+readme.md
+  s_63bac2c44abfee::t_dbfa16c555c3a8 253
+tests/Reseed.Tests.Integration/CleanupTests.cs
+  s_63bac2c44abfee::t_8ee346073fdfb4 1-17,29-45,47-53
+  s_63bac2c44abfee::t_5db414c2817be0 18-28,46
+src/Reseed/Schema/TableSchema.cs
+  s_63bac2c44abfee::t_8ee346073fdfb4 17,23-24,34,41-43,63-64
+src/Reseed/Schema/Providers/MsSqlSchemaProvider.cs
+  s_63bac2c44abfee::t_8ee346073fdfb4 38-39
+src/Reseed/Generation/Cleanup/DeleteScriptRenderer.cs
+  s_63bac2c44abfee::t_8ee346073fdfb4 93
+tests/Reseed.Tests.Integration/Reseed.Tests.Integration.csproj
+  s_63bac2c44abfee::t_8ee346073fdfb4 25-27
+tests/Reseed.Tests.Integration/Data/CleanupTests/01_ShouldPreferDeleteForTableReferencedByIndexedView.sql
+  s_63bac2c44abfee::t_8ee346073fdfb4 1-8
+  s_8a4ae00bc93c7a::t_ff24a5868b46d6 9
+src/Reseed/Schema/TableData.cs
+  s_63bac2c44abfee::t_8ee346073fdfb4 12,18-19,29
+src/Reseed/Schema/Providers/MsSqlSchemaReader.cs
+  s_63bac2c44abfee::t_8ee346073fdfb4 34,77-78,171-177
+src/Reseed/Configuration/Cleanup/CleanupMode.cs
+  s_63bac2c44abfee::t_8ee346073fdfb4 32
+src/Reseed/Generation/TemporaryTables/TemporaryTablesActionGenerator.cs
+  s_63bac2c44abfee::t_8ee346073fdfb4 150-151
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.16",
+  "base_commit_sha": "1e188fa4b9d87c62d4f1e88e5cb538f979602978",
+  "prompts": {},
+  "sessions": {
+    "s_63bac2c44abfee": {
+      "agent_id": {
+        "tool": "github-copilot-cli",
+        "id": "b66ca912-2dbc-4430-9edd-a94f795dafa7",
+        "model": "unknown"
+      },
+      "human_author": "Uladz Zubrytski <uladz@zubrycki.me>"
+    },
+    "s_8a4ae00bc93c7a": {
+      "agent_id": {
+        "tool": "github-copilot-cli",
+        "id": "call_7VNyvcmTY3xSsxn7qaQ67F0n",
+        "model": "unknown"
+      },
+      "human_author": "Uladz Zubrytski <uladz@zubrycki.me>"
+    }
+  }
+}
