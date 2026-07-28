@@ -1,0 +1,58 @@
+tests/Reseed.Tests.Integration/Data/CleanupTests/06_ShouldPreferDeleteForIndexedViewWhenDroppingConstraints.sql
+  s_899ff3b16c18cd::t_00f49df14acca0 1-22
+tests/Reseed.Tests.Integration/Data/CleanupTests/09_ShouldRollbackWhenConstraintCannotBeRecreated.sql
+  s_899ff3b16c18cd::t_789c28acc92010 1-13
+tests/Reseed.Tests.Integration/Data/CleanupTests/07_ShouldRecreateConstraintsAfterCustomCleanup.sql
+  s_899ff3b16c18cd::t_6f22a3f2e4d168 1-13
+tests/Reseed.Tests.Integration/Data/CleanupTests/04_ShouldDropConstraintsToPreferTruncateForeignKeyTables.sql
+  s_899ff3b16c18cd::t_00f49df14acca0 1-13
+src/Reseed/Configuration/Cleanup/CleanupMode.cs
+  s_899ff3b16c18cd::t_35c61c7a4ecad2 31-33
+tests/Reseed.Tests.Integration/Reseed.Tests.Integration.csproj
+  s_899ff3b16c18cd::t_00f49df14acca0 34-42
+  s_899ff3b16c18cd::t_789c28acc92010 46-51
+  s_899ff3b16c18cd::t_6f22a3f2e4d168 43-45
+readme.md
+  s_899ff3b16c18cd::t_77201392030e0e 68,253,261,430-440
+tests/Reseed.Tests.Integration/CleanupTests.cs
+  s_899ff3b16c18cd::t_73f5815910c482 4,107-114,116-120,256-262
+  s_899ff3b16c18cd::t_789c28acc92010 8,202-248
+  s_899ff3b16c18cd::t_6f22a3f2e4d168 179-201,249-251
+  s_899ff3b16c18cd::t_00f49df14acca0 77-106,115,121-178,252-255,263
+tests/Reseed.Tests.Integration/Data/CleanupTests/05_ShouldDropAndRecreateConstraintsForDelete.sql
+  s_899ff3b16c18cd::t_00f49df14acca0 1-13
+tests/Reseed.Tests.Integration/Data/CleanupTests/08_ShouldDropConstraintsForMutuallyReferencingTables.sql
+  s_899ff3b16c18cd::t_789c28acc92010 1-21
+src/Reseed/Generation/Cleanup/DeleteScriptRenderer.cs
+  s_899ff3b16c18cd::t_1a076ced0767d3 55-68,70-73,79-81,88-90,93-96,128-132,137-138,155-157,165-167,213-227,242-244,252-254,361-362,435-436
+  s_899ff3b16c18cd::t_5e0ed458025224 69,99-102,142,176-179,229,263-266,302-308,366-371,373-384,387-393,396-399,402-404
+  s_899ff3b16c18cd::t_35c61c7a4ecad2 82,91,119-120,125,133-136,139-141,143-146,158,168,170-173,245,255,277,288-289,298-299,313-314,326-327,332-333,338-360,363-365,437
+  s_899ff3b16c18cd::t_8385148588e4fd 385-386,394-395,400-401
+src/Reseed/Configuration/Cleanup/ConstraintResolutionBehavior.cs
+  s_899ff3b16c18cd::t_35c61c7a4ecad2 17-22
+  s_c75d2172309daa::t_246eca8cb588de 15
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.16",
+  "base_commit_sha": "68ac11bdeecf4af6af4875d668822016b26384d2",
+  "prompts": {},
+  "sessions": {
+    "s_899ff3b16c18cd": {
+      "agent_id": {
+        "tool": "github-copilot-cli",
+        "id": "f686b01f-52aa-457f-98e1-1f257e74b308",
+        "model": "unknown"
+      },
+      "human_author": "Uladz Zubrytski <uladz@zubrycki.me>"
+    },
+    "s_c75d2172309daa": {
+      "agent_id": {
+        "tool": "github-copilot-cli",
+        "id": "call_5MVoVtKB0IHtOVyibQdQabR3",
+        "model": "unknown"
+      },
+      "human_author": "Uladz Zubrytski <uladz@zubrycki.me>"
+    }
+  }
+}
