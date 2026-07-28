@@ -52,25 +52,54 @@ namespace Reseed.Generation.Cleanup
 				toClean.PartitionBy(o => !cleanupTarget.GetCustomScript(o.Value.Name, out _));
 
 			var persistentTables = rest.Concat(customClean).ToArray();
-			return new List<SqlScriptAction>(2)
+			var getDefaultIncomingRelations = ChooseIncomingRelationsGetter(
+				tables,
+				persistentTables,
+				cleanupMode.ConstraintBehavior);
+			var getCustomIncomingRelations = BuildIncomingRelationsGetter(persistentTables);
+			var shouldDropConstraints =
+				cleanupMode.ConstraintBehavior == ConstraintResolutionBehavior.DropConstraints;
+			var foreignKeys = shouldDropConstraints
+				? defaultClean
+					.SelectMany(o => getDefaultIncomingRelations(o.Value))
+					.Concat(customClean.SelectMany(o => getCustomIncomingRelations(o.Value)))
+					.ToArray()
+				: Array.Empty<Relation<TableSchema>>();
+
+			var cleanupScripts = new List<SqlScriptAction>(4)
+				.AddScriptWhen(
+					() => new SqlScriptAction("Drop Foreign Keys",
+						RenderDropForeignKeys(foreignKeys, false)),
+					foreignKeys.Length > 0)
 				.AddScriptWhen(
 					() => new SqlScriptAction("Delete from tables",
 						string.Join(Environment.NewLine + Environment.NewLine,
 							RenderDeleteFromTables(
 								FilterGraph(orderedTables, defaultClean),
-								ChooseIncomingRelationsGetter(
-									tables,
-									persistentTables,
-									cleanupMode.ConstraintBehavior)))),
+								shouldDropConstraints
+									? GetNoIncomingRelations
+									: getDefaultIncomingRelations,
+								cleanupMode.ConstraintBehavior))),
 					defaultClean.Length > 0)
 				.AddScriptWhen(() => new SqlScriptAction("Custom cleanup scripts",
 						RenderCustomCleanupScripts(
 							customClean,
 							BuildCustomScriptGetter(cleanupTarget),
-							BuildIncomingRelationsGetter(persistentTables))),
+							shouldDropConstraints
+								? GetNoIncomingRelations
+								: getCustomIncomingRelations,
+							cleanupMode.ConstraintBehavior)),
 					customClean.Length > 0)
+				.AddScriptWhen(
+					() => new SqlScriptAction("Create Foreign Keys",
+						RenderCreateForeignKeys(foreignKeys)),
+					foreignKeys.Length > 0)
 				.WithNaturalOrder()
 				.ToArray();
+
+			return WrapDroppedConstraintCleanupInTransaction(
+				cleanupScripts,
+				shouldDropConstraints && foreignKeys.Length > 0);
 		}
 
 		private static IReadOnlyCollection<OrderedItem<SqlScriptAction>> RenderPreferTruncateScripts(
@@ -87,15 +116,34 @@ namespace Reseed.Generation.Cleanup
 			var (defaultClean, customClean) =
 				toClean.PartitionBy(o => !cleanupTarget.GetCustomScript(o.Value.Name, out _));
 
+			var shouldDropConstraints =
+				cleanupMode.ConstraintBehavior == ConstraintResolutionBehavior.DropConstraints;
 			var (toDelete, toTruncate) =
 				defaultClean.PartitionBy(o =>
 					cleanupMode.ShouldUseDelete(o.Value.Name) ||
 					o.Value.IsReferencedByIndexedView ||
-					getAllIncomingRelations(o.Value).Any());
+					(!shouldDropConstraints && getAllIncomingRelations(o.Value).Any()));
 
 			var persistentTables = rest.Concat(customClean).ToArray();
+			var getDeleteIncomingRelations = ChooseIncomingRelationsGetter(
+				tables,
+				persistentTables,
+				cleanupMode.ConstraintBehavior);
+			var getCustomIncomingRelations = BuildIncomingRelationsGetter(persistentTables);
+			var foreignKeys = shouldDropConstraints
+				? toTruncate
+					.Unordered()
+					.SelectMany(getAllIncomingRelations)
+					.Concat(toDelete.SelectMany(o => getDeleteIncomingRelations(o.Value)))
+					.Concat(customClean.SelectMany(o => getCustomIncomingRelations(o.Value)))
+					.ToArray()
+				: Array.Empty<Relation<TableSchema>>();
 
-			return new List<SqlScriptAction>(3)
+			var cleanupScripts = new List<SqlScriptAction>(5)
+				.AddScriptWhen(
+					() => new SqlScriptAction("Drop Foreign Keys",
+						RenderDropForeignKeys(foreignKeys, false)),
+					foreignKeys.Length > 0)
 				.AddScriptWhen(
 					() => new SqlScriptAction("Truncate tables",
 						RenderTruncateTables(toTruncate.Unordered())),
@@ -104,20 +152,31 @@ namespace Reseed.Generation.Cleanup
 					() => new SqlScriptAction("Delete from tables",
 						RenderDeleteFromTables(
 							FilterGraph(orderedTables, toDelete),
-							ChooseIncomingRelationsGetter(
-								tables,
-								persistentTables,
-								cleanupMode.ConstraintBehavior))),
+							shouldDropConstraints
+								? GetNoIncomingRelations
+								: getDeleteIncomingRelations,
+							cleanupMode.ConstraintBehavior)),
 					toDelete.Length > 0)
 				.AddScriptWhen(
 					() => new SqlScriptAction("Custom cleanup scripts",
 						RenderCustomCleanupScripts(
 							customClean,
 							BuildCustomScriptGetter(cleanupTarget),
-							BuildIncomingRelationsGetter(persistentTables))),
+							shouldDropConstraints
+								? GetNoIncomingRelations
+								: getCustomIncomingRelations,
+							cleanupMode.ConstraintBehavior)),
 					customClean.Length > 0)
+				.AddScriptWhen(
+					() => new SqlScriptAction("Create Foreign Keys",
+						RenderCreateForeignKeys(foreignKeys)),
+					foreignKeys.Length > 0)
 				.WithNaturalOrder()
 				.ToArray();
+
+			return WrapDroppedConstraintCleanupInTransaction(
+				cleanupScripts,
+				shouldDropConstraints && foreignKeys.Length > 0);
 		}
 
 		private static IReadOnlyCollection<OrderedItem<SqlScriptAction>> RenderTruncateScripts(
@@ -150,12 +209,24 @@ namespace Reseed.Generation.Cleanup
 					"Add these tables to the useDeleteForTables argument or use CleanupMode.PreferTruncate().");
 			}
 
-			var foreignKeys =
-				tablesToTruncate.SelectMany(getAllIncomingRelations).Distinct().ToArray();
-
 			var persistentTables = rest.Concat(customClean).ToArray();
+			var getDeleteIncomingRelations = ChooseIncomingRelationsGetter(
+				tables,
+				persistentTables,
+				cleanupMode.ConstraintBehavior);
+			var getCustomIncomingRelations = BuildIncomingRelationsGetter(persistentTables);
+			var shouldDropConstraints =
+				cleanupMode.ConstraintBehavior == ConstraintResolutionBehavior.DropConstraints;
+			var foreignKeys = tablesToTruncate
+				.SelectMany(getAllIncomingRelations)
+				.Concat(shouldDropConstraints
+					? toDelete
+						.SelectMany(o => getDeleteIncomingRelations(o.Value))
+						.Concat(customClean.SelectMany(o => getCustomIncomingRelations(o.Value)))
+					: Enumerable.Empty<Relation<TableSchema>>())
+				.ToArray();
 
-			return new List<SqlScriptAction>(5)
+			var cleanupScripts = new List<SqlScriptAction>(5)
 				.AddScriptWhen(
 					() => new SqlScriptAction("Drop Foreign Keys",
 						RenderDropForeignKeys(foreignKeys, false)),
@@ -168,17 +239,20 @@ namespace Reseed.Generation.Cleanup
 					() => new SqlScriptAction("Delete from tables",
 						RenderDeleteFromTables(
 							FilterGraph(orderedTables, toDelete),
-							ChooseIncomingRelationsGetter(
-								tables,
-								persistentTables,
-								cleanupMode.ConstraintBehavior))),
+							shouldDropConstraints
+								? GetNoIncomingRelations
+								: getDeleteIncomingRelations,
+							cleanupMode.ConstraintBehavior)),
 					toDelete.Length > 0)
 				.AddScriptWhen(
 					() => new SqlScriptAction("Custom cleanup scripts",
 						RenderCustomCleanupScripts(
 							customClean,
 							BuildCustomScriptGetter(cleanupTarget),
-							BuildIncomingRelationsGetter(persistentTables))),
+							shouldDropConstraints
+								? GetNoIncomingRelations
+								: getCustomIncomingRelations,
+							cleanupMode.ConstraintBehavior)),
 					customClean.Length > 0)
 				.AddScriptWhen(
 					() => new SqlScriptAction("Create Foreign Keys",
@@ -186,6 +260,10 @@ namespace Reseed.Generation.Cleanup
 					foreignKeys.Length > 0)
 				.WithNaturalOrder()
 				.ToArray();
+
+			return WrapDroppedConstraintCleanupInTransaction(
+				cleanupScripts,
+				shouldDropConstraints && foreignKeys.Length > 0);
 		}
 
 		private static Func<TableSchema, Relation<TableSchema>[]> ChooseIncomingRelationsGetter(
@@ -196,6 +274,7 @@ namespace Reseed.Generation.Cleanup
 			{
 				ConstraintResolutionBehavior.OrderTables => BuildIncomingRelationsGetter(persistentTables),
 				ConstraintResolutionBehavior.DisableConstraints => BuildIncomingRelationsGetter(allTables),
+				ConstraintResolutionBehavior.DropConstraints => BuildIncomingRelationsGetter(allTables),
 				_ => throw new NotSupportedException(
 					$"Unknown {nameof(ConstraintResolutionBehavior)} value '{resolutionKind}'")
 			};
@@ -206,7 +285,8 @@ namespace Reseed.Generation.Cleanup
 
 		private static string RenderDeleteFromTables(
 			OrderedGraph<TableSchema> tables,
-			Func<TableSchema, Relation<TableSchema>[]> getIncomingRelations)
+			Func<TableSchema, Relation<TableSchema>[]> getIncomingRelations,
+			ConstraintResolutionBehavior constraintBehavior)
 		{
 			var scripts = MutualReferenceResolver.MergeChunks(
 				tables,
@@ -215,18 +295,23 @@ namespace Reseed.Generation.Cleanup
 					ts.Select(t => RenderCleanupTables(
 						new[] { t.Value },
 						getIncomingRelations(t.Value),
-						GetCleanupScript))),
+						GetCleanupScript,
+						constraintBehavior))),
 				ms =>
 				{
-					var foreignKeys = ms.Relations
-						.Concat(ms.Items.SelectMany(o => getIncomingRelations(o.Value)))
-						.Distinct()
-						.ToArray();
+					var foreignKeys =
+						constraintBehavior == ConstraintResolutionBehavior.DropConstraints
+							? Array.Empty<Relation<TableSchema>>()
+							: ms.Relations
+								.Concat(ms.Items.SelectMany(o => getIncomingRelations(o.Value)))
+								.Distinct()
+								.ToArray();
 
 					return RenderCleanupTables(
 						ms.Items.Order(),
 						foreignKeys,
-						GetCleanupScript);
+						GetCleanupScript,
+						constraintBehavior);
 				},
 				MutualGroupOrderMode.Min);
 
@@ -238,29 +323,85 @@ namespace Reseed.Generation.Cleanup
 		private static string RenderCustomCleanupScripts(
 			OrderedItem<TableSchema>[] tables,
 			Func<ObjectName, string> getCleanupScript,
-			Func<TableSchema, Relation<TableSchema>[]> getIncomingRelations) =>
+			Func<TableSchema, Relation<TableSchema>[]> getIncomingRelations,
+			ConstraintResolutionBehavior constraintBehavior) =>
 			string.Join(Environment.NewLine + Environment.NewLine,
 				tables.Order().Select(t =>
 					RenderCleanupTables(new[] { t },
 						getIncomingRelations(t),
-						getCleanupScript)));
+						getCleanupScript,
+						constraintBehavior)));
 
 		private static string RenderCleanupTables(
 			IEnumerable<TableSchema> tables,
 			IReadOnlyCollection<Relation<TableSchema>> foreignKeys,
-			Func<ObjectName, string> getCleanupScript)
+			Func<ObjectName, string> getCleanupScript,
+			ConstraintResolutionBehavior constraintBehavior)
 		{
-			var decoratedSeparator = foreignKeys.Any() ? Environment.NewLine : string.Empty;
-			var fkDecorator = new DisableForeignKeysDecorator(
-				foreignKeys
-					.Select(r => r.Map(t => t.Name))
-					.ToArray());
+			var cleanupScript = string.Join(
+				Environment.NewLine,
+				tables.Select(s => getCleanupScript(s.Name)));
+			if (foreignKeys.Count == 0)
+			{
+				return cleanupScript;
+			}
 
-			return string.Join(string.Empty,
-				decoratedSeparator,
-				fkDecorator.Decorate(string.Join(Environment.NewLine,
-					tables.Select(s => getCleanupScript(s.Name)))),
-				decoratedSeparator);
+			return constraintBehavior switch
+			{
+				ConstraintResolutionBehavior.OrderTables or
+					ConstraintResolutionBehavior.DisableConstraints =>
+					Environment.NewLine +
+					new DisableForeignKeysDecorator(
+							foreignKeys
+								.Select(r => r.Map(t => t.Name))
+								.ToArray())
+						.Decorate(cleanupScript) +
+					Environment.NewLine,
+				ConstraintResolutionBehavior.DropConstraints =>
+					throw new InvalidOperationException(
+						"DropConstraints must be resolved for the complete cleanup action."),
+				_ => throw new NotSupportedException(
+					$"Unknown {nameof(ConstraintResolutionBehavior)} value '{constraintBehavior}'")
+			};
+		}
+
+		private static IReadOnlyCollection<OrderedItem<SqlScriptAction>>
+			WrapDroppedConstraintCleanupInTransaction(
+				IReadOnlyCollection<OrderedItem<SqlScriptAction>> scripts,
+				bool shouldWrap)
+		{
+			if (!shouldWrap)
+			{
+				return scripts;
+			}
+
+			var cleanupScript = SqlScriptAction.Join(
+				"Cleanup with dropped constraints",
+				scripts);
+
+			return OrderedItem.OrderedCollection(
+				cleanupScript.Map(
+					script => $@"
+						|DECLARE @ReseedXactAbortWasOn bit =
+						|	CASE WHEN (16384 & @@OPTIONS) = 16384 THEN 1 ELSE 0 END;
+						|SET XACT_ABORT ON;
+						|BEGIN TRY
+						|	BEGIN TRANSACTION;
+						|
+						{script.WithMargin("\t", '|')}
+						|
+						|	COMMIT TRANSACTION;
+						|	IF @ReseedXactAbortWasOn = 0
+						|		SET XACT_ABORT OFF;
+						|END TRY
+						|BEGIN CATCH
+						|	IF @@TRANCOUNT > 0
+						|		ROLLBACK TRANSACTION;
+						|	IF @ReseedXactAbortWasOn = 0
+						|		SET XACT_ABORT OFF;
+						|	THROW;
+						|END CATCH"
+						.TrimMargin('|')));
 		}
 
 		private static OrderedGraph<TableSchema> FilterGraph(
@@ -290,6 +431,9 @@ namespace Reseed.Generation.Cleanup
 					? rs
 					: Array.Empty<Relation<TableSchema>>();
 		}
+
+		private static Relation<TableSchema>[] GetNoIncomingRelations(TableSchema _) =>
+			Array.Empty<Relation<TableSchema>>();
 
 		private static Func<ObjectName, string> BuildCustomScriptGetter(CleanupTarget target) =>
 			t => target.GetCustomScript(t, out var s)
