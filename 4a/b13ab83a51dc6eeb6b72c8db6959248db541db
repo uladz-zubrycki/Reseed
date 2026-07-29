@@ -1,0 +1,19 @@
+src/Reseed/Generation/Cleanup/DeleteScriptRenderer.cs
+  s_899ff3b16c18cd::t_aa04e0ea4f6946 60-61,71-73,140-141,149-153,202,232-233,242-249
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.16",
+  "base_commit_sha": "4ab13ab83a51dc6eeb6b72c8db6959248db541db",
+  "prompts": {},
+  "sessions": {
+    "s_899ff3b16c18cd": {
+      "agent_id": {
+        "tool": "github-copilot-cli",
+        "id": "f686b01f-52aa-457f-98e1-1f257e74b308",
+        "model": "unknown"
+      },
+      "human_author": "Uladz Zubrytski <uladz@zubrycki.me>"
+    }
+  }
+}
