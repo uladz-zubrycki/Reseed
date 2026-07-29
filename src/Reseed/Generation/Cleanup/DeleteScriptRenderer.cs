@@ -52,16 +52,24 @@ namespace Reseed.Generation.Cleanup
 				toClean.PartitionBy(o => !cleanupTarget.GetCustomScript(o.Value.Name, out _));
 
 			var persistentTables = rest.Concat(customClean).ToArray();
-			var getDefaultIncomingRelations = ChooseIncomingRelationsGetter(
-				tables,
-				persistentTables,
-				cleanupMode.ConstraintBehavior);
+			var getDefaultDeleteIncomingRelations =
+				cleanupMode.ConstraintBehavior switch
+				{
+					ConstraintResolutionBehavior.OrderTables =>
+						BuildIncomingRelationsGetter(persistentTables),
+					ConstraintResolutionBehavior.DisableConstraints or
+						ConstraintResolutionBehavior.DropConstraints =>
+						BuildIncomingRelationsGetter(tables),
+					_ => throw new NotSupportedException(
+						$"Unknown {nameof(ConstraintResolutionBehavior)} value " +
+						$"'{cleanupMode.ConstraintBehavior}'")
+				};
 			var getCustomIncomingRelations = BuildIncomingRelationsGetter(persistentTables);
 			var shouldDropConstraints =
 				cleanupMode.ConstraintBehavior == ConstraintResolutionBehavior.DropConstraints;
 			var foreignKeys = shouldDropConstraints
 				? defaultClean
-					.SelectMany(o => getDefaultIncomingRelations(o.Value))
+					.SelectMany(o => getDefaultDeleteIncomingRelations(o.Value))
 					.Concat(customClean.SelectMany(o => getCustomIncomingRelations(o.Value)))
 					.ToArray()
 				: Array.Empty<Relation<TableSchema>>();
@@ -78,7 +86,7 @@ namespace Reseed.Generation.Cleanup
 								FilterGraph(orderedTables, defaultClean),
 								shouldDropConstraints
 									? GetNoIncomingRelations
-									: getDefaultIncomingRelations,
+									: getDefaultDeleteIncomingRelations,
 								cleanupMode.ConstraintBehavior))),
 					defaultClean.Length > 0)
 				.AddScriptWhen(() => new SqlScriptAction("Custom cleanup scripts",
@@ -124,10 +132,18 @@ namespace Reseed.Generation.Cleanup
 					(!shouldDropConstraints && getAllIncomingRelations(o.Value).Any()));
 
 			var persistentTables = rest.Concat(customClean).ToArray();
-			var getDeleteIncomingRelations = ChooseIncomingRelationsGetter(
-				tables,
-				persistentTables,
-				cleanupMode.ConstraintBehavior);
+			var getDeleteIncomingRelations =
+				cleanupMode.ConstraintBehavior switch
+				{
+					ConstraintResolutionBehavior.OrderTables =>
+						BuildIncomingRelationsGetter(persistentTables),
+					ConstraintResolutionBehavior.DisableConstraints or
+						ConstraintResolutionBehavior.DropConstraints =>
+						BuildIncomingRelationsGetter(tables),
+					_ => throw new NotSupportedException(
+						$"Unknown {nameof(ConstraintResolutionBehavior)} value " +
+						$"'{cleanupMode.ConstraintBehavior}'")
+				};
 			var getCustomIncomingRelations = BuildIncomingRelationsGetter(persistentTables);
 			var foreignKeys = shouldDropConstraints
 				? toTruncate
@@ -208,10 +224,18 @@ namespace Reseed.Generation.Cleanup
 			}
 
 			var persistentTables = rest.Concat(customClean).ToArray();
-			var getDeleteIncomingRelations = ChooseIncomingRelationsGetter(
-				tables,
-				persistentTables,
-				cleanupMode.ConstraintBehavior);
+			var getDeleteIncomingRelations =
+				cleanupMode.ConstraintBehavior switch
+				{
+					ConstraintResolutionBehavior.OrderTables =>
+						BuildIncomingRelationsGetter(persistentTables),
+					ConstraintResolutionBehavior.DisableConstraints or
+						ConstraintResolutionBehavior.DropConstraints =>
+						BuildIncomingRelationsGetter(tables),
+					_ => throw new NotSupportedException(
+						$"Unknown {nameof(ConstraintResolutionBehavior)} value " +
+						$"'{cleanupMode.ConstraintBehavior}'")
+				};
 			var getCustomIncomingRelations = BuildIncomingRelationsGetter(persistentTables);
 			var shouldDropConstraints =
 				cleanupMode.ConstraintBehavior == ConstraintResolutionBehavior.DropConstraints;
@@ -262,19 +286,6 @@ namespace Reseed.Generation.Cleanup
 				cleanupScripts,
 				shouldDropConstraints && foreignKeys.Length > 0);
 		}
-
-		private static Func<TableSchema, Relation<TableSchema>[]> ChooseIncomingRelationsGetter(
-			IEnumerable<OrderedItem<TableSchema>> allTables,
-			IEnumerable<OrderedItem<TableSchema>> persistentTables,
-			ConstraintResolutionBehavior resolutionKind) =>
-			resolutionKind switch
-			{
-				ConstraintResolutionBehavior.OrderTables => BuildIncomingRelationsGetter(persistentTables),
-				ConstraintResolutionBehavior.DisableConstraints => BuildIncomingRelationsGetter(allTables),
-				ConstraintResolutionBehavior.DropConstraints => BuildIncomingRelationsGetter(allTables),
-				_ => throw new NotSupportedException(
-					$"Unknown {nameof(ConstraintResolutionBehavior)} value '{resolutionKind}'")
-			};
 
 		private static string RenderTruncateTables(IEnumerable<TableSchema> tables) =>
 			string.Join(Environment.NewLine,
