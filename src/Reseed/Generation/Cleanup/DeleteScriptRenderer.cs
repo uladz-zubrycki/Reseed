@@ -87,8 +87,7 @@ namespace Reseed.Generation.Cleanup
 							BuildCustomScriptGetter(cleanupTarget),
 							shouldDropConstraints
 								? GetNoIncomingRelations
-								: getCustomIncomingRelations,
-							cleanupMode.ConstraintBehavior)),
+								: getCustomIncomingRelations)),
 					customClean.Length > 0)
 				.AddScriptWhen(
 					() => new SqlScriptAction("Create Foreign Keys",
@@ -164,8 +163,7 @@ namespace Reseed.Generation.Cleanup
 							BuildCustomScriptGetter(cleanupTarget),
 							shouldDropConstraints
 								? GetNoIncomingRelations
-								: getCustomIncomingRelations,
-							cleanupMode.ConstraintBehavior)),
+								: getCustomIncomingRelations)),
 					customClean.Length > 0)
 				.AddScriptWhen(
 					() => new SqlScriptAction("Create Foreign Keys",
@@ -251,8 +249,7 @@ namespace Reseed.Generation.Cleanup
 							BuildCustomScriptGetter(cleanupTarget),
 							shouldDropConstraints
 								? GetNoIncomingRelations
-								: getCustomIncomingRelations,
-							cleanupMode.ConstraintBehavior)),
+								: getCustomIncomingRelations)),
 					customClean.Length > 0)
 				.AddScriptWhen(
 					() => new SqlScriptAction("Create Foreign Keys",
@@ -295,8 +292,7 @@ namespace Reseed.Generation.Cleanup
 					ts.Select(t => RenderCleanupTables(
 						new[] { t.Value },
 						getIncomingRelations(t.Value),
-						GetCleanupScript,
-						constraintBehavior))),
+						GetCleanupScript))),
 				ms =>
 				{
 					var foreignKeys =
@@ -310,8 +306,7 @@ namespace Reseed.Generation.Cleanup
 					return RenderCleanupTables(
 						ms.Items.Order(),
 						foreignKeys,
-						GetCleanupScript,
-						constraintBehavior);
+						GetCleanupScript);
 				},
 				MutualGroupOrderMode.Min);
 
@@ -323,46 +318,29 @@ namespace Reseed.Generation.Cleanup
 		private static string RenderCustomCleanupScripts(
 			OrderedItem<TableSchema>[] tables,
 			Func<ObjectName, string> getCleanupScript,
-			Func<TableSchema, Relation<TableSchema>[]> getIncomingRelations,
-			ConstraintResolutionBehavior constraintBehavior) =>
+			Func<TableSchema, Relation<TableSchema>[]> getIncomingRelations) =>
 			string.Join(Environment.NewLine + Environment.NewLine,
 				tables.Order().Select(t =>
 					RenderCleanupTables(new[] { t },
 						getIncomingRelations(t),
-						getCleanupScript,
-						constraintBehavior)));
+						getCleanupScript)));
 
 		private static string RenderCleanupTables(
 			IEnumerable<TableSchema> tables,
 			IReadOnlyCollection<Relation<TableSchema>> foreignKeys,
-			Func<ObjectName, string> getCleanupScript,
-			ConstraintResolutionBehavior constraintBehavior)
+			Func<ObjectName, string> getCleanupScript)
 		{
-			var cleanupScript = string.Join(
-				Environment.NewLine,
-				tables.Select(s => getCleanupScript(s.Name)));
-			if (foreignKeys.Count == 0)
-			{
-				return cleanupScript;
-			}
+			var decoratedSeparator = foreignKeys.Any() ? Environment.NewLine : string.Empty;
+			var fkDecorator = new DisableForeignKeysDecorator(
+				foreignKeys
+					.Select(r => r.Map(t => t.Name))
+					.ToArray());
 
-			return constraintBehavior switch
-			{
-				ConstraintResolutionBehavior.OrderTables or
-					ConstraintResolutionBehavior.DisableConstraints =>
-					Environment.NewLine +
-					new DisableForeignKeysDecorator(
-							foreignKeys
-								.Select(r => r.Map(t => t.Name))
-								.ToArray())
-						.Decorate(cleanupScript) +
-					Environment.NewLine,
-				ConstraintResolutionBehavior.DropConstraints =>
-					throw new InvalidOperationException(
-						"DropConstraints must be resolved for the complete cleanup action."),
-				_ => throw new NotSupportedException(
-					$"Unknown {nameof(ConstraintResolutionBehavior)} value '{constraintBehavior}'")
-			};
+			return string.Join(string.Empty,
+				decoratedSeparator,
+				fkDecorator.Decorate(string.Join(Environment.NewLine,
+					tables.Select(s => getCleanupScript(s.Name)))),
+				decoratedSeparator);
 		}
 
 		private static IReadOnlyCollection<OrderedItem<SqlScriptAction>>
