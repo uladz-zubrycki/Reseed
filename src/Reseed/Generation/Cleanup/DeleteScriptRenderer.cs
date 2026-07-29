@@ -289,7 +289,7 @@ namespace Reseed.Generation.Cleanup
 				tables,
 				ts => string.Join(
 					Environment.NewLine,
-					ts.Select(t => RenderCleanupTables(
+					ts.Select(t => RenderCleanupWithDisabledForeignKeys(
 						new[] { t.Value },
 						getIncomingRelations(t.Value),
 						GetCleanupScript))),
@@ -303,7 +303,7 @@ namespace Reseed.Generation.Cleanup
 								.Distinct()
 								.ToArray();
 
-					return RenderCleanupTables(
+					return RenderCleanupWithDisabledForeignKeys(
 						ms.Items.Order(),
 						foreignKeys,
 						GetCleanupScript);
@@ -321,11 +321,11 @@ namespace Reseed.Generation.Cleanup
 			Func<TableSchema, Relation<TableSchema>[]> getIncomingRelations) =>
 			string.Join(Environment.NewLine + Environment.NewLine,
 				tables.Order().Select(t =>
-					RenderCleanupTables(new[] { t },
+					RenderCleanupWithDisabledForeignKeys(new[] { t },
 						getIncomingRelations(t),
 						getCleanupScript)));
 
-		private static string RenderCleanupTables(
+		private static string RenderCleanupWithDisabledForeignKeys(
 			IEnumerable<TableSchema> tables,
 			IReadOnlyCollection<Relation<TableSchema>> foreignKeys,
 			Func<ObjectName, string> getCleanupScript)
