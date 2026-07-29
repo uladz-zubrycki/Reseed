@@ -28,9 +28,8 @@ namespace Reseed.Configuration.Cleanup
 			new TruncateCleanupMode(constraintBehavior, useDeleteForTables ?? Array.Empty<ObjectName>());
 
 		/// <summary>
-		/// Uses TRUNCATE to clean data from tables which aren't referenced by an indexed view.
-		/// Tables referenced by foreign keys are truncated when constraints are dropped and recreated;
-		/// otherwise they are cleaned with use of DELETE FROM.
+		/// Uses TRUNCATE when possible and falls back to DELETE.
+		/// <see cref="ConstraintResolutionBehavior"/> determines how foreign key constraints are handled.
 		/// </summary>
 		public static CleanupMode PreferTruncate(
 			ObjectName[] useDeleteForTables = null,
