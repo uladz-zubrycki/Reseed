@@ -57,9 +57,10 @@ namespace Reseed.Generation.Cleanup
 				{
 					ConstraintResolutionBehavior.OrderTables =>
 						BuildIncomingRelationsGetter(persistentTables),
-					ConstraintResolutionBehavior.DisableConstraints or
-						ConstraintResolutionBehavior.DropConstraints =>
+					ConstraintResolutionBehavior.DisableConstraints =>
 						BuildIncomingRelationsGetter(tables),
+					ConstraintResolutionBehavior.DropConstraints =>
+						GetNoIncomingRelations,
 					_ => throw new NotSupportedException(
 						$"Unknown {nameof(ConstraintResolutionBehavior)} value " +
 						$"'{cleanupMode.ConstraintBehavior}'")
@@ -67,18 +68,13 @@ namespace Reseed.Generation.Cleanup
 			var getCustomIncomingRelations = BuildIncomingRelationsGetter(persistentTables);
 			var shouldDropConstraints =
 				cleanupMode.ConstraintBehavior == ConstraintResolutionBehavior.DropConstraints;
-			var foreignKeys = shouldDropConstraints
-				? defaultClean
-					.SelectMany(o => getDefaultDeleteIncomingRelations(o.Value))
-					.Concat(customClean.SelectMany(o => getCustomIncomingRelations(o.Value)))
-					.ToArray()
-				: Array.Empty<Relation<TableSchema>>();
+			var foreignKeysToDrop = GetForeignKeysToDrop();
 
 			var cleanupScripts = new List<SqlScriptAction>(4)
 				.AddScriptWhen(
 					() => new SqlScriptAction("Drop Foreign Keys",
-						RenderDropForeignKeys(foreignKeys, false)),
-					foreignKeys.Length > 0)
+						RenderDropForeignKeys(foreignKeysToDrop, false)),
+					foreignKeysToDrop.Length > 0)
 				.AddScriptWhen(
 					() => new SqlScriptAction("Delete from tables",
 						string.Join(Environment.NewLine + Environment.NewLine,
@@ -99,14 +95,29 @@ namespace Reseed.Generation.Cleanup
 					customClean.Length > 0)
 				.AddScriptWhen(
 					() => new SqlScriptAction("Create Foreign Keys",
-						RenderCreateForeignKeys(foreignKeys)),
-					foreignKeys.Length > 0)
+						RenderCreateForeignKeys(foreignKeysToDrop)),
+					foreignKeysToDrop.Length > 0)
 				.WithNaturalOrder()
 				.ToArray();
 
 			return WrapDroppedConstraintCleanupInTransaction(
 				cleanupScripts,
-				shouldDropConstraints && foreignKeys.Length > 0);
+				shouldDropConstraints && foreignKeysToDrop.Length > 0);
+
+			Relation<TableSchema>[] GetForeignKeysToDrop() =>
+				cleanupMode.ConstraintBehavior switch
+				{
+					ConstraintResolutionBehavior.DropConstraints =>
+						tables
+							.SelectMany(t => t.Value.GetRelations())
+							.ToArray(),
+					ConstraintResolutionBehavior.OrderTables or
+						ConstraintResolutionBehavior.DisableConstraints =>
+						Array.Empty<Relation<TableSchema>>(),
+					_ => throw new NotSupportedException(
+						$"Unknown {nameof(ConstraintResolutionBehavior)} value " +
+						$"'{cleanupMode.ConstraintBehavior}'")
+				};
 		}
 
 		private static IReadOnlyCollection<OrderedItem<SqlScriptAction>> RenderPreferTruncateScripts(
