@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Data.SqlClient;
@@ -58,7 +59,9 @@ namespace Reseed.Tests.Integration
 		}
 
 		[Test]
-		public async Task ShouldUseDeleteIfExplicitlyRequested()
+		public async Task ShouldUseDeleteIfExplicitlyRequested(
+			[Values(false, true)] bool preferTruncate,
+			[Values] ConstraintResolutionBehavior behavior)
 		{
 			await using var database = await Conventional.CreateConventionalDatabase(this);
 			var reseeder = new Reseeder();
@@ -66,7 +69,9 @@ namespace Reseed.Tests.Integration
 			var actions = reseeder.Generate(
 				database.ConnectionString,
 				new CleanupOnlySeedMode(CleanupDefinition.Script(
-					CleanupMode.Truncate(new[] { new ObjectName("User") }),
+					preferTruncate
+						? CleanupMode.PreferTruncate(new[] { new ObjectName("User") }, behavior)
+						: CleanupMode.Truncate(new[] { new ObjectName("User") }, behavior),
 					CleanupTarget.Excluding())));
 
 			Assert.That(
@@ -173,11 +178,20 @@ namespace Reseed.Tests.Integration
 			{
 				Assert.That(cleanupScript, Does.Contain("DELETE FROM [dbo].[User];"));
 				Assert.That(cleanupScript, Does.Not.Contain("TRUNCATE TABLE [dbo].[User];"));
+				Assert.That(cleanupScript, Does.Contain("TRUNCATE TABLE [dbo].[Child];"));
 			});
+
+			reseeder.Execute(database.ConnectionString, actions.RestoreData);
+			reseeder.Execute(database.ConnectionString, actions.RestoreData);
+			var sql = new SqlEngine(database.ConnectionString);
+			Assert.That(
+				await sql.ExecuteScalarAsync<int>(
+					"SELECT (SELECT COUNT(1) FROM [dbo].[User]) + (SELECT COUNT(1) FROM [dbo].[Child])"),
+				Is.Zero);
 		}
 
-		[Test]
-		public async Task ShouldRecreateConstraintsAfterCustomCleanup()
+		[TestCaseSource(nameof(DropConstraintModes))]
+		public async Task ShouldRecreateConstraintsAfterCustomCleanup(CleanupMode mode)
 		{
 			await using var database = await Conventional.CreateConventionalDatabase(this);
 			var sql = new SqlEngine(database.ConnectionString);
@@ -186,7 +200,7 @@ namespace Reseed.Tests.Integration
 			var actions = reseeder.Generate(
 				database.ConnectionString,
 				new CleanupOnlySeedMode(CleanupDefinition.Script(
-					CleanupMode.Delete(ConstraintResolutionBehavior.DropConstraints),
+					mode,
 					CleanupTarget.Excluding(
 						customScripts: new[]
 						{
@@ -202,8 +216,8 @@ namespace Reseed.Tests.Integration
 				Is.EqualTo(1));
 		}
 
-		[Test]
-		public async Task ShouldDropConstraintsForMutuallyReferencingTables()
+		[TestCaseSource(nameof(DropConstraintModes))]
+		public async Task ShouldDropConstraintsForMutuallyReferencingTables(CleanupMode mode)
 		{
 			await using var database = await Conventional.CreateConventionalDatabase(this);
 			var sql = new SqlEngine(database.ConnectionString);
@@ -212,7 +226,7 @@ namespace Reseed.Tests.Integration
 			var actions = reseeder.Generate(
 				database.ConnectionString,
 				new CleanupOnlySeedMode(CleanupDefinition.Script(
-					CleanupMode.Delete(ConstraintResolutionBehavior.DropConstraints),
+					mode,
 					CleanupTarget.Excluding())));
 
 			reseeder.Execute(database.ConnectionString, actions.RestoreData);
@@ -226,8 +240,8 @@ namespace Reseed.Tests.Integration
 				Is.EqualTo(2));
 		}
 
-		[Test]
-		public async Task ShouldRollbackWhenConstraintCannotBeRecreated()
+		[TestCaseSource(nameof(DropConstraintModes))]
+		public async Task ShouldRollbackWhenConstraintCannotBeRecreated(CleanupMode mode)
 		{
 			await using var database = await Conventional.CreateConventionalDatabase(this);
 			var sql = new SqlEngine(database.ConnectionString);
@@ -236,7 +250,7 @@ namespace Reseed.Tests.Integration
 			var actions = reseeder.Generate(
 				database.ConnectionString,
 				new CleanupOnlySeedMode(CleanupDefinition.Script(
-					CleanupMode.Delete(ConstraintResolutionBehavior.DropConstraints),
+					mode,
 					CleanupTarget.Including(c =>
 						c.IncludeTables(new ObjectName("Parent"))))));
 
@@ -247,6 +261,116 @@ namespace Reseed.Tests.Integration
 			Assert.That(
 				await sql.ExecuteScalarAsync<int>("SELECT COUNT(1) FROM [dbo].[Parent]"),
 				Is.EqualTo(1));
+		}
+
+		[TestCaseSource(nameof(ForeignKeyCleanupCases))]
+		public async Task ShouldApplyCleanupModeAndBehavior(
+			CleanupMode mode,
+			ConstraintResolutionBehavior behavior,
+			string parentCommand,
+			string childCommand,
+			bool dropsUnrelatedForeignKey,
+			bool useProcedure)
+		{
+			await using var database = await Conventional.CreateConventionalDatabase(this);
+			var sql = new SqlEngine(database.ConnectionString);
+			var reseeder = new Reseeder();
+			var target = CleanupTarget.Including(c =>
+				c.IncludeTables(new ObjectName("Parent"), new ObjectName("Child")));
+			var definition = useProcedure
+				? CleanupDefinition.Procedure(new ObjectName("spCleanupData"), mode, target)
+				: CleanupDefinition.Script(mode, target);
+			var actions = reseeder.Generate(
+				database.ConnectionString,
+				new CleanupOnlySeedMode(definition));
+			var script = useProcedure
+				? string.Join(Environment.NewLine, actions.PrepareDatabase
+					.Select(a => a.Value).OfType<SqlScriptAction>().Select(a => a.Text))
+				: GetCleanupScript(actions);
+			var dropsForeignKeys = parentCommand == "TRUNCATE TABLE" ||
+				behavior == ConstraintResolutionBehavior.DropConstraints;
+
+			Assert.Multiple(() =>
+			{
+				Assert.That(script, Does.Contain($"{parentCommand} [dbo].[Parent];"));
+				Assert.That(script, Does.Contain($"{childCommand} [dbo].[Child];"));
+				Assert.That(script.Contains("CONSTRAINT IF EXISTS [FK_Child_Parent]"),
+					Is.EqualTo(dropsForeignKeys));
+				Assert.That(script.Contains("CONSTRAINT IF EXISTS [FK_UnrelatedChild_UnrelatedParent]"),
+					Is.EqualTo(dropsUnrelatedForeignKey));
+				Assert.That(script.Contains("NOCHECK CONSTRAINT [FK_Child_Parent]"),
+					Is.EqualTo(behavior == ConstraintResolutionBehavior.DisableConstraints &&
+						parentCommand == "DELETE FROM"));
+				Assert.That(script.Contains("BEGIN TRANSACTION;"),
+					Is.EqualTo(behavior == ConstraintResolutionBehavior.DropConstraints));
+			});
+
+			reseeder.Execute(database.ConnectionString, actions.PrepareDatabase);
+			reseeder.Execute(database.ConnectionString, actions.RestoreData);
+			reseeder.Execute(database.ConnectionString, actions.RestoreData);
+			reseeder.Execute(database.ConnectionString, actions.CleanupDatabase);
+
+			Assert.That(
+				await sql.ExecuteScalarAsync<int>(
+					"SELECT (SELECT COUNT(1) FROM [dbo].[Parent]) + (SELECT COUNT(1) FROM [dbo].[Child])"),
+				Is.Zero);
+			Assert.That(
+				await sql.ExecuteScalarAsync<int>(
+					"SELECT (SELECT COUNT(1) FROM [dbo].[UnrelatedParent]) + " +
+					"(SELECT COUNT(1) FROM [dbo].[UnrelatedChild])"),
+				Is.EqualTo(2));
+			Assert.That(
+				await sql.ExecuteScalarAsync<int>("SELECT COUNT(1) FROM sys.foreign_keys WHERE is_disabled = 0"),
+				Is.EqualTo(2));
+		}
+
+		private static IEnumerable<TestCaseData> DropConstraintModes()
+		{
+			yield return new TestCaseData(CleanupMode.Delete(ConstraintResolutionBehavior.DropConstraints))
+				.SetArgDisplayNames(nameof(CleanupMode.Delete));
+			yield return new TestCaseData(CleanupMode.PreferTruncate(
+					constraintBehavior: ConstraintResolutionBehavior.DropConstraints))
+				.SetArgDisplayNames(nameof(CleanupMode.PreferTruncate));
+			yield return new TestCaseData(CleanupMode.Truncate(
+					constraintBehavior: ConstraintResolutionBehavior.DropConstraints))
+				.SetArgDisplayNames(nameof(CleanupMode.Truncate));
+		}
+
+		private static IEnumerable<TestCaseData> ForeignKeyCleanupCases()
+		{
+			foreach (var behavior in new[]
+			{
+				ConstraintResolutionBehavior.OrderTables,
+				ConstraintResolutionBehavior.DisableConstraints,
+				ConstraintResolutionBehavior.DropConstraints
+			})
+			{
+				var modes = new[]
+				{
+					(name: nameof(CleanupMode.Delete), mode: CleanupMode.Delete(behavior),
+						parentCommand: "DELETE FROM", childCommand: "DELETE FROM",
+						dropsUnrelatedForeignKey: behavior == ConstraintResolutionBehavior.DropConstraints),
+					(name: nameof(CleanupMode.PreferTruncate),
+						mode: CleanupMode.PreferTruncate(constraintBehavior: behavior),
+						parentCommand: behavior == ConstraintResolutionBehavior.DropConstraints
+							? "TRUNCATE TABLE" : "DELETE FROM",
+						childCommand: "TRUNCATE TABLE", dropsUnrelatedForeignKey: false),
+					(name: nameof(CleanupMode.Truncate),
+						mode: CleanupMode.Truncate(constraintBehavior: behavior),
+						parentCommand: "TRUNCATE TABLE", childCommand: "TRUNCATE TABLE",
+						dropsUnrelatedForeignKey: false)
+				};
+
+				foreach (var mode in modes)
+				foreach (var useProcedure in new[] { false, true })
+				{
+					yield return new TestCaseData(
+							mode.mode, behavior, mode.parentCommand, mode.childCommand,
+							mode.dropsUnrelatedForeignKey, useProcedure)
+						.SetName($"{nameof(ShouldApplyCleanupModeAndBehavior)}({mode.name}, {behavior}, " +
+							$"{(useProcedure ? "Procedure" : "Script")})");
+				}
+			}
 		}
 
 		private static Task<int> CountForeignKey(SqlEngine sql) =>

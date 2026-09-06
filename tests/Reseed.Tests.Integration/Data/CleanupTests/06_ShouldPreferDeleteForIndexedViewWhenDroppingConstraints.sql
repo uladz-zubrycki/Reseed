@@ -8,6 +8,15 @@ CREATE TABLE [User] (
 INSERT INTO [User] (FirstName, LastName, Age)
 VALUES (N'John', N'Doe', 30);
 
+CREATE TABLE [dbo].[Child] (
+	Id int NOT NULL PRIMARY KEY,
+	UserId int NOT NULL,
+	CONSTRAINT [FK_Child_User]
+		FOREIGN KEY ([UserId]) REFERENCES [dbo].[User] ([Id])
+);
+
+INSERT INTO [dbo].[Child] ([Id], [UserId]) VALUES (1, 1);
+
 GO
 
 CREATE VIEW [dbo].[viUser]

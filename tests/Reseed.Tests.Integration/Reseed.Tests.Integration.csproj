@@ -49,6 +49,9 @@
     <None Update="Data\CleanupTests\09_ShouldRollbackWhenConstraintCannotBeRecreated.sql">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Update="Data\CleanupTests\10_ShouldApplyCleanupModeAndBehavior.sql">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Update="Data\SingleTableTests\04_ShouldInsert_RowVersionMissing.sql">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
