@@ -31,6 +31,27 @@
     <None Update="Data\CleanupTests\03_ShouldUseDeleteIfExplicitlyRequested.sql">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Update="Data\CleanupTests\04_ShouldDropConstraintsToPreferTruncateForeignKeyTables.sql">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Data\CleanupTests\05_ShouldDropAndRecreateConstraintsForDelete.sql">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Data\CleanupTests\06_ShouldPreferDeleteForIndexedViewWhenDroppingConstraints.sql">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Data\CleanupTests\07_ShouldRecreateConstraintsAfterCustomCleanup.sql">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Data\CleanupTests\08_ShouldDropConstraintsForMutuallyReferencingTables.sql">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Data\CleanupTests\09_ShouldRollbackWhenConstraintCannotBeRecreated.sql">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Data\CleanupTests\10_ShouldApplyCleanupModeAndBehavior.sql">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Update="Data\SingleTableTests\04_ShouldInsert_RowVersionMissing.sql">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
