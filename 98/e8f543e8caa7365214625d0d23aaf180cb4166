@@ -1,0 +1,27 @@
+tests/Reseed.Tests.Integration/Data/CleanupTests/10_ShouldApplyCleanupModeAndBehavior.sql
+  s_899ff3b16c18cd::t_51bce340ddcf84 1-26
+tests/Reseed.Tests.Integration/Reseed.Tests.Integration.csproj
+  s_899ff3b16c18cd::t_51bce340ddcf84 52-54
+tests/Reseed.Tests.Integration/CleanupTests.cs
+  s_899ff3b16c18cd::t_51bce340ddcf84 2,62-64,72-74,181,183-190,193-194,203,219-220,229,243-244,253,266-375
+src/Reseed/Generation/Cleanup/DeleteScriptRenderer.cs
+  s_899ff3b16c18cd::t_95a0b5703ccd9d 25-28,35,38,41,46-62,65-66,70,72,83,88-92,95-99,106,122,126-131,134-136,143-148,150-161
+tests/Reseed.Tests.Integration/Data/CleanupTests/06_ShouldPreferDeleteForIndexedViewWhenDroppingConstraints.sql
+  s_899ff3b16c18cd::t_51bce340ddcf84 11-19
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.2",
+  "base_commit_sha": "98e8f543e8caa7365214625d0d23aaf180cb4166",
+  "prompts": {},
+  "sessions": {
+    "s_899ff3b16c18cd": {
+      "agent_id": {
+        "tool": "github-copilot-cli",
+        "id": "f686b01f-52aa-457f-98e1-1f257e74b308",
+        "model": "unknown"
+      },
+      "human_author": "Uladz Zubrytski <uladz@zubrycki.me>"
+    }
+  }
+}
