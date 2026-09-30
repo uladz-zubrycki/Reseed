@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Crexi-Main xmlns="http://tempuri.org/Crexi-Main.xsd">
+	<Invitation>
+		<Id>100000</Id>
+		<CreatorId>118</CreatorId>
+		<UserId>118</UserId>
+	</Invitation>
+	<User>
+		<Id>118</Id>
+		<InvitationId>100000</InvitationId>
+	</User>
+</Crexi-Main>
