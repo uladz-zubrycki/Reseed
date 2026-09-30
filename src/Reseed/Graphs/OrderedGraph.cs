@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
 using Reseed.Ordering;
+using Reseed.Schema;
 
 namespace Reseed.Graphs
 {
@@ -10,19 +11,23 @@ namespace Reseed.Graphs
 	{
 		public static readonly OrderedGraph<T> Empty = new(
 			Array.Empty<OrderedItem<T>>(),
-			Array.Empty<MutualReference<T>>());
+			Array.Empty<MutualReference<T>>(),
+			Array.Empty<Relation<T>>());
 
 		public readonly IReadOnlyCollection<OrderedItem<T>> Nodes;
 		public readonly IReadOnlyCollection<MutualReference<T>> MutualReferences;
+		public readonly IReadOnlyCollection<Relation<T>> Relations;
 
 		public int Count => Nodes.Count;
 
 		public OrderedGraph(
 			[NotNull] IReadOnlyCollection<OrderedItem<T>> nodes,
-			[NotNull] IReadOnlyCollection<MutualReference<T>> mutualReferences)
+			[NotNull] IReadOnlyCollection<MutualReference<T>> mutualReferences,
+			[NotNull] IReadOnlyCollection<Relation<T>> relations)
 		{
 			this.Nodes = nodes ?? throw new ArgumentNullException(nameof(nodes));
 			this.MutualReferences = mutualReferences ?? throw new ArgumentNullException(nameof(mutualReferences));
+			this.Relations = relations ?? throw new ArgumentNullException(nameof(relations));
 		}
 
 		public OrderedGraph<TOut> MapShallow<TOut>([NotNull] Func<T, TOut> mapper) where TOut : class
@@ -32,7 +37,8 @@ namespace Reseed.Graphs
 				this.Nodes
 					.Select(o => o.Map(mapper))
 					.ToArray(),
-				this.MutualReferences.Select(r => r.Map(mapper)).ToArray());
+				this.MutualReferences.Select(r => r.Map(mapper)).ToArray(),
+				this.Relations.Select(r => r.Map(mapper)).ToArray());
 		}
 
 		public OrderedGraph<T> FilterShallow([NotNull] Func<T, bool> predicate) 
@@ -42,6 +48,9 @@ namespace Reseed.Graphs
 				this.Nodes.Where(o => predicate(o.Value)).ToArray(),
 				this.MutualReferences
 					.Where(r => r.Items.All(predicate))
+					.ToArray(),
+				this.Relations
+					.Where(r => predicate(r.Source) && predicate(r.Target))
 					.ToArray());
 		}
 
@@ -51,7 +60,8 @@ namespace Reseed.Graphs
 
 			return new OrderedGraph<T>(
 				this.Nodes.Select(n => n.MapOrder(i => maxIndex - i)).ToArray(),
-				this.MutualReferences);
+				this.MutualReferences,
+				this.Relations);
 		}
 	}
 
@@ -89,6 +99,10 @@ namespace Reseed.Graphs
 					.ToArray(),
 				graph.MutualReferences
 					.Where(r => r.Items.All(mapping.ContainsKey))
+					.Select(r => r.Map(n => mapping[n]))
+					.ToArray(),
+				graph.Relations
+					.Where(r => mapping.ContainsKey(r.Source) && mapping.ContainsKey(r.Target))
 					.Select(r => r.Map(n => mapping[n]))
 					.ToArray());
 		}

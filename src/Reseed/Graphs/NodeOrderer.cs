@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
 using Reseed.Ordering;
+using Reseed.Schema;
 using Reseed.Utils;
 
 namespace Reseed.Graphs
@@ -31,7 +32,12 @@ namespace Reseed.Graphs
 					Fn.Identity<T>(),
 					(__, n) => new ReferencePath<T>(n));
 
-				return new OrderedGraph<T>(processedNodes.Values, mutualReferences);
+				var relations = processedNodes.Keys
+					.SelectMany(node => node.References.Select(reference =>
+						new Relation<T>(node, reference.Target, reference.Association)))
+					.ToArray();
+
+				return new OrderedGraph<T>(processedNodes.Values, mutualReferences, relations);
 			}
 		}
 

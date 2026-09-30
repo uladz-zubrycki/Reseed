@@ -21,7 +21,7 @@ namespace Reseed.Graphs
 			if (mergeMutual == null) throw new ArgumentNullException(nameof(mergeMutual));
 			
 			var orderMap = graph.Nodes.ToDictionary(o => o.Value);
-			var groups = BuildMutualGroups(graph.MutualReferences, r => orderMap[r]);
+			var groups = BuildMutualGroups(graph.MutualReferences, graph.Relations, r => orderMap[r]);
 
 			return Enumerate().ToArray();
 
@@ -71,10 +71,10 @@ namespace Reseed.Graphs
 
 		private static MutualGroup<T>[] BuildMutualGroups<T>(
 			IReadOnlyCollection<MutualReference<T>> references,
+			IReadOnlyCollection<Relation<T>> relations,
 			Func<T, OrderedItem<T>> getOrdered) where T : class
 		{
 			var itemSets = new List<HashSet<T>>();
-			var relationMap = new Dictionary<HashSet<T>, List<Relation<T>>>();
 
 			foreach (var reference in references)
 			{
@@ -83,7 +83,6 @@ namespace Reseed.Graphs
 				{
 					var newSet = new HashSet<T>(reference.Items);
 					itemSets.Add(newSet);
-					relationMap.Add(newSet, reference.Relations.ToList());
 				}
 				else
 				{
@@ -91,7 +90,6 @@ namespace Reseed.Graphs
 					{
 						set.Add(item);
 					}
-					relationMap[set].AddRange(reference.Relations);
 				}
 			}
 
@@ -101,8 +99,8 @@ namespace Reseed.Graphs
 					var items = s.Select(getOrdered).ToArray();
 					return new MutualGroup<T>(
 						items,
-						relationMap[s]
-							.Distinct()
+						relations
+							.Where(r => s.Contains(r.Source) && s.Contains(r.Target))
 							.ToArray());
 				})
 				.ToArray();

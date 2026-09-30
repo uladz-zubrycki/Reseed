@@ -12,21 +12,20 @@ namespace Reseed.Ordering
 	{
 		public static IReadOnlyCollection<OrderedItem<ITableContainer>> Resolve(OrderedGraph<Table> tables)
 		{
-			var getTableRelations = BuildRelationsGetter(tables.MutualReferences);
 			return MutualReferenceResolver.MergeChunks(
 					tables,
 					ts => ts
 						.Select(o => o.Map(t => (ITableContainer) t))
 						.ToArray(),
-					ts => OrderMutualTables(ts, getTableRelations))
+					OrderMutualTables)
 				.Flatten();
 		}
 
 		private static OrderedItem<ITableContainer>[] OrderMutualTables(
-			MutualGroup<Table> tables,
-			Func<Table, Relation<Table>[]> getTableRelations)
+			MutualGroup<Table> tables)
 		{
 			var tableGroup = tables.Items.Select(o => o.Value).ToArray();
+			var getTableRelations = BuildRelationsGetter(tables.Relations);
 			var rows = CollectTableRows(tableGroup, getTableRelations);
 			var orderedRows = NodeOrderer<TableRow>.Order(rows);
 
@@ -160,11 +159,10 @@ namespace Reseed.Ordering
 		}
 
 		private static Func<T, Relation<T>[]> BuildRelationsGetter<T>(
-			IReadOnlyCollection<MutualReference<T>> references) where T : class
+			IReadOnlyCollection<Relation<T>> relations) where T : class
 		{
 			var relationsMap =
-				references
-					.SelectMany(r => r.Relations)
+				relations
 					.GroupBy(r => r.Source)
 					.ToDictionary(gr => gr.Key,
 						gr => gr.Distinct().ToArray());
