@@ -1,0 +1,41 @@
+tests/Reseed.Tests.Integration/Data/InvitationForeignKeyOrderTests/SeedCycle.xml
+  s_1fc900a4daae47::t_6ac41c3d978d45 1-12
+tests/Reseed.Tests.Integration/Data/InvitationForeignKeyOrderTests/Seed.xml
+  s_1fc900a4daae47::t_6ac41c3d978d45 1-10
+src/Reseed/Graphs/MutualReferenceResolver.cs
+  s_1fc900a4daae47::t_a51372e9fce303 24,74,102-103
+src/Reseed/Graphs/NodeOrderer.cs
+  s_1fc900a4daae47::t_83f04d48c5676a 6
+  s_1fc900a4daae47::t_a51372e9fce303 35-40
+src/Reseed/Graphs/OrderedGraph.cs
+  s_1fc900a4daae47::t_6ac41c3d978d45 6
+  s_1fc900a4daae47::t_a51372e9fce303 14-15,19,25-26,30,40-41,51-53,63-64,103-106
+tests/Reseed.Tests.Integration/Reseed.Tests.Integration.csproj
+  s_1fc900a4daae47::t_83f04d48c5676a 25-33
+tests/Reseed.Tests.Integration/Data/InvitationForeignKeyOrderTests/Schema.sql
+  s_1fc900a4daae47::t_6ac41c3d978d45 1-23
+src/Reseed/Ordering/TableMutualReferenceResolver.cs
+  s_1fc900a4daae47::t_a51372e9fce303 20,25,28,162,165
+src/Reseed/Properties/AssemblyInfo.cs
+  s_1fc900a4daae47::t_6ac41c3d978d45 1-3
+tests/Reseed.Tests.Integration/InvitationForeignKeyOrderTests.cs
+  s_1fc900a4daae47::t_83f04d48c5676a 1,3-18,20-116,127-162,166-184
+  s_1fc900a4daae47::t_deb1cb56994d9e 2,19,117-123,125
+  s_1fc900a4daae47::t_5a743d35536065 124,126,163-165
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "f5174ab32878350f48f90e3afe0f3bd5d8cd1582",
+  "prompts": {},
+  "sessions": {
+    "s_1fc900a4daae47": {
+      "agent_id": {
+        "tool": "github-copilot-cli",
+        "id": "c8504320-6806-4ea1-91f1-47b605a54957",
+        "model": "unknown"
+      },
+      "human_author": "Uladz Zubrytski <uladz@zubrycki.me>"
+    }
+  }
+}
