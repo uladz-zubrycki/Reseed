@@ -12,8 +12,13 @@ namespace Reseed.Configuration.Cleanup
 		OrderTables,
 
 		/// <summary>
-		/// Temporary disables all foreign key constraints to be able to execute DELETE FROM.
+		/// Temporarily disables all foreign key constraints to be able to execute DELETE FROM.
 		/// </summary>
-		DisableConstraints
+		DisableConstraints,
+
+		/// <summary>
+		/// Drops all foreign key constraints before cleanup and recreates them afterwards.
+		/// </summary>
+		DropConstraints
 	}
 }

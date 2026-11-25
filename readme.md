@@ -65,7 +65,7 @@ See the [Examples](https://github.com/v-zubritsky/Reseed#examples) section below
 
 * It's possible to generate scripts for either data seeding or cleanup only or both;
 * Reseed is able to order tables graph (tables are nodes, foreign keys are edges), so that foreign key constraints are respected in the insertion and deletion scripts;
-* Alternatively Reseed could simply disable foreign key constraints to deal with such data dependecies;
+* Alternatively Reseed can disable or drop and recreate foreign key constraints to deal with such data dependencies;
 * It detects cyclic foreign key dependencies on both tables and rows levels, so that loops don't break anything. More on this in [Constraints resolution](#constraints-resolution);
 * You could specify [Custom cleanup scripts](#custom-cleanup-scripts) for specific tables to ignore rows during data cleanup;
 * Data schema is read from the database and there is no need to describe it manually (e.g NDbUnit requires XSD files);
@@ -250,7 +250,7 @@ Also you should specify how each table will be cleaned. There are a few cleanup 
     CleanupMode.PreferTruncate(ObjectName[], ConstraintResolutionBehavior); 
     ``` 
 
-    Pretty much as the previous one, but if Reseed finds that table has no incoming foreign keys or indexed view dependencies, then `TRUNCATE TABLE` statement is used, which should be a lot faster; `DELETE FROM` is used otherwise. It's possible to explicitly specify tables to use `DELETE FROM` for and to choose constraints resolution behavior.
+    Pretty much as the previous one, but Reseed uses the faster `TRUNCATE TABLE` statement where possible. By default, `DELETE FROM` is used for tables with incoming foreign keys or indexed view dependencies. With `ConstraintResolutionBehavior.DropConstraints`, incoming foreign keys are dropped and recreated so those tables can also be truncated; indexed view dependencies still require `DELETE FROM`. It's possible to explicitly specify tables to use `DELETE FROM` for.
     
 3. **Truncate**
 
@@ -258,7 +258,7 @@ Also you should specify how each table will be cleaned. There are a few cleanup 
      CleanupMode.Truncate(ObjectName[], ConstraintResolutionBehavior);
     ```
 
-    Reseed uses `TRUNCATE TABLE` for every table in spite of the foreign keys presence. It drops foreign keys and recreates them as it's not possible to use `TRUNCATE TABLE` statement otherwise. Similarly to the `PreferTruncate` mode you might force usage `DELETE FROM` for some of the tables and choose constraints resolution behavior for those. 
+    Reseed uses `TRUNCATE TABLE` for every table regardless of foreign keys. It drops foreign keys and recreates them because `TRUNCATE TABLE` cannot otherwise be used. Similarly to the `PreferTruncate` mode, you can force `DELETE FROM` for specific tables and choose the constraint resolution behavior for those tables.
     
 4. **Switch tables** (Work in progress)
 
@@ -427,7 +427,17 @@ DataProviders.Inline(builder =>
 ```
 
 # Constraints resolution
-TBD
+
+Cleanup modes accept a `ConstraintResolutionBehavior`:
+
+- `OrderTables` orders `DELETE FROM` statements by foreign key dependencies and temporarily disables constraints only for mutually dependent tables. This is the default.
+- `DisableConstraints` temporarily disables all applicable foreign keys around `DELETE FROM` statements.
+- `DropConstraints` drops applicable foreign keys before cleanup and recreates them afterward. In `PreferTruncate` mode, this also permits FK-related tables to use `TRUNCATE TABLE`; tables referenced by indexed views still use `DELETE FROM`.
+
+```csharp
+CleanupMode.PreferTruncate(
+    constraintBehavior: ConstraintResolutionBehavior.DropConstraints);
+```
 
 # Data Extension
 
